@@ -41,6 +41,7 @@ sources_common = """
 	src/pad_control.c
 	src/rng.c
 	src/driver/drv_eth_xc.c
+	src/driver/phy.c
 	src/driver/rpec_ethmac_rpec0.c
 	src/driver/rpec_ethmac_rpec1.c
 	src/driver/rpu_ethmac0.c

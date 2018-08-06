@@ -4,6 +4,7 @@
 #include "driver/ethmac_xpec_regdef.h"
 #include "options.h"
 #include "pad_control.h"
+#include "phy.h"
 #include "phy_std_regs.h"
 #include "systime.h"
 #include "uprintf.h"
@@ -57,8 +58,8 @@ typedef struct STRUCTURE_DRV_ETH_XC_HANDLE
 {
 	unsigned int uiEthPortNr;       /* The Ethernet port 0-3. */
 	unsigned int uiXC;              /* The XC instance 0-1. */
-	unsigned int uiExtPhyCtrlInst;
-	unsigned int uiExtPhyAddress;
+	unsigned int auiExtPhyCtrlInst[2];
+	unsigned int auiExtPhyAddress[2];
 } DRV_ETH_XC_HANDLE_T;
 
 
@@ -304,45 +305,6 @@ static int extphy_read(unsigned int uiPhyCtrlInst, unsigned int uiPhy, unsigned 
 		{
 			*pusData = usData;
 		}
-	}
-
-	return iResult;
-}
-
-
-
-static int extphy_write(unsigned int uiPhyCtrlInst, unsigned int uiPhy, unsigned int uiReg, unsigned short usData)
-{
-	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
-	int iResult;
-	unsigned long ulValue;
-
-
-	/* Be pessimistic. */
-	iResult = -1;
-
-	if( uiPhyCtrlInst<2U && uiPhy<32U && uiReg<32U )
-	{
-		/* Get the pointer to the PHY control. */
-		ptPhyCtrl = aptPhyCtrl[uiPhyCtrlInst];
-
-		ulValue  = HOSTMSK(int_phy_ctrl_miimu_preamble);
-		ulValue |= HOSTMSK(int_phy_ctrl_miimu_mdc_period);
-		ulValue |= HOSTMSK(int_phy_ctrl_miimu_rta);
-		ulValue |= uiPhy << HOSTSRT(int_phy_ctrl_miimu_phyaddr);
-		ulValue |= uiReg << HOSTSRT(int_phy_ctrl_miimu_regaddr);
-		ulValue |= ((unsigned long)usData) << HOSTSRT(int_phy_ctrl_miimu_data);
-		ulValue |= HOSTMSK(int_phy_ctrl_miimu_opmode);
-		ulValue |= HOSTMSK(int_phy_ctrl_miimu_snrdy);
-		ptPhyCtrl->ulInt_phy_ctrl_miimu = ulValue;
-
-		/* FIXME: add a timeout here. */
-		do
-		{
-			ulValue  = ptPhyCtrl->ulInt_phy_ctrl_miimu;
-		} while( (ulValue & HOSTMSK(int_phy_ctrl_miimu_snrdy))!=0 );
-
-		iResult = 0;
 	}
 
 	return iResult;
@@ -811,6 +773,7 @@ static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unus
 	int iResult;
 	unsigned short usValue;
 	unsigned int uiLinkStatus;
+	unsigned int uiPort;
 
 
 	uiLinkStatus = 0;
@@ -826,9 +789,10 @@ static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unus
 			uiLinkStatus = 1;
 		}
 	}
-	else
+	else if( tHandle.uiEthPortNr<4U )
 	{
-		iResult = extphy_read(tHandle.uiExtPhyCtrlInst, tHandle.uiExtPhyAddress, PHY_REG_STATUS, &usValue);
+		uiPort = tHandle.uiEthPortNr - 2U;
+		iResult = extphy_read(tHandle.auiExtPhyCtrlInst[uiPort], tHandle.auiExtPhyAddress[uiPort], PHY_REG_STATUS, &usValue);
 		if( iResult==0 )
 		{
 			usValue &= MSK_PHY_STATUS_LINK_UP;
@@ -1054,230 +1018,54 @@ static void pfifo_init(unsigned int uPortNo)
 
 
 
-static int sys_phy_write(unsigned int uMiimuPhyAddr, unsigned int uMiimuReqAddr, unsigned int usData)
-{
-	HOSTDEF(ptAsicCtrlArea);
-	HOSTADEF(PHY_CTRL) *ptPhyCtrlArea;
-	unsigned long ulMiimuUnitSel;
-	unsigned long ulValue;
-
-
-	/* internal PHYs */
-	ulMiimuUnitSel = 0;
-
-	/* exotic case: INTPHY connected with XC0.Port1 MDIO */
-	ulValue   = ptAsicCtrlArea->asIo_config[1].ulConfig;
-	ulValue  &= HOSTMSK(io_config1_mask_sel_xc1_mdio);
-	ulValue >>= HOSTSRT(io_config1_mask_sel_xc1_mdio);
-	if( ulValue==2 )
-	{
-		ulMiimuUnitSel = 1;
-	}
-
-	ptPhyCtrlArea = aptPhyCtrl[ulMiimuUnitSel];
-
-	ulValue  = 1U << HOSTSRT(int_phy_ctrl_miimu_preamble);
-	ulValue |= 0U << HOSTSRT(int_phy_ctrl_miimu_mdc_period);
-	ulValue |= 1U << HOSTSRT(int_phy_ctrl_miimu_rta);
-	ulValue |= uMiimuReqAddr << HOSTSRT(int_phy_ctrl_miimu_regaddr);
-	ulValue |= uMiimuPhyAddr << HOSTSRT(int_phy_ctrl_miimu_phyaddr);
-	ulValue |= usData << HOSTSRT(int_phy_ctrl_miimu_data);
-	ulValue |= HOSTMSK(int_phy_ctrl_miimu_opmode);
-	ulValue |= HOSTMSK(int_phy_ctrl_miimu_snrdy);
-	ptPhyCtrlArea->ulInt_phy_ctrl_miimu = ulValue;
-
-	/* Wait until the operation finished. */
-	/* FIXME: add a timeout here. */
-	do
-	{
-		ulValue  = ptPhyCtrlArea->ulInt_phy_ctrl_miimu;
-		ulValue &= HOSTMSK(int_phy_ctrl_miimu_snrdy);
-	} while( ulValue!=0 );
-
-	return 0;
-}
-
-/* write PHY register in special bank */
-static void sys_phy_write_bank(unsigned int uiPhy, unsigned int uiBank, unsigned int uiReg, unsigned uiValue)
-{
-	/* TSTMODE bit in register 20 (TSTCNTL) should be toggled from 0->1->0->1 */
-	sys_phy_write(uiPhy, 20, 0x0000);
-	sys_phy_write(uiPhy, 20, 0x0400);
-	sys_phy_write(uiPhy, 20, 0x0000);
-	sys_phy_write(uiPhy, 20, 0x0400);
-
-	/* 1. Write the data to TSTWRITE register. */
-	sys_phy_write(uiPhy, 23, uiValue);
-
-	/* 2. Write to the TSTCNTL with the WRITE ADDRESS set to the register address and the WRITE bit set to 1. */
-	sys_phy_write(uiPhy, 20, 0x4400 | (uiBank << 11) | (uiReg << 5) | uiReg); /* avoid read-back bug on register VM_DAC_CONTROL1 */
-
-	/* exit test mode */
-	sys_phy_write(uiPhy, 20, 0x0000);
-}
-
-
-
-#define INTPHY_ADDR 0
-
-#define REG_BANK_DSP   0
-#define REG_BANK_WOL   1
-#define REG_BANK_BIST  3
-#define REG_BANK_VMDAC 7
-
-static void intphy_reset(void)
-{
-	HOSTDEF(ptIntPhyCfgComArea);
-	unsigned long ulValue;
-	unsigned int uiPhy;
-
-
-	/* Reset the internal PHY. */
-	ulValue = HOSTMSK(int_phy_cfg_phy_ctrl_phy_reset);
-	ptIntPhyCfgComArea->ulInt_phy_cfg_phy_ctrl = ulValue;
-
-	/* Wait at least 100us. */
-	systime_delay_ms(2U);
-
-	/* Set the configuration with activated reset. */
-	ulValue  = g_t_romloader_options.t_ethernet.ulPhyControl;
-	ulValue |= HOSTMSK(int_phy_cfg_phy_ctrl_phy_reset);
-	ulValue |= HOSTMSK(int_phy_cfg_phy_ctrl_phy0_enable);
-	ulValue |= HOSTMSK(int_phy_cfg_phy_ctrl_phy1_enable);
-	ptIntPhyCfgComArea->ulInt_phy_cfg_phy_ctrl = ulValue;
-
-	/* Wait 1ms for the PHY reset. */
-	systime_delay_ms(2U);
-
-	/* Set the configuration with deactivated reset. */
-	ulValue  = g_t_romloader_options.t_ethernet.ulPhyControl;
-	ulValue |= HOSTMSK(int_phy_cfg_phy_ctrl_phy0_enable);
-	ulValue |= HOSTMSK(int_phy_cfg_phy_ctrl_phy1_enable);
-	ptIntPhyCfgComArea->ulInt_phy_cfg_phy_ctrl = ulValue;
-
-	/* Wait 1ms for the PHY reset release. */
-	systime_delay_ms(2U);
-
-	for(uiPhy=INTPHY_ADDR; uiPhy<(INTPHY_ADDR+2); ++uiPhy)
-	{
-		/* PLL register: This is to program the PLL divider value for reference clock of 25MHz. Default value was for reference frequency of 24MHz */
-		sys_phy_write_bank(uiPhy, REG_BANK_BIST, 0x1c, 0x0000); /* FR_PLL_DIV0 */
-		sys_phy_write_bank(uiPhy, REG_BANK_BIST, 0x1d, 0x0280); /* FR_PLL_DIV1 */
-
-		systime_delay_ms(2); /* 1ms */
-
-		/* MDIX */
-		sys_phy_write(uiPhy, 17, 0x0040); /* MODE CONTROL / STATUS */
-		/* IF we are programming the port for MDIX mode then the VM DAC register setting should be as follows */
-		sys_phy_write_bank(uiPhy, REG_BANK_VMDAC, 0x02, 0xF07B); /* VM_DAC_CONTROL0 */
-		sys_phy_write_bank(uiPhy, REG_BANK_VMDAC, 0x03, 0x0004); /* VM_DAC_CONTROL1 */
-
-		/* restart AutoNeg */
-		sys_phy_write(uiPhy, 0, 0x1200);
-	}
-}
-
-
-
-static void initialize_standard_phy(unsigned int uiPhyCtrlInst, unsigned int uiPhyAddress)
+static int intphy_reset(void)
 {
 	int iResult;
-	unsigned short usData;
+	const unsigned char *pucMacro;
 
 
-	/* Enable all capabilities for the auto negotiation process. */
-	iResult = extphy_read(uiPhyCtrlInst, uiPhyAddress, PHY_REG_AUTO_NEG_ADVERTISEMENT, &usData);
-	if( iResult==0 )
+	/* Get a pointer to the macro data. */
+	pucMacro = g_t_romloader_options.t_ethernet.tPhyMacroIntern.aucMacro;
+
+	/* There is no default for the initialization of the internal PHY.
+	 * An empty macro is an error.
+	 */
+	if( *pucMacro==0x00U )
 	{
-		usData |= MSK_PHY_ANADV_10_BASE_T;
-		usData |= MSK_PHY_ANADV_10_BASE_T_FDX;
-		usData |= MSK_PHY_ANADV_100_BASE_TX;
-		usData |= MSK_PHY_ANADV_100_BASE_TX_FDX;
-		iResult = extphy_write(uiPhyCtrlInst, uiPhyAddress, PHY_REG_AUTO_NEG_ADVERTISEMENT, usData);
-		if( iResult==0 )
-		{
-			/* Enable and restart the auto negotiation process. */
-			usData  = MSK_PHY_CTRL_AUTO_NEG_RESTART;
-			usData |= MSK_PHY_CTRL_AUTO_NEG_ENABLE;
-			extphy_write(uiPhyCtrlInst, uiPhyAddress, PHY_REG_CONTROL, usData);
-		}
+		iResult = -1;
 	}
+	else
+	{
+		iResult = phy_setup_execute_sequence(pucMacro, sizeof(PHY_MACRO_T));
+	}
+
+	return iResult;
 }
 
 
 
-static void deactivate_standard_phy(unsigned int uiPhyCtrlInst, unsigned int uiPhyAddress)
+static int extphy_reset(DRV_ETH_XC_HANDLE_T *ptHandle)
 {
-	unsigned short usData;
-
-
-	/* Power down. */
-	usData = MSK_PHY_CTRL_POWER_DOWN;
-	extphy_write(uiPhyCtrlInst, uiPhyAddress, PHY_REG_CONTROL, usData);
-}
-
-
-
-static void extphy_reset(DRV_ETH_XC_HANDLE_T *ptHandle)
-{
-	HOSTDEF(ptAsicCtrlArea);
-	unsigned long ulValue;
+	const unsigned char *pucMacro;
 	int iResult;
-	unsigned int uiDetectedPhyCnt;
-	unsigned int uiExpectedPhyIdx;
-	unsigned int uiPhyCtrlInst;
-	unsigned int uiPhyAddress;
-	unsigned short usData;
-	unsigned long ulPhyID;
 
 
-	ulValue  = HOSTMSK(reset_ctrl_EN_RES_REQ_OUT);
-	ulValue |= 0U << HOSTSRT(reset_ctrl_RES_REQ_OUT);
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->ulReset_ctrl = ulValue;
+	/* Get a pointer to the macro data. */
+	pucMacro = g_t_romloader_options.t_ethernet.tPhyMacroExtern.aucMacro;
 
-	systime_delay_ms(2); /* minimum 1ms */
-
-	ulValue  = HOSTMSK(reset_ctrl_EN_RES_REQ_OUT);
-	ulValue |= 1U << HOSTSRT(reset_ctrl_RES_REQ_OUT);
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->ulReset_ctrl = ulValue;
-
-	systime_delay_ms(11); /* minimum 10ms */
-
-	/* Scan the complete address range for devices. */
-	uiExpectedPhyIdx = ptHandle->uiEthPortNr & 1U;
-	uiDetectedPhyCnt = 0;
-	for(uiPhyCtrlInst=0U; uiPhyCtrlInst<2U; ++uiPhyCtrlInst)
+	/* Use the standard setup if the macro is empty.
+	 * A macro starting with a "0" is empty.
+	 */
+	if( *pucMacro==0x00U )
 	{
-		for(uiPhyAddress=0U; uiPhyAddress<32U; ++uiPhyAddress)
-		{
-			iResult = extphy_read(uiPhyCtrlInst, uiPhyAddress, PHY_REG_ID_1, &usData);
-			if( iResult==0 )
-			{
-				ulPhyID  = (unsigned long)usData;
-				iResult = extphy_read(uiPhyCtrlInst, uiPhyAddress, PHY_REG_ID_2, &usData);
-				if( iResult==0 )
-				{
-					ulPhyID |= ((unsigned long)usData) << 16U;
-					if( ulPhyID!=0x00000000 && ulPhyID!=0xffffffff )
-					{
-						if( uiDetectedPhyCnt==uiExpectedPhyIdx )
-						{
-							initialize_standard_phy(uiPhyCtrlInst, uiPhyAddress);
-							ptHandle->uiExtPhyCtrlInst = uiPhyCtrlInst;
-							ptHandle->uiExtPhyAddress = uiPhyAddress;
-						}
-						else
-						{
-							deactivate_standard_phy(uiPhyCtrlInst, uiPhyAddress);
-						}
-						++uiDetectedPhyCnt;
-					}
-				}
-			}
-		}
+		iResult = extphy_auto_setup(ptHandle->auiExtPhyCtrlInst, ptHandle->auiExtPhyAddress);
 	}
+	else
+	{
+		iResult = phy_setup_execute_sequence(pucMacro, sizeof(PHY_MACRO_T));
+	}
+
+	return iResult;
 }
 
 
@@ -1503,8 +1291,10 @@ const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser)
 		/* Initialize the internal handle. */
 		tHandle.uiEthPortNr = uiPort;
 		tHandle.uiXC = uiPort & 1;
-		tHandle.uiExtPhyCtrlInst = 0;
-		tHandle.uiExtPhyAddress = 0;
+		tHandle.auiExtPhyCtrlInst[0] = 0;
+		tHandle.auiExtPhyCtrlInst[1] = 0;
+		tHandle.auiExtPhyAddress[0] = 0;
+		tHandle.auiExtPhyAddress[1] = 0;
 
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);
@@ -1612,8 +1402,10 @@ const NETWORK_IF_T *drv_eth_xc_initialize_lvds(unsigned int uiPort, void **ppvUs
 		/* Initialize the internal handle. */
 		tHandle.uiEthPortNr = uiPort;
 		tHandle.uiXC = uiPort & 1;
-		tHandle.uiExtPhyCtrlInst = 0;
-		tHandle.uiExtPhyAddress = 0;
+		tHandle.auiExtPhyCtrlInst[0] = 0;
+		tHandle.auiExtPhyCtrlInst[1] = 0;
+		tHandle.auiExtPhyAddress[0] = 0;
+		tHandle.auiExtPhyAddress[1] = 0;
 
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);

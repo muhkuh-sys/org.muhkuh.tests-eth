@@ -17,6 +17,14 @@
 #define __BOOT_DRV_ETH_H__
 
 
+
+typedef struct PHY_MACRO_STRUCT
+{
+	unsigned char  aucMacro[512];
+} PHY_MACRO_T;
+
+
+
 typedef struct STRUCT_ETHERNET_CONFIGURATION
 {
 	unsigned char aucMac[6];
@@ -36,6 +44,8 @@ typedef struct STRUCT_ETHERNET_CONFIGURATION
 	unsigned char aucPadCtrlExtCommon[4];
 	unsigned char aucPadCtrlExt0[16];
 	unsigned char aucPadCtrlExt1[16];
+	PHY_MACRO_T tPhyMacroIntern;
+	PHY_MACRO_T tPhyMacroExtern;
 } ETHERNET_CONFIGURATION_T;
 
 

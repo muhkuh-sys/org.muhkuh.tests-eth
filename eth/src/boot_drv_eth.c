@@ -14,19 +14,26 @@
 static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUser)
 {
 	NETWORK_DRIVER_T *ptNetworkDriver;
-        ETH2_PACKET_T *ptPkt;
-        UDP_ASSOCIATION_T *ptAssoc;
+	ETH2_PACKET_T *ptPkt;
+	UDP_ASSOCIATION_T *ptAssoc;
 
 
-        if( sizPacket>0 )
-        {
-                /* The user data is the pointer to the network driver. */
-        	ptNetworkDriver = (NETWORK_DRIVER_T*)pvUser;
-                ptAssoc = ptNetworkDriver->ptEchoUdpAssoc;
+	if( sizPacket>0 )
+	{
+		/* The user data is the pointer to the network driver. */
+		ptNetworkDriver = (NETWORK_DRIVER_T*)pvUser;
+		ptAssoc = ptNetworkDriver->ptEchoUdpAssoc;
 
-                /* Cast the data to a eth2 packet. */
-                ptPkt = (ETH2_PACKET_T*)pvData;
-        }
+		/* Cast the data to a eth2 packet. */
+		ptPkt = (ETH2_PACKET_T*)pvData;
+
+		/* Maybe do something with the data, like an XOR? */
+
+		/* Send the data back. */
+		ptAssoc->ulRemoteIp = ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp;
+		ptAssoc->uiRemotePort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usSrcPort;
+		udp_send_packet(ptPkt, sizPacket, ptAssoc);
+	}
 }
 
 

@@ -31,15 +31,12 @@ typedef struct STRUCT_ETHERNET_CONFIGURATION
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;
-	unsigned long ulDnsIp;
 	unsigned long ulPhyControl;
 	unsigned short usLinkUpDelay;
 	unsigned short usArpTimeout;
 	unsigned short usDhcpTimeout;
-	unsigned short usDnsTimeout;
 	unsigned char ucArpRetries;
 	unsigned char ucDhcpRetries;
-	unsigned char ucDnsRetries;
 	unsigned char aucMmioCfg[2];
 	unsigned char aucPadCtrlExtCommon[4];
 	unsigned char aucPadCtrlExt0[16];

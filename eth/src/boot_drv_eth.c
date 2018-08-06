@@ -4,7 +4,6 @@
 #include "stack/buckets.h"
 #include "stack/arp.h"
 #include "stack/dhcp.h"
-#include "stack/dns.h"
 #include "stack/eth.h"
 #include "stack/icmp.h"
 #include "stack/ipv4.h"
@@ -69,7 +68,6 @@ int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, const char *pcName)
 		icmp_init();
 		udp_init();
 		dhcp_init();
-		dns_init();
 
 		ptNetworkDriver->f_is_configured = 1;
 		ptNetworkDriver->pcName = pcName;
@@ -111,7 +109,6 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
                 /* process cyclic events here */
                 arp_timer();
                 dhcp_timer();
-                dns_timer();
 
                 systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
         }

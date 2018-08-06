@@ -431,14 +431,6 @@ static void dhcp_recHandler(void *pvData, unsigned int sizDhcpLength, void *pvUs
 							g_t_romloader_options.t_ethernet.ulNetmask = ulNewNetmask;
 							g_t_romloader_options.t_ethernet.ulGatewayIp = ulNewGatewayIp;
 
-							/* Check for the domain name server option (NOTE: this is optional, the server IP can be preset or the server name is an IP). */
-							pucOpt = dhcp_getOption(ptDhcpPacket, sizDhcpLength, DHCP_OPT_DomainNameServer);
-							if( pucOpt!=NULL && pucOpt[1]>=4 )
-							{
-								ulNewDnsIp = IP_ADR(pucOpt[2], pucOpt[3], pucOpt[4], pucOpt[5]);
-								g_t_romloader_options.t_ethernet.ulDnsIp = ulNewDnsIp;
-							}
-
 							/* cleanup */
 							dhcp_cleanup();
 

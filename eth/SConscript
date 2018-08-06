@@ -54,7 +54,6 @@ sources_common = """
 	src/stack/buckets.c
 	src/stack/checksum.c
 	src/stack/dhcp.c
-	src/stack/dns.c
 	src/stack/eth.c
 	src/stack/icmp.c
 	src/stack/ipv4.c

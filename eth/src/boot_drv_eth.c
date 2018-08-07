@@ -154,7 +154,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		 */
 		if( uiLinkState==0U )
 		{
-			uprintf("%s: link down\n");
+			uprintf("%s: link down\n", pcName);
 			tState = NETWORK_STATE_NoLink;
 		}
 		else
@@ -176,7 +176,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		 */
 		if( uiLinkState==0U )
 		{
-			uprintf("%s: link down\n");
+			uprintf("%s: link down\n", pcName);
 			tState = NETWORK_STATE_NoLink;
 		}
 		else
@@ -207,7 +207,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		/* Wait until the DHCP request is finished. */
 		if( uiLinkState==0U )
 		{
-			uprintf("%s: link down\n");
+			uprintf("%s: link down\n", pcName);
 			tState = NETWORK_STATE_NoLink;
 		}
 		else
@@ -247,7 +247,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		/* Echo packets until link goes down. */
 		if( uiLinkState==0U )
 		{
-			uprintf("%s: link down\n");
+			uprintf("%s: link down\n", pcName);
 			tState = NETWORK_STATE_NoLink;
 		}
 		break;

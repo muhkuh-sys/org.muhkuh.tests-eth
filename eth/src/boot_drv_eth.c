@@ -38,7 +38,7 @@ static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUs
 
 
 
-int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, const char *pcName)
+int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface, const char *pcName)
 {
 	int iResult;
 	const NETWORK_IF_T *ptNetworkIf;
@@ -49,18 +49,33 @@ int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, const char *pcName)
 
 	uprintf("%s: Initializing interface...\n", pcName);
 
-	/* INTPHY port 0 */
-	ptNetworkIf = drv_eth_xc_initialize(0, &pvUser);
-	/* INTPHY port 1 */
-//	ptNetworkIf = drv_eth_xc_initialize(1, &pvUser);
-	/* EXTPHY port 0 */
-//	ptNetworkIf = drv_eth_xc_initialize(2, &pvUser);
-	/* EXTPHY port 1 */
-//	ptNetworkIf = drv_eth_xc_initialize(3, &pvUser);
-	/* LVDS port 0 */
-//	ptNetworkIf = drv_eth_xc_initialize_lvds(0, &pvUser);
-	/* LVDS port 1 */
-//	ptNetworkIf = drv_eth_xc_initialize_lvds(1, &pvUser);
+	switch(tInterface)
+	{
+	case INTERFACE_INTPHY0:
+		/* INTPHY port 0 */
+		ptNetworkIf = drv_eth_xc_initialize(0, &pvUser);
+		break;
+	case INTERFACE_INTPHY1:
+		/* INTPHY port 1 */
+		ptNetworkIf = drv_eth_xc_initialize(1, &pvUser);
+		break;
+	case INTERFACE_EXTPHY0:
+		/* EXTPHY port 0 */
+		ptNetworkIf = drv_eth_xc_initialize(2, &pvUser);
+		break;
+	case INTERFACE_EXTPHY1:
+		/* EXTPHY port 1 */
+		ptNetworkIf = drv_eth_xc_initialize(3, &pvUser);
+		break;
+	case INTERFACE_LVDS0:
+		/* LVDS port 0 */
+		ptNetworkIf = drv_eth_xc_initialize_lvds(0, &pvUser);
+		break;
+	case INTERFACE_LVDS1:
+		/* LVDS port 1 */
+		ptNetworkIf = drv_eth_xc_initialize_lvds(1, &pvUser);
+		break;
+	}
 
 	if( ptNetworkIf==NULL )
 	{

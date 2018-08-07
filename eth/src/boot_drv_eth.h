@@ -46,6 +46,19 @@ typedef struct STRUCT_ETHERNET_CONFIGURATION
 } ETHERNET_CONFIGURATION_T;
 
 
+
+typedef enum INTERFACE_ENUM
+{
+	INTERFACE_INTPHY0  = 0,
+	INTERFACE_INTPHY1  = 1,
+	INTERFACE_EXTPHY0  = 2,
+	INTERFACE_EXTPHY1  = 3,
+	INTERFACE_LVDS0    = 4,
+	INTERFACE_LVDS1    = 5
+} INTERFACE_T;
+
+
+
 typedef enum NETWORK_STATE_ENUM
 {
 	NETWORK_STATE_NoLink             = 0,
@@ -72,7 +85,7 @@ typedef struct NETWORK_DRIVER_STRUCT
 
 
 
-int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, const char *pcName);
+int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface, const char *pcName);
 void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver);
 
 

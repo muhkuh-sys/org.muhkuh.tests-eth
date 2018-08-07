@@ -61,7 +61,8 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		uprintf(".   Verbose: 0x%08x\n", ptTestParams->ulVerbose);
 	}
 
-	iResult = boot_drv_eth_init(&tNetworkDriver, "CH0");
+//	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY0, "CH0");
+	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY1, "CH1");
 	while(1)
 	{
 		ethernet_cyclic_process(&tNetworkDriver);

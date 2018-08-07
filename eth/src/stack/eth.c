@@ -8,7 +8,6 @@
  ***************************************************************************/
 
 
-#include <stddef.h>
 #include <string.h>
 
 #include "stack/eth.h"
@@ -80,7 +79,6 @@ void eth_process_packet(void)
 	ptPacket = tNetworkIf.pfnGetReceivedPacket(&sizPacket, pvDrvEthUser);
 	if( ptPacket!=NULL )
 	{
-//		hexdump_debug(ptPacket, sizPacket);
 		/* Check the size of the received packet. */
 		if( sizPacket<sizeof(ETH2_HEADER_T) )
 		{

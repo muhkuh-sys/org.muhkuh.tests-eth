@@ -1307,7 +1307,7 @@ const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser)
 #if ASIC_TYP==ASIC_TYP_NETX90_FULL
 		ulEnable |= HOSTMSK(clock_enable0_xc_misc_wm);
 #endif
-		if( (uiPort&1U)==0U )
+		if( tHandle.uiXC==0U )
 		{
 			ulMask |= HOSTMSK(clock_enable0_mask_xmac0);
 			ulMask |= HOSTMSK(clock_enable0_mask_tpec0);

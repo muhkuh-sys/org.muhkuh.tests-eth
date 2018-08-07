@@ -1,6 +1,5 @@
 #include "boot_drv_eth.h"
 
-#include "driver/drv_eth_xc.h"
 #include "stack/buckets.h"
 #include "stack/arp.h"
 #include "stack/dhcp.h"
@@ -11,9 +10,8 @@
 #include "uprintf.h"
 
 
-static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUser)
+static void process_echo_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
 {
-	NETWORK_DRIVER_T *ptNetworkDriver;
 	ETH2_PACKET_T *ptPkt;
 	UDP_ASSOCIATION_T *ptAssoc;
 
@@ -21,7 +19,6 @@ static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUs
 	if( sizPacket>0 )
 	{
 		/* The user data is the pointer to the network driver. */
-		ptNetworkDriver = (NETWORK_DRIVER_T*)pvUser;
 		ptAssoc = ptNetworkDriver->ptEchoUdpAssoc;
 
 		/* Cast the data to a eth2 packet. */
@@ -32,7 +29,7 @@ static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUs
 		/* Send the data back. */
 		ptAssoc->ulRemoteIp = ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp;
 		ptAssoc->uiRemotePort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usSrcPort;
-		udp_send_packet(ptPkt, sizPacket, ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptAssoc);
 	}
 }
 
@@ -41,64 +38,57 @@ static void process_echo_packet(void *pvData, unsigned int sizPacket, void *pvUs
 int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface, const char *pcName)
 {
 	int iResult;
-	const NETWORK_IF_T *ptNetworkIf;
-	void *pvUser;
 
-
-	iResult = -1;
 
 	uprintf("%s: Initializing interface...\n", pcName);
 
+	iResult = -1;
 	switch(tInterface)
 	{
 	case INTERFACE_INTPHY0:
 		/* INTPHY port 0 */
-		ptNetworkIf = drv_eth_xc_initialize(0, &pvUser);
+		iResult = drv_eth_xc_initialize(ptNetworkDriver, 0);
 		break;
 	case INTERFACE_INTPHY1:
 		/* INTPHY port 1 */
-		ptNetworkIf = drv_eth_xc_initialize(1, &pvUser);
+		iResult = drv_eth_xc_initialize(ptNetworkDriver, 1);
 		break;
 	case INTERFACE_EXTPHY0:
 		/* EXTPHY port 0 */
-		ptNetworkIf = drv_eth_xc_initialize(2, &pvUser);
+		iResult = drv_eth_xc_initialize(ptNetworkDriver, 2);
 		break;
 	case INTERFACE_EXTPHY1:
 		/* EXTPHY port 1 */
-		ptNetworkIf = drv_eth_xc_initialize(3, &pvUser);
+		iResult = drv_eth_xc_initialize(ptNetworkDriver, 3);
 		break;
 	case INTERFACE_LVDS0:
 		/* LVDS port 0 */
-		ptNetworkIf = drv_eth_xc_initialize_lvds(0, &pvUser);
+		iResult = drv_eth_xc_initialize_lvds(ptNetworkDriver, 0);
 		break;
 	case INTERFACE_LVDS1:
 		/* LVDS port 1 */
-		ptNetworkIf = drv_eth_xc_initialize_lvds(1, &pvUser);
+		iResult = drv_eth_xc_initialize_lvds(ptNetworkDriver, 1);
 		break;
 	}
 
-	if( ptNetworkIf==NULL )
+	if( iResult!=0 )
 	{
 		uprintf("%s: ERROR: failed to initialize the Ethernet port.\n", pcName);
 	}
 	else
 	{
 		buckets_init();
-		eth_init(ptNetworkIf, pvUser);
 		arp_init();
 		ipv4_init();
-		icmp_init();
 		udp_init();
 		dhcp_init();
 
 		ptNetworkDriver->f_is_configured = 1;
 		ptNetworkDriver->pcName = pcName;
-		ptNetworkDriver->ptNetworkIf = ptNetworkIf;
-		ptNetworkDriver->pvUser = pvUser;
 		ptNetworkDriver->tState = NETWORK_STATE_NoLink;
 		systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
 		systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
-		ptNetworkDriver->ptEchoUdpAssoc = udp_registerPort(MUS2NUS(53280), IP_ADR(0, 0, 0, 0), 0, process_echo_packet, ptNetworkDriver);
+		ptNetworkDriver->ptEchoUdpAssoc = udp_registerPort(MUS2NUS(53280), IP_ADR(0, 0, 0, 0), 0, process_echo_packet, NULL);
 
 		uprintf("%s: Interface initialized.\n", pcName);
 	}
@@ -121,16 +111,16 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	pcName = ptNetworkDriver->pcName;
 
 	/* Get the current link state. */
-	uiLinkState = eth_get_link_status();
+	uiLinkState = eth_get_link_status(ptNetworkDriver);
 
 	/* Process waiting packets. */
-        eth_process_packet();
+        eth_process_packet(ptNetworkDriver);
 
         if( systime_handle_is_elapsed(&(ptNetworkDriver->tEthernetHandlerTimer))!=0 )
         {
                 /* process cyclic events here */
-                arp_timer();
-                dhcp_timer();
+                arp_timer(ptNetworkDriver);
+                dhcp_timer(ptNetworkDriver);
 
                 systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
         }
@@ -211,7 +201,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			{
 				/* start DHCP request */
 				uprintf("%s: starting DHCP.\n", pcName);
-				dhcp_request();
+				dhcp_request(ptNetworkDriver);
 				tState = NETWORK_STATE_Dhcp;
 			}
 		}

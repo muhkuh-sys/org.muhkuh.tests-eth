@@ -26,8 +26,8 @@ typedef enum PHYCTRL_MODE_Etag
 
 
 
-const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser);
-const NETWORK_IF_T *drv_eth_xc_initialize_lvds(unsigned int uiPort, void **ppvUser);
+int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
+int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 
 
 #endif  /* __DRV_ETH_XC_H__ */

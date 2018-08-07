@@ -26,9 +26,9 @@
 
 void ipv4_init(void);
 
-void ipv4_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
+void ipv4_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
-void ipv4_send_packet(ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData);
+void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData);
 
 
 #endif	/* __IP_H__ */

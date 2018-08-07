@@ -8,9 +8,6 @@
  ***************************************************************************/
 
 
-#include <stddef.h>
-
-
 #include "eth.h"
 
 
@@ -24,10 +21,10 @@
 
 void arp_init(void);
 
-void arp_process_packet(ETH2_PACKET_T *ptEthPkt, size_t sizPacket);
+void arp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
-void arp_send_ipv4_packet(ETH2_PACKET_T *ptPkt, size_t sizPacket, unsigned long ulDstIp);
+void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp);
 
-void arp_timer(void);
+void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver);
 
 #endif	/* __ARP_H__ */

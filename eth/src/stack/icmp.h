@@ -17,7 +17,6 @@
 #define ICMP_ECHO_REPLY		0x00
 #define ICMP_ECHO_REQUEST	0x08
 
-void icmp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
-void icmp_init(void);
+void icmp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
 #endif	// __ICMP_H__

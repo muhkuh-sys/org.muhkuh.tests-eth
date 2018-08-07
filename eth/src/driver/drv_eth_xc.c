@@ -1,5 +1,7 @@
 #include "driver/drv_eth_xc.h"
 
+#include <string.h>
+
 #include "netx_io_areas.h"
 #include "driver/ethmac_xpec_regdef.h"
 #include "options.h"
@@ -50,19 +52,6 @@ typedef enum PHYCTRL_LED_MODE_Etag
 	PHYCTRL_LED_MODE_FLASHING  = 2,
 	PHYCTRL_LED_MODE_COMBINED  = 3
 } PHYCTRL_LED_MODE_E;
-
-
-
-typedef struct STRUCTURE_DRV_ETH_XC_HANDLE
-{
-	unsigned int uiEthPortNr;       /* The Ethernet port 0-3. */
-	unsigned int uiXC;              /* The XC instance 0-1. */
-	unsigned int auiExtPhyCtrlInst[2];
-	unsigned int auiExtPhyAddress[2];
-} DRV_ETH_XC_HANDLE_T;
-
-
-static DRV_ETH_XC_HANDLE_T tHandle;
 
 
 
@@ -765,9 +754,10 @@ static unsigned long convert_packet_pointer_to_fifo_value(void *pvPacket)
 /*-----------------------------------------------------------------------------------------------------------*/
 
 
-static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unused)))
+static unsigned int drv_eth_xc_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
+	DRV_ETH_XC_HANDLE_T *ptHandle;
 	unsigned long ulValue;
 	int iResult;
 	unsigned short usValue;
@@ -777,10 +767,12 @@ static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unus
 
 	uiLinkStatus = 0;
 
-	if( tHandle.uiEthPortNr<2U )
+	ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+	uiPort = ptHandle->uiEthPortNr;
+	if( uiPort<2U )
 	{
 		/* retrieve the link status from the Ethernet port */
-		ptPhyCtrl = aptPhyCtrl[tHandle.uiXC];
+		ptPhyCtrl = aptPhyCtrl[ptHandle->uiXC];
 		ulValue  = ptPhyCtrl->ulInt_phy_ctrl_led;
 		ulValue &= HOSTMSK(int_phy_ctrl_led_link_ro);
 		if( ulValue!=0 )
@@ -788,10 +780,9 @@ static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unus
 			uiLinkStatus = 1;
 		}
 	}
-	else if( tHandle.uiEthPortNr<4U )
+	else if( uiPort<4U )
 	{
-		uiPort = tHandle.uiEthPortNr - 2U;
-		iResult = extphy_read(tHandle.auiExtPhyCtrlInst[uiPort], tHandle.auiExtPhyAddress[uiPort], PHY_REG_STATUS, &usValue);
+		iResult = extphy_read(ptHandle->auiExtPhyCtrlInst[uiPort-2U], ptHandle->auiExtPhyAddress[uiPort-2U], PHY_REG_STATUS, &usValue);
 		if( iResult==0 )
 		{
 			usValue &= MSK_PHY_STATUS_LINK_UP;
@@ -807,7 +798,7 @@ static unsigned int drv_eth_xc_get_link_status(void *pvUser __attribute__ ((unus
 
 
 
-static void *drv_eth_xc_get_empty_packet(void *pvUser __attribute__ ((unused)))
+static void *drv_eth_xc_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	HOSTDEF(ptPointerFifoArea);
 	unsigned long ulFifoValue;
@@ -820,7 +811,7 @@ static void *drv_eth_xc_get_empty_packet(void *pvUser __attribute__ ((unused)))
 	pvPacket = NULL;
 
 	/* Get the FIFO fill level and check if there is at least one element. */
-	uiFifoNr = (tHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
 
 	/* Keep at least one pointer for the XC level (two parties share this empty pointer FIFO). */
 	ulValue = ptPointerFifoArea->aulPfifo_fill_level[uiFifoNr];
@@ -836,7 +827,7 @@ static void *drv_eth_xc_get_empty_packet(void *pvUser __attribute__ ((unused)))
 
 
 
-static void drv_eth_xc_release_packet(void *pvPacket, void *pvUser __attribute__ ((unused)))
+static void drv_eth_xc_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket)
 {
 	HOSTDEF(ptPointerFifoArea);
 	unsigned int uiFifoNr; 
@@ -846,13 +837,13 @@ static void drv_eth_xc_release_packet(void *pvPacket, void *pvUser __attribute__
 	/* Convert the pointer to a FIFO value. */
 	ulFifoValue = convert_packet_pointer_to_fifo_value(pvPacket);
 
-	uiFifoNr = (tHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
 	ptPointerFifoArea->aulPfifo[uiFifoNr] = ulFifoValue;
 }
 
 
 
-static void drv_eth_xc_send_packet(void *pvPacket, unsigned int uiPacketSize, void *pvUser __attribute__ ((unused)))
+static void drv_eth_xc_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket, unsigned int uiPacketSize)
 {
 	HOSTDEF(ptPointerFifoArea);
 	unsigned long ulFifoValue;
@@ -877,13 +868,13 @@ static void drv_eth_xc_send_packet(void *pvPacket, unsigned int uiPacketSize, vo
 	/* Add the size information. */
 	ulFifoValue |= uiPacketSize << SRT_ETHMAC_FIFO_ELEMENT_FRAME_LEN;
 
-	uiFifoNr = (tHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_REQ_LO;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_REQ_LO;
 	ptPointerFifoArea->aulPfifo[uiFifoNr] = ulFifoValue;
 }
 
 
 
-static void *drv_eth_xc_get_received_packet(unsigned int *puiPacketSize, void *pvUser __attribute__ ((unused)))
+static void *drv_eth_xc_get_received_packet(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int *puiPacketSize)
 {
 	HOSTDEF(ptPointerFifoArea);
 	unsigned long ulFillLevel;
@@ -895,7 +886,7 @@ static void *drv_eth_xc_get_received_packet(unsigned int *puiPacketSize, void *p
 	/* Expect no packet. */
 	pvPacket = NULL;
 
-	uiFifoNr = (tHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_IND_LO;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_IND_LO;
 	ulFillLevel = ptPointerFifoArea->aulPfifo_fill_level[uiFifoNr];
 	if( ulFillLevel!=0 )
 	{
@@ -912,8 +903,9 @@ static void *drv_eth_xc_get_received_packet(unsigned int *puiPacketSize, void *p
 
 
 
-static void drv_eth_xc_deactivate(void *pvUser __attribute__ ((unused)))
+static void drv_eth_xc_deactivate(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)))
 {
+	/* TODO: deactivate all. */
 }
 
 
@@ -1279,27 +1271,35 @@ static int eth_initialize(unsigned int uiPortNr)
 
 
 
-const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser)
+int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
-	const NETWORK_IF_T *ptIf;
+	int iResult;
+	DRV_ETH_XC_HANDLE_T *ptHandle;
 	unsigned long ulMask;
 	unsigned long ulEnable;
 	unsigned long ulValue;
+	unsigned int uiXC;
 
 
-	ptIf = NULL;
+	/* Be pessimistic. */
+	iResult = -1;
 
 	/* Check the port number. */
 	if( uiPort<=3U )
 	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+
+		uiXC = uiPort & 1;
+
 		/* Initialize the internal handle. */
-		tHandle.uiEthPortNr = uiPort;
-		tHandle.uiXC = uiPort & 1;
-		tHandle.auiExtPhyCtrlInst[0] = 0;
-		tHandle.auiExtPhyCtrlInst[1] = 0;
-		tHandle.auiExtPhyAddress[0] = 0;
-		tHandle.auiExtPhyAddress[1] = 0;
+		ptHandle->uiEthPortNr = uiPort;
+		ptHandle->uiXC = uiXC;
+		ptHandle->auiExtPhyCtrlInst[0] = 0;
+		ptHandle->auiExtPhyCtrlInst[1] = 0;
+		ptHandle->auiExtPhyAddress[0] = 0;
+		ptHandle->auiExtPhyAddress[1] = 0;
 
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);
@@ -1307,7 +1307,7 @@ const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser)
 #if ASIC_TYP==ASIC_TYP_NETX90_FULL
 		ulEnable |= HOSTMSK(clock_enable0_xc_misc_wm);
 #endif
-		if( tHandle.uiXC==0U )
+		if( uiXC==0U )
 		{
 			ulMask |= HOSTMSK(clock_enable0_mask_xmac0);
 			ulMask |= HOSTMSK(clock_enable0_mask_tpec0);
@@ -1370,47 +1370,54 @@ const NETWORK_IF_T *drv_eth_xc_initialize(unsigned int uiPort, void **ppvUser)
 			/* Initialize the XC. */
 			pfifo_reset();
 
-			configure_mode(&tHandle);
+			configure_mode(ptHandle);
 
 			eth_initialize(uiPort);
 
-			/* This driver needs no external handle. */
-			*ppvUser = NULL;
+			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
 
-			ptIf = &tNetworkIfXc;
+			iResult = 0;
 		}
 	}
 
-	return ptIf;
+	return iResult;
 }
 
 
 
-const NETWORK_IF_T *drv_eth_xc_initialize_lvds(unsigned int uiPort, void **ppvUser)
+int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
-	const NETWORK_IF_T *ptIf;
+	int iResult;
+	DRV_ETH_XC_HANDLE_T *ptHandle;
 	unsigned long ulMask;
 	unsigned long ulEnable;
 	unsigned long ulValue;
+	unsigned int uiXC;
 #if 0
 	const unsigned short *pusPortcontrol_Index;
 	unsigned short *pusPortControl_Values;
 	size_t sizPortControl_Values;
 #endif
 
-	ptIf = NULL;
+	/* Be pessimistic. */
+	iResult = -1;
 
 	/* Check the port number. */
 	if( uiPort<=1U )
 	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+
+		uiXC = uiPort & 1;
+
 		/* Initialize the internal handle. */
-		tHandle.uiEthPortNr = uiPort;
-		tHandle.uiXC = uiPort & 1;
-		tHandle.auiExtPhyCtrlInst[0] = 0;
-		tHandle.auiExtPhyCtrlInst[1] = 0;
-		tHandle.auiExtPhyAddress[0] = 0;
-		tHandle.auiExtPhyAddress[1] = 0;
+		ptHandle->uiEthPortNr = uiPort;
+		ptHandle->uiXC = uiXC;
+		ptHandle->auiExtPhyCtrlInst[0] = 0;
+		ptHandle->auiExtPhyCtrlInst[1] = 0;
+		ptHandle->auiExtPhyAddress[0] = 0;
+		ptHandle->auiExtPhyAddress[1] = 0;
 
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);
@@ -1485,14 +1492,14 @@ const NETWORK_IF_T *drv_eth_xc_initialize_lvds(unsigned int uiPort, void **ppvUs
 			sizPortControl_Values = sizeof(g_t_romloader_options.t_ethernet.ausLvdsPortControl)/sizeof(g_t_romloader_options.t_ethernet.ausLvdsPortControl[0]);
 			portcontrol_apply(pusPortcontrol_Index, pusPortControl_Values, sizPortControl_Values);
 #endif
-			/* This driver needs no external handle. */
-			*ppvUser = NULL;
 
-			ptIf = &tNetworkIfXcLvds;
+			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXcLvds, sizeof(NETWORK_IF_T));
+
+			iResult = 0;
 		}
 	}
 
-	return ptIf;
+	return iResult;
 }
 
 

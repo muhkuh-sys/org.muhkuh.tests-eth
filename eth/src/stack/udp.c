@@ -68,7 +68,7 @@ void udp_init(void)
 
 
 
-void udp_process_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket)
+void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket)
 {
 	unsigned int sizUdpPacketSize;
 	unsigned int sizTransferedSize;
@@ -104,7 +104,7 @@ void udp_process_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket)
 					if( ptAssocCnt->uiLocalPort==uiDstPort )
 					{
 						/* yes -> pass packet data to the callback */
-						ptAssocCnt->pfn_recHandler(ptPkt, sizUdpPacketSize-sizeof(UDP_HEADER_T), ptAssocCnt->pvUser);
+						ptAssocCnt->pfn_recHandler(ptNetworkDriver, ptPkt, sizUdpPacketSize-sizeof(UDP_HEADER_T), ptAssocCnt->pvUser);
 						break;
 					}
 					++ptAssocCnt;
@@ -116,7 +116,7 @@ void udp_process_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket)
 
 
 
-void udp_send_packet(ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc)
+void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc)
 {
 	unsigned int sizPacketSize;
 
@@ -142,13 +142,13 @@ void udp_send_packet(ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSO
 		ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usLength = MUS2NUS(sizPacketSize);
 		ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usChecksum = udp_buildChecksum(ptPkt, sizPacketSize);
 
-		ipv4_send_packet(ptPkt, ptAssoc->ulRemoteIp, IP_PROTOCOL_UDP, sizPacketSize);
+		ipv4_send_packet(ptNetworkDriver, ptPkt, ptAssoc->ulRemoteIp, IP_PROTOCOL_UDP, sizPacketSize);
 	}
 }
 
 
 
-UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, pfn_udp_receive_handler pfn_recHandler, void *pvUser)
+UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, PFN_UDP_RECEIVE_HANDLER pfn_recHandler, void *pvUser)
 {
 	UDP_ASSOCIATION_T *ptAssocCnt;
 	UDP_ASSOCIATION_T *ptAssocEnd;

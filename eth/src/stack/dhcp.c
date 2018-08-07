@@ -151,7 +151,7 @@ static void dhcp_cleanup(void)
 }
 
 
-static int dhcp_send_discover_packet(void)
+static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
 	ETH2_PACKET_T *ptSendPacket;
@@ -160,7 +160,7 @@ static int dhcp_send_discover_packet(void)
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet();
+	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
 	if( ptSendPacket==NULL )
 	{
 		iResult = -1;
@@ -197,14 +197,14 @@ static int dhcp_send_discover_packet(void)
 
 		/* get the size of the options */
 		ulOptsSize = (unsigned long)(pucOpts - ETH_USER_DATA_ADR(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt));
-		/* fillup to a minimum of 342 bytes */
+		/* fill up to a minimum of 342 bytes */
 		if( ulOptsSize<342 )
 		{
 			memset(pucOpts, 0, 342-ulOptsSize);
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
 
 		iResult = 0;
 	}
@@ -213,7 +213,7 @@ static int dhcp_send_discover_packet(void)
 }
 
 
-static int dhcp_send_request_packet(void)
+static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
 	ETH2_PACKET_T *ptSendPacket;
@@ -222,7 +222,7 @@ static int dhcp_send_request_packet(void)
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet();
+	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
 	if( ptSendPacket==NULL )
 	{
 		iResult = -1;
@@ -279,7 +279,7 @@ static int dhcp_send_request_packet(void)
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
 
 		iResult = 0;
 	}
@@ -323,7 +323,7 @@ static const unsigned char *dhcp_getOption(DHCP_PACKET_T *ptPacket, unsigned int
 }
 
 
-static void dhcp_recHandler(void *pvData, unsigned int sizDhcpLength, void *pvUser __attribute__((unused)))
+static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizDhcpLength, void *pvUser __attribute__((unused)))
 {
 	ETH2_PACKET_T *ptPkt;
 	DHCP_PACKET_T *ptDhcpPacket;
@@ -332,7 +332,6 @@ static void dhcp_recHandler(void *pvData, unsigned int sizDhcpLength, void *pvUs
 	unsigned long ulNewIp;
 	unsigned long ulNewNetmask;
 	unsigned long ulNewGatewayIp;
-	unsigned long ulNewDnsIp;
 
 
 	/* cast the data to a eth2 packet */
@@ -349,7 +348,7 @@ static void dhcp_recHandler(void *pvData, unsigned int sizDhcpLength, void *pvUs
 		break;
 
 	case DHCP_STATE_Discover:
-		/* the packet must be a bootreply */
+		/* the packet must be a boot reply */
 		if( ptDhcpPacket->ucOp==DHCP_OP_BOOTREPLY &&
 		    ptDhcpPacket->ucHType==1 &&
 		    ptDhcpPacket->ucHLen==6 &&
@@ -375,7 +374,7 @@ static void dhcp_recHandler(void *pvData, unsigned int sizDhcpLength, void *pvUs
 				/* Request the IP. */
 				ulRequestIp = ptDhcpPacket->ulYiAddr;
 
-				iResult = dhcp_send_request_packet();
+				iResult = dhcp_send_request_packet(ptNetworkDriver);
 				if( iResult==0 )
 				{
 					/* state is now "request" */
@@ -487,7 +486,7 @@ DHCP_STATE_T dhcp_getState(void)
 }
 
 
-void dhcp_request(void)
+void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
 
@@ -497,7 +496,7 @@ void dhcp_request(void)
 	if( ptAssoc!=NULL )
 	{
 		++ulXId;
-		iResult = dhcp_send_discover_packet();
+		iResult = dhcp_send_discover_packet(ptNetworkDriver);
 		if( iResult==0 )
 		{
 			/* state is now "discover" */
@@ -519,7 +518,7 @@ void dhcp_request(void)
 }
 
 
-void dhcp_timer(void)
+void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	TIMER_HANDLE_T tHandle;
 	int iRes;
@@ -543,7 +542,7 @@ void dhcp_timer(void)
 			if( uiRetryCnt>0 )
 			{
 				/* Re-send the last packet. */
-				dhcp_send_discover_packet();
+				dhcp_send_discover_packet(ptNetworkDriver);
 
 				ulLastGoodPacket = systime_get_ms();
 				--uiRetryCnt;
@@ -566,7 +565,7 @@ void dhcp_timer(void)
 			if( uiRetryCnt>0 )
 			{
 				/* Re-send the last packet. */
-				dhcp_send_request_packet();
+				dhcp_send_request_packet(ptNetworkDriver);
 
 				ulLastGoodPacket = systime_get_ms();
 				--uiRetryCnt;

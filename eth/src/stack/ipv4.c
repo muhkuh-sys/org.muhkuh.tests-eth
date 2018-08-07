@@ -61,7 +61,7 @@ void ipv4_init(void)
 }
 
 
-void ipv4_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
+void ipv4_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 {
 	unsigned char ucValue;
 
@@ -76,11 +76,11 @@ void ipv4_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 			switch( ucValue )
 			{
 			case IP_PROTOCOL_ICMP:
-				icmp_process_packet(ptEthPkt, sizPacket);
+				icmp_process_packet(ptNetworkDriver, ptEthPkt, sizPacket);
 				break;
 
 			case IP_PROTOCOL_UDP:
-				udp_process_packet(ptEthPkt, sizPacket);
+				udp_process_packet(ptNetworkDriver, ptEthPkt, sizPacket);
 				break;
 
 			default:
@@ -92,7 +92,7 @@ void ipv4_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 
 
 
-void ipv4_send_packet(ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData)
+void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData)
 {
 	unsigned int sizIpPacket;
 	unsigned long ulFirstDstIp;
@@ -131,6 +131,6 @@ void ipv4_send_packet(ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int 
 	ulFirstDstIp = ipv4_get_destination_ip(ulDstIp);
 
 	/* Send the packet. */
-	arp_send_ipv4_packet(ptPkt, sizIpPacket, ulFirstDstIp);
+	arp_send_ipv4_packet(ptNetworkDriver, ptPkt, sizIpPacket, ulFirstDstIp);
 }
 

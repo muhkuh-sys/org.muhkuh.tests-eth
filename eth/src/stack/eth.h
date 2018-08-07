@@ -172,21 +172,17 @@ extern const tMacAdr g_tBroadcastMac;
 extern const tMacAdr g_tEmptyMac;
 
 
-void eth_init(const NETWORK_IF_T *ptNetworkIf, void *pvUser);
+void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver);
 
-void eth_process_packet(void);
+void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const tMacAdr *ptDstMac, unsigned int uiTyp);
 
-void eth_send_packet(ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const tMacAdr *ptDstMac, unsigned int uiTyp);
+ETH2_PACKET_T *eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver);
 
-ETH2_PACKET_T *eth_get_empty_packet(void);
+void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket);
 
-void eth_release_packet(ETH2_PACKET_T *ptPacket);
+unsigned int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver);
 
-//ETH2_PACKET_T *eth_receive_packet(size_t *psizPacket);
-
-unsigned int eth_get_link_status(void);
-
-void eth_deactivate(void);
+void eth_deactivate(NETWORK_DRIVER_T *ptNetworkDriver);
 
 
 #endif  /* __ETH_H__ */

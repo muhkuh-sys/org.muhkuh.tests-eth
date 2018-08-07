@@ -18,7 +18,7 @@
 
 
 
-void icmp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
+void icmp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 {
 	ETH2_PACKET_T *ptSendPacket;
 	unsigned char ucType;
@@ -31,7 +31,7 @@ void icmp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 		if( ucType==ICMP_ECHO_REQUEST )
 		{
 			/* Get a free frame for sending. */
-			ptSendPacket = eth_get_empty_packet();
+			ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
 			if( ptSendPacket!=NULL )
 			{
 				/* Get the ICMP data size. */
@@ -47,14 +47,8 @@ void icmp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 				/* Generate the checksum. */
 				ptSendPacket->uEth2Data.tIpPkt.uIpData.tIcmpPkt.usChecksum = MUS2NUS(checksum_add_complement(&ptSendPacket->uEth2Data.tIpPkt.uIpData.tIcmpPkt, sizIcmpPacketSize));
 
-				ipv4_send_packet(ptSendPacket, ptEthPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp, IP_PROTOCOL_ICMP, sizIcmpPacketSize);
+				ipv4_send_packet(ptNetworkDriver, ptSendPacket, ptEthPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp, IP_PROTOCOL_ICMP, sizIcmpPacketSize);
 			}
 		}
 	}
 }
-
-
-void icmp_init(void)
-{
-}
-

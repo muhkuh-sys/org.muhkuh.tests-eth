@@ -8,33 +8,20 @@
  ***************************************************************************/
 
 
-#include <stddef.h>
-
 #include "eth.h"
 
 
 #ifndef __UDP_H__
 #define __UDP_H__
 
-typedef void (*pfn_udp_receive_handler)(void *pvData, unsigned int sizLength, void *pvUser);
-
-typedef struct
-{
-	unsigned int uiLocalPort;
-	unsigned long ulRemoteIp;
-	unsigned int uiRemotePort;
-	pfn_udp_receive_handler pfn_recHandler;
-	void *pvUser;
-} UDP_ASSOCIATION_T;
-
 
 void udp_init(void);
 
-void udp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
+void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
-void udp_send_packet(ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc);
+void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc);
 
-UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, pfn_udp_receive_handler pfn_recHandler, void *pvUser);
+UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, PFN_UDP_RECEIVE_HANDLER pfn_recHandler, void *pvUser);
 void udp_unregisterPort(UDP_ASSOCIATION_T *ptAssoc);
 
 #endif	/* __UDP_H__ */

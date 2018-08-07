@@ -141,7 +141,7 @@ static PACKET_QUEUE_ENTRY_T *arp_get_waiting_packet(unsigned long ulIp)
 }
 
 
-static void arp_process_waiting_entries(unsigned long ulNewIp, tMacAdr *ptMac)
+static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulNewIp, tMacAdr *ptMac)
 {
 	PACKET_QUEUE_ENTRY_T *ptEntry;
 
@@ -154,7 +154,7 @@ static void arp_process_waiting_entries(unsigned long ulNewIp, tMacAdr *ptMac)
 		if( ptEntry!=NULL )
 		{
 			/* Found a waiting packet -> send it. */
-			eth_send_packet(ptEntry->ptPkt, ptEntry->sizPacket, ptMac, ETH2HEADER_TYP_IP);
+			eth_send_packet(ptNetworkDriver, ptEntry->ptPkt, ptEntry->sizPacket, ptMac, ETH2HEADER_TYP_IP);
 			/* Mark the queue entry as "processed". */
 			ptEntry->sizPacket = 0;
 		}
@@ -245,13 +245,13 @@ static void arp_set_mac_request(unsigned long ulIp)
 }
 
 
-static void arp_send_request(unsigned long ulIp)
+static void arp_send_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulIp)
 {
 	ETH2_PACKET_T *ptSendPacket;
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet();
+	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
 	if( ptSendPacket!=NULL )
 	{
 		/* copy common ARP header */
@@ -266,7 +266,7 @@ static void arp_send_request(unsigned long ulIp)
 		ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ulIp;
 
 		/* send the packet */
-		eth_send_packet(ptSendPacket, sizeof(ARP_PACKET_T), &g_tBroadcastMac, ETH2HEADER_TYP_ARP);
+		eth_send_packet(ptNetworkDriver, ptSendPacket, sizeof(ARP_PACKET_T), &g_tBroadcastMac, ETH2HEADER_TYP_ARP);
 	}
 }
 
@@ -300,7 +300,7 @@ void arp_init(void)
 }
 
 
-static void arp_process_request(ETH2_PACKET_T *ptEthPkt)
+static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt)
 {
 	ETH2_PACKET_T *ptSendPacket;
 	unsigned long ulReqIp;
@@ -320,7 +320,7 @@ static void arp_process_request(ETH2_PACKET_T *ptEthPkt)
 		if( uiMacOr==0 )
 		{
 			/* get a free frame for sending */
-			ptSendPacket = eth_get_empty_packet();
+			ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
 			if( ptSendPacket!=NULL )
 			{
 				/* copy common ARP header */
@@ -335,7 +335,7 @@ static void arp_process_request(ETH2_PACKET_T *ptEthPkt)
 				ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ptEthPkt->uEth2Data.tArpPkt.ulSrcIpAdr;
 
 				/* send the packet */
-				eth_send_packet(ptSendPacket, sizeof(ARP_PACKET_T), &ptEthPkt->tEth2Hdr.tSrcMac, ETH2HEADER_TYP_ARP);
+				eth_send_packet(ptNetworkDriver, ptSendPacket, sizeof(ARP_PACKET_T), &ptEthPkt->tEth2Hdr.tSrcMac, ETH2HEADER_TYP_ARP);
 			}
 		}
 	}
@@ -343,7 +343,7 @@ static void arp_process_request(ETH2_PACKET_T *ptEthPkt)
 
 
 
-static void arp_process_reply(ETH2_PACKET_T *ptEthPkt)
+static void arp_process_reply(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt)
 {
 	ARP_CACHE_ENTRY_T *ptCacheEntry;
 	unsigned long ulSrcIp;
@@ -370,7 +370,7 @@ static void arp_process_reply(ETH2_PACKET_T *ptEthPkt)
 					memcpy(&ptCacheEntry->tMac, ptSrcMac, 6);
 
 					/* process waiting packets */
-					arp_process_waiting_entries(ulSrcIp, ptSrcMac);
+					arp_process_waiting_entries(ptNetworkDriver, ulSrcIp, ptSrcMac);
 				}
 			}
 		}
@@ -378,7 +378,7 @@ static void arp_process_reply(ETH2_PACKET_T *ptEthPkt)
 }
 
 
-void arp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
+void arp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 {
 	unsigned int uiOpcode;
 
@@ -393,11 +393,11 @@ void arp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 			switch( uiOpcode )
 			{
 			case ARP_OPCODE_REQUEST:
-				arp_process_request(ptEthPkt);
+				arp_process_request(ptNetworkDriver, ptEthPkt);
 				break;
 
 			case ARP_OPCODE_REPLY:
-				arp_process_reply(ptEthPkt);
+				arp_process_reply(ptNetworkDriver, ptEthPkt);
 				break;
 
 			default:
@@ -409,7 +409,7 @@ void arp_process_packet(ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 
 
 
-void arp_send_ipv4_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
+void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
 {
 	ARP_CACHE_ENTRY_T *ptCacheEntry;
 	PACKET_QUEUE_ENTRY_T *ptQueueEntry;
@@ -450,7 +450,7 @@ void arp_send_ipv4_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned
 				/* enter the request in the cache */
 				arp_set_mac_request(ulDstIp);
 				/* send request for the IP */
-				arp_send_request(ulDstIp);
+				arp_send_request(ptNetworkDriver, ulDstIp);
 			}
 		}
 		else if( ptCacheEntry->tState==ARPSTATE_Requesting )
@@ -468,13 +468,13 @@ void arp_send_ipv4_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned
 
 	if( ptMac!=NULL )
 	{
-		eth_send_packet(ptPkt, sizPacket, ptMac, ETH2HEADER_TYP_IP);
+		eth_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptMac, ETH2HEADER_TYP_IP);
 	}
 }
 
 
 
-void arp_timer(void)
+void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	ARP_CACHE_ENTRY_T *ptCnt;
 	ARP_CACHE_ENTRY_T *ptEnd;
@@ -504,7 +504,7 @@ void arp_timer(void)
 				if( ptCnt->uiRetryCnt>0 )
 				{
 					/* Yes -> re-send the packet. */
-					arp_send_request(ulIp);
+					arp_send_request(ptNetworkDriver, ulIp);
 					ptCnt->ulRequestTimeStamp = systime_get_ms();
 					--ptCnt->uiRetryCnt;
 				}
@@ -521,7 +521,7 @@ void arp_timer(void)
 						if( ptEntry!=NULL )
 						{
 							/* Free the packet. */
-							eth_release_packet(ptEntry->ptPkt);
+							eth_release_packet(ptNetworkDriver, ptEntry->ptPkt);
 							/* Mark the queue entry as "processed". */
 							ptEntry->sizPacket = 0;
 						}

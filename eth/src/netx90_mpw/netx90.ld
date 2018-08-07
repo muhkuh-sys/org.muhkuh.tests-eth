@@ -88,7 +88,7 @@ SECTIONS
 		__INTRAM_IMAGE__ = .;
 		aucEthernetBuffer_start = .;
 
-		. = ORIGIN(INTRAM3_S) + LENGTH(INTRAM3_S) ;
+		. = ORIGIN(INTRAM3_S) + 0x4000 ;
 
 		aucEthernetBuffer_end = .;
 	} >INTRAM3_S

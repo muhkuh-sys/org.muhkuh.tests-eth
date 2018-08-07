@@ -18,7 +18,6 @@
 #define NUM_FIFO_CHANNELS_PER_UNIT                      16U      /**< Number of FIFO units per XC channel */
 #define FIFO_ENTRIES                                    100U     /**< FIFO depth for each of the 8 FIFOs  */
 #define ETH_FRAME_BUF_SIZE                              1560U    /**< size of a frame buffer     */
-#define INTRAM_SEGMENT_SIZE                             0x10000U /**< size of the internal ram segments */
 
 #define ETHERNET_FIFO_EMPTY                             0      /**< Empty pointer FIFO               */
 #define ETHERNET_FIFO_IND_HI                            1      /**< High priority indication FIFO    */
@@ -968,52 +967,62 @@ static void pfifo_reset(void)
 
 
 
-static void pfifo_init(unsigned int uPortNo)
+static void pfifo_init(unsigned int uiPortNo)
 {
 	HOSTDEF(ptPointerFifoArea);
-
-	unsigned long ulFifoPtr;
-	unsigned long ulFifoStart;
-	unsigned long ulFifoEnd;
-	unsigned long ulFifoNum;
-	unsigned long ulEmptyPtrCnt;
-	unsigned long ulFrame;
-	unsigned int uXcPortNo = (uPortNo)&1;
 	unsigned long ulValue;
+	unsigned long ulFifoStart;
+	unsigned long ulFifoMask;
+	unsigned int uiFifoCnt;
+	unsigned long ulBorder;
+	unsigned char *pucStart;
+	unsigned char *pucEnd;
+	unsigned char *pucCnt;
+	unsigned long ulFrameNumber;
+	unsigned long ulFifoPtr;
 
 
-	/* Set reset bit for all pointer FIFOs. */
+	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * (uiPortNo & 1);
+	ulFifoMask = ((1U<<NUM_FIFO_CHANNELS_PER_UNIT) - 1U) << ulFifoStart;
+
+	/* Set reset bit for all used pointer FIFOs. */
 	ulValue  = ptPointerFifoArea->ulPfifo_reset;
-	ulValue |= ((1U<<NUM_FIFO_CHANNELS_PER_UNIT)-1U) << (NUM_FIFO_CHANNELS_PER_UNIT * uXcPortNo);
+	ulValue |= ulFifoMask;
 	ptPointerFifoArea->ulPfifo_reset = ulValue;
 
-	/* Get FIFO start and end number of this port number. */
-	ulFifoStart = uXcPortNo * NUM_FIFO_CHANNELS_PER_UNIT;
-	ulFifoEnd = ulFifoStart + NUM_FIFO_CHANNELS_PER_UNIT;
-
-	for(ulFifoNum=ulFifoStart; ulFifoNum<ulFifoEnd; ulFifoNum++)
+	ulBorder = FIFO_ENTRIES - 1U;
+	uiFifoCnt = 0;
+	do
 	{
-		ptPointerFifoArea->aulPfifo_border[ulFifoNum] = (ulFifoNum * FIFO_ENTRIES) + FIFO_ENTRIES - 1;
-	}
+		ptPointerFifoArea->aulPfifo_border[uiFifoCnt] = ulBorder;
+		ulBorder += FIFO_ENTRIES;
+		++uiFifoCnt;
+	} while( uiFifoCnt<NUM_FIFO_CHANNELS_PER_UNIT );
 
-	/* clear reset bit for all pointer FIFO */
+	/* Clear reset bit for all pointer FIFOs. */
 	ulValue  = ptPointerFifoArea->ulPfifo_reset;
-	ulValue &= ~(((1U<<NUM_FIFO_CHANNELS_PER_UNIT)-1U) << (NUM_FIFO_CHANNELS_PER_UNIT * uXcPortNo));
+	ulValue &= ~ulFifoMask;
 	ptPointerFifoArea->ulPfifo_reset = ulValue;
 
 	/*** fill empty pointer FIFO ***/
-
-	/* Use the complete INTRAM segment. */
-	ulEmptyPtrCnt = INTRAM_SEGMENT_SIZE / ETH_FRAME_BUF_SIZE;
-
-	/* Fill the empty pointer FIFO. */
-	for(ulFrame=1; ulFrame<=ulEmptyPtrCnt; ++ulFrame)
+	pucStart = aucEthernetBuffer_start;
+	pucEnd = aucEthernetBuffer_end;
+	ulFrameNumber = 0U;
+	do
 	{
-		/* Use INTRAM3. */
-		ulFifoPtr  = (0U << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
-		ulFifoPtr |= (ulFrame << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
-		ptPointerFifoArea->aulPfifo[ulFifoStart + ETHERNET_FIFO_EMPTY] = ulFifoPtr;
-	}
+		/* Get the pointer to the frame. */
+		pucCnt = pucStart + ulFrameNumber*ETH_FRAME_BUF_SIZE;
+		/* Is the pointer still in the defined area? */
+		if( (pucCnt+ETH_FRAME_BUF_SIZE)<pucEnd )
+		{
+			/* Use INTRAM3. */
+			ulFifoPtr  = (0U << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
+			ulFifoPtr |= (ulFrameNumber << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
+			uprintf("FIFO fill 0x%08x\n", ulFifoPtr);
+			ptPointerFifoArea->aulPfifo[ulFifoStart + ETHERNET_FIFO_EMPTY] = ulFifoPtr;
+		}
+		++ulFrameNumber;
+	} while( pucCnt<pucEnd );
 }
 
 
@@ -1216,10 +1225,6 @@ static int eth_initialize(unsigned int uiPortNr)
 
 		/* Copy the current system time border to the copy inside the hardware block. */
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_SYSTIME_BORDER_COPY_PLUS1 = ptSystimeComArea->ulSystime_border + 1;
-
-		/* Set the INTRAM buffer. */
-/* FIXME: Does this work without it? */
-//		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_INTRAM_START = (unsigned long)(aucEthernetBuffer_start);
 
 		/* Configure the PHY LEDs. */
 		ptPhyCtrl = aptPhyCtrl[uiXC];

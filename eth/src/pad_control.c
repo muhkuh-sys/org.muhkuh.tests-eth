@@ -9,11 +9,9 @@ static PAD_CTRL_VALUES_T tPadCtrlDefaults;
 
 void pad_control_init(void)
 {
-	unsigned int sizCfgCnt;
-	unsigned int sizCfgEnd;
-	unsigned long ulValue;
-	unsigned char ucValue;
 	volatile unsigned long *pulPadControl;
+	unsigned char *pucCnt;
+	unsigned char *pucEnd;
 
 
 #if ASIC_TYP==ASIC_TYP_NETX90_MPW
@@ -25,14 +23,11 @@ void pad_control_init(void)
 #endif
 
 	/* Copy all registers to the local array. */
-	sizCfgCnt = 0;
-	sizCfgEnd = sizeof(tPadCtrlDefaults.aucValues) / sizeof(tPadCtrlDefaults.aucValues[0]);
-	while( sizCfgCnt<sizCfgEnd )
+	pucCnt = tPadCtrlDefaults.aucValues;
+	pucEnd = pucCnt + NUMBER_OF_PAD_CTRL;
+	while( pucCnt<pucEnd )
 	{
-		ulValue = pulPadControl[sizCfgCnt];
-		ucValue = (unsigned char)(ulValue & 0xff);
-		tPadCtrlDefaults.aucValues[sizCfgCnt] = ucValue;
-		++sizCfgCnt;
+		*(pucCnt++) = (unsigned char)(*(pulPadControl++));
 	}
 }
 

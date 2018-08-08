@@ -75,8 +75,7 @@ SECTIONS
 
 	.stack :
 	{
-		/* Reserve at least 4096 bytes. */
-		. = . + 0x1000;
+		. = . + 0x4000;
 		. = ORIGIN(INTRAM) + LENGTH(INTRAM) ;
 		stack_top = . ;
 	} >INTRAM

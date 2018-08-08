@@ -78,10 +78,10 @@ int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface,
 	else
 	{
 		buckets_init();
-		arp_init();
+		arp_init(ptNetworkDriver);
 		ipv4_init();
 		udp_init();
-		dhcp_init();
+		dhcp_init(ptNetworkDriver);
 
 		ptNetworkDriver->f_is_configured = 1;
 		ptNetworkDriver->pcName = pcName;
@@ -218,7 +218,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		else
 		{
 			/* get state */
-			tDhcpState = dhcp_getState();
+			tDhcpState = dhcp_getState(ptNetworkDriver);
 			switch(tDhcpState)
 			{
 			case DHCP_STATE_Idle:

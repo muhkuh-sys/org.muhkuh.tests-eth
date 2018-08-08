@@ -66,6 +66,13 @@ typedef struct DRV_ETH_XC_HANDLE_STRUCT
 
 
 
+typedef struct MAC_ADR_STRUCT
+{
+	unsigned char aucMac[6];
+} __attribute__((packed)) MAC_ADR_T;
+
+
+
 typedef void (*PFN_UDP_RECEIVE_HANDLER)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvData, unsigned int sizLength, void *pvUser);
 
 typedef struct
@@ -79,9 +86,76 @@ typedef struct
 
 
 
+/* Maximum number of entries in the ARP cache. */
+#define ARP_CACHE_MAX_ENTRIES 8
+
+/* Maximum age value of one ARP entry, older entries will *not* be deleted,
+ * it just limits the age value to this value.
+ */
+#define ARP_CACHE_MAX_AGE 0xff
+
+/* Maximum number of waiting packets in the ARP queue. */
+#define ARP_PACKET_QUEUE_MAX_ENTRIES 8
+
+
+typedef enum
+{
+	ARPSTATE_Unused		= 0,    /* The entry is unused. */
+	ARPSTATE_Requesting	= 1,    /* The request for this entry is send out, but no reply yet. */
+	ARPSTATE_Valid		= 2     /* The entry is valid. */
+} ARP_STATE_T;
+
+
+typedef struct
+{
+	ARP_STATE_T tState;                     /* state of this entry */
+	int iAge;                               /* age of the entry (i.e. last used time) */
+	unsigned long ulIp;                     /* IP address */
+	MAC_ADR_T tMac;                         /* MAC address */
+	unsigned long ulRequestTimeStamp;       /* system time stamp when the last request was send, only valid for 'requesting' entries */
+	unsigned int uiRetryCnt;                /* counts how many retries are left, only valid for 'requesting' entries */
+} ARP_CACHE_ENTRY_T;
+
+
+typedef struct
+{
+	unsigned int sizPacket;                 /* this is the size of the packet in bytes and the "valid" flag, a size of 0 means "invalid" */
+	unsigned long ulIp;                     /* the destination IP for this packet */
+	void *ptPkt;                            /* pointer to the packet */
+} PACKET_QUEUE_ENTRY_T;
+
+
+
+typedef enum
+{
+	DHCP_STATE_Idle			= 0,
+	DHCP_STATE_Discover		= 1,
+	DHCP_STATE_Request		= 2,
+	DHCP_STATE_Error		= 3,
+	DHCP_STATE_Ok			= 4
+} DHCP_STATE_T;
+
+
+
+typedef struct DHCP_HANDLE_DATA_STRUCT
+{
+	DHCP_STATE_T tState;
+	UDP_ASSOCIATION_T *ptAssoc;
+	unsigned long ulLastGoodPacket;
+	unsigned int uiRetryCnt;
+	unsigned long ulXId;
+	unsigned long ulRequestIp;
+	unsigned long aucServerIdentifier[4];
+} DHCP_HANDLE_DATA_T;
+
+
+
 typedef struct NETWORK_DRIVER_DATA_STRUCT
 {
 	DRV_ETH_XC_HANDLE_T tDrvEthXcHandle;
+	PACKET_QUEUE_ENTRY_T atPacketQueue[ARP_PACKET_QUEUE_MAX_ENTRIES];
+	ARP_CACHE_ENTRY_T auiArpCache[ARP_CACHE_MAX_ENTRIES];
+	DHCP_HANDLE_DATA_T tDhcpData;
 } NETWORK_DRIVER_DATA_T;
 
 

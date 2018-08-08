@@ -101,15 +101,6 @@ typedef enum
 } DHCP_OPTION_T;
 
 
-static DHCP_STATE_T tState;
-static UDP_ASSOCIATION_T *ptAssoc;
-static unsigned long ulLastGoodPacket;
-static unsigned int uiRetryCnt;
-static unsigned long ulXId;
-static unsigned long ulRequestIp;
-static unsigned long aucServerIdentifier[4];
-
-
 
 static const unsigned char aucDhcpMagic[4] =
 {
@@ -141,12 +132,16 @@ static const unsigned char aucDhcpOptionParamReqList[7] =
 };
 
 
-static void dhcp_cleanup(void)
+static void dhcp_cleanup(DHCP_HANDLE_DATA_T *ptDhcpHandle)
 {
+	UDP_ASSOCIATION_T *ptAssoc;
+
+
+	ptAssoc = ptDhcpHandle->ptAssoc;
 	if( ptAssoc!=NULL )
 	{
 		udp_unregisterPort(ptAssoc);
-		ptAssoc = NULL;
+		ptDhcpHandle->ptAssoc = NULL;
 	}
 }
 
@@ -154,7 +149,9 @@ static void dhcp_cleanup(void)
 static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	ETH2_PACKET_T *ptSendPacket;
+	DHCP_PACKET_T *ptDhcpPacket;
 	unsigned char *pucOpts;
 	unsigned long ulOptsSize;
 
@@ -167,22 +164,26 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	}
 	else
 	{
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucOp = DHCP_OP_BOOTREQUEST;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHType = 1;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHLen = 6;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHops = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulXId = ulXId;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.usSecs = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.usFlags = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulCiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulYiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulSiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulGiAddr = 0;
+		ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
-		memcpy(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.aucChAddr+6, 0, 10);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.acSName, 0, 64);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.acFile, 0, 128);
+		ptDhcpPacket = &(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt);
+
+		ptDhcpPacket->ucOp = DHCP_OP_BOOTREQUEST;
+		ptDhcpPacket->ucHType = 1;
+		ptDhcpPacket->ucHLen = 6;
+		ptDhcpPacket->ucHops = 0;
+		ptDhcpPacket->ulXId = ptDhcpHandle->ulXId;
+		ptDhcpPacket->usSecs = 0;
+		ptDhcpPacket->usFlags = 0;
+		ptDhcpPacket->ulCiAddr = 0;
+		ptDhcpPacket->ulYiAddr = 0;
+		ptDhcpPacket->ulSiAddr = 0;
+		ptDhcpPacket->ulGiAddr = 0;
+
+		memcpy(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
+		memset(ptDhcpPacket->aucChAddr+6, 0, 10);
+		memset(ptDhcpPacket->acSName, 0, 64);
+		memset(ptDhcpPacket->acFile, 0, 128);
 
 		pucOpts = ETH_USER_DATA_ADR(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt);
 		memcpy(pucOpts, aucDhcpMagic, sizeof(aucDhcpMagic));
@@ -204,7 +205,7 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
 
 		iResult = 0;
 	}
@@ -216,7 +217,9 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	ETH2_PACKET_T *ptSendPacket;
+	DHCP_PACKET_T *ptDhcpPacket;
 	unsigned char *pucOpts;
 	unsigned long ulOptsSize;
 
@@ -229,24 +232,28 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	}
 	else
 	{
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucOp = DHCP_OP_BOOTREQUEST;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHType = 1;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHLen = 6;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ucHops = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulXId = ulXId;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.usSecs = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.usFlags = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulCiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulYiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulSiAddr = 0;
-		ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.ulGiAddr = 0;
+		ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
-		memcpy(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.aucChAddr+6, 0, 10);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.acSName, 0, 64);
-		memset(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt.acFile, 0, 128);
+		ptDhcpPacket = &(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt);
 
-		/* dhcp options start here */
+		ptDhcpPacket->ucOp = DHCP_OP_BOOTREQUEST;
+		ptDhcpPacket->ucHType = 1;
+		ptDhcpPacket->ucHLen = 6;
+		ptDhcpPacket->ucHops = 0;
+		ptDhcpPacket->ulXId = ptDhcpHandle->ulXId;
+		ptDhcpPacket->usSecs = 0;
+		ptDhcpPacket->usFlags = 0;
+		ptDhcpPacket->ulCiAddr = 0;
+		ptDhcpPacket->ulYiAddr = 0;
+		ptDhcpPacket->ulSiAddr = 0;
+		ptDhcpPacket->ulGiAddr = 0;
+
+		memcpy(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
+		memset(ptDhcpPacket->aucChAddr+6, 0, 10);
+		memset(ptDhcpPacket->acSName, 0, 64);
+		memset(ptDhcpPacket->acFile, 0, 128);
+
+		/* DHCP options start here */
 		pucOpts = ETH_USER_DATA_ADR(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt);
 		/* magic must be first */
 		memcpy(pucOpts, aucDhcpMagic, sizeof(aucDhcpMagic));
@@ -257,12 +264,12 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 		/* add server identifier */
 		*(pucOpts++) = DHCP_OPT_ServerIdentifier;
 		*(pucOpts++) = 4;
-		memcpy(pucOpts, aucServerIdentifier, 4);
+		memcpy(pucOpts, ptDhcpHandle->aucServerIdentifier, 4);
 		pucOpts += 4;
 		/* add requested ip */
 		*(pucOpts++) = 50;
 		*(pucOpts++) = 4;
-		memcpy(pucOpts, &ulRequestIp, 4);
+		memcpy(pucOpts, &(ptDhcpHandle->ulRequestIp), 4);
 		pucOpts += 4;
 		/* add parameter request list */
 		memcpy(pucOpts, aucDhcpOptionParamReqList, sizeof(aucDhcpOptionParamReqList));
@@ -272,14 +279,14 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 
 		/* get the size of the options */
 		ulOptsSize = (unsigned long)(pucOpts - ETH_USER_DATA_ADR(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt));
-		/* fillup to a minimum of 342 bytes */
+		/* fill up to a minimum of 342 bytes */
 		if( ulOptsSize<342 )
 		{
 			memset(pucOpts, 0, 342-ulOptsSize);
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
 
 		iResult = 0;
 	}
@@ -325,6 +332,7 @@ static const unsigned char *dhcp_getOption(DHCP_PACKET_T *ptPacket, unsigned int
 
 static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizDhcpLength, void *pvUser __attribute__((unused)))
 {
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	ETH2_PACKET_T *ptPkt;
 	DHCP_PACKET_T *ptDhcpPacket;
 	int iResult;
@@ -338,7 +346,8 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 	ptPkt = (ETH2_PACKET_T*)pvData;
 	ptDhcpPacket = &(ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData.tDhcpPkt);
 
-	switch(tState)
+	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
+	switch(ptDhcpHandle->tState)
 	{
 
 	case DHCP_STATE_Idle:
@@ -352,7 +361,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 		if( ptDhcpPacket->ucOp==DHCP_OP_BOOTREPLY &&
 		    ptDhcpPacket->ucHType==1 &&
 		    ptDhcpPacket->ucHLen==6 &&
-		    ptDhcpPacket->ulXId==ulXId &&
+		    ptDhcpPacket->ulXId==ptDhcpHandle->ulXId &&
 		    memcmp(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6) == 0 &&
 		    ptDhcpPacket->ulYiAddr!=0 )
 		{
@@ -364,30 +373,30 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 				pucOpt = dhcp_getOption(ptDhcpPacket, sizDhcpLength, DHCP_OPT_ServerIdentifier);
 				if( pucOpt!=NULL && pucOpt[1]==4 )
 				{
-					memcpy(aucServerIdentifier, pucOpt+2, 4);
+					memcpy(ptDhcpHandle->aucServerIdentifier, pucOpt+2, 4);
 				}
 				else
 				{
-					memset(aucServerIdentifier, 0, 4);
+					memset(ptDhcpHandle->aucServerIdentifier, 0, 4);
 				}
 
 				/* Request the IP. */
-				ulRequestIp = ptDhcpPacket->ulYiAddr;
+				ptDhcpHandle->ulRequestIp = ptDhcpPacket->ulYiAddr;
 
 				iResult = dhcp_send_request_packet(ptNetworkDriver);
 				if( iResult==0 )
 				{
 					/* state is now "request" */
-					tState = DHCP_STATE_Request;
+					ptDhcpHandle->tState = DHCP_STATE_Request;
 
 					/* reset timeout */
-					ulLastGoodPacket = systime_get_ms();
-					uiRetryCnt = g_t_romloader_options.t_ethernet.ucDhcpRetries;
+					ptDhcpHandle->ulLastGoodPacket = systime_get_ms();
+					ptDhcpHandle->uiRetryCnt = g_t_romloader_options.t_ethernet.ucDhcpRetries;
 				}
 				else
 				{
 					/* cleanup */
-					dhcp_cleanup();
+					dhcp_cleanup(ptDhcpHandle);
 				}
 			}
 		}
@@ -398,7 +407,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 		if( ptDhcpPacket->ucOp==DHCP_OP_BOOTREPLY &&
 		    ptDhcpPacket->ucHType==1 &&
 		    ptDhcpPacket->ucHLen==6 &&
-		    ptDhcpPacket->ulXId==ulXId &&
+		    ptDhcpPacket->ulXId==ptDhcpHandle->ulXId &&
 		    memcmp(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6) == 0 &&
 		    ptDhcpPacket->ulYiAddr!=0 )
 		{
@@ -431,32 +440,32 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 							g_t_romloader_options.t_ethernet.ulGatewayIp = ulNewGatewayIp;
 
 							/* cleanup */
-							dhcp_cleanup();
+							dhcp_cleanup(ptDhcpHandle);
 
-							tState = DHCP_STATE_Ok;
+							ptDhcpHandle->tState = DHCP_STATE_Ok;
 						}
 						else
 						{
 							/* cleanup */
-							dhcp_cleanup();
+							dhcp_cleanup(ptDhcpHandle);
 
-							tState = DHCP_STATE_Error;
+							ptDhcpHandle->tState = DHCP_STATE_Error;
 						}
 					}
 					else
 					{
 						/* cleanup */
-						dhcp_cleanup();
+						dhcp_cleanup(ptDhcpHandle);
 
-						tState = DHCP_STATE_Error;
+						ptDhcpHandle->tState = DHCP_STATE_Error;
 					}
 				}
 				else if( pucOpt[2]==DHCP_MSGTYP_DHCPNAK )
 				{
 					/* cleanup */
-					dhcp_cleanup();
+					dhcp_cleanup(ptDhcpHandle);
 
-					tState = DHCP_STATE_Error;
+					ptDhcpHandle->tState = DHCP_STATE_Error;
 				}
 			}
 		}
@@ -465,54 +474,62 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 }
 
 
-void dhcp_init(void)
+void dhcp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	tState = DHCP_STATE_Idle;
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
+
+
+	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
+
+	ptDhcpHandle->tState = DHCP_STATE_Idle;
 
 	/* No DHCP connection open. */
-	ptAssoc = NULL;
+	ptDhcpHandle->ptAssoc = NULL;
 
 	/* Initialize XID. */
-	ulXId = ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[0])) |
-	        (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[1])) <<  8U) |
-		(((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[2])) << 16U) |
-		(((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[3])) << 24U);
+	ptDhcpHandle->ulXId = ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[0])) |
+	                      (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[1])) <<  8U) |
+		              (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[2])) << 16U) |
+		              (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[3])) << 24U);
 }
 
 
-DHCP_STATE_T dhcp_getState(void)
+DHCP_STATE_T dhcp_getState(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	return tState;
+	return ptNetworkDriver->tNetworkDriverData.tDhcpData.tState;
 }
 
 
 void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 
+
+	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
 	/* open UDP port and register callback */
-	ptAssoc = udp_registerPort(MUS2NUS(DHCP_DISCOVER_SRC_PORT), DHCP_DISCOVER_DST_IP, MUS2NUS(DHCP_DISCOVER_DST_PORT), dhcp_recHandler, NULL);
-	if( ptAssoc!=NULL )
+	ptDhcpHandle->ptAssoc = udp_registerPort(MUS2NUS(DHCP_DISCOVER_SRC_PORT), DHCP_DISCOVER_DST_IP, MUS2NUS(DHCP_DISCOVER_DST_PORT), dhcp_recHandler, NULL);
+	if( ptDhcpHandle->ptAssoc!=NULL )
 	{
-		++ulXId;
+		++(ptDhcpHandle->ulXId);
 		iResult = dhcp_send_discover_packet(ptNetworkDriver);
 		if( iResult==0 )
 		{
 			/* state is now "discover" */
-			tState = DHCP_STATE_Discover;
+			ptDhcpHandle->tState = DHCP_STATE_Discover;
 
 			/* reset timeout */
-			ulLastGoodPacket = systime_get_ms();
-			uiRetryCnt = g_t_romloader_options.t_ethernet.ucDhcpRetries;
+			ptDhcpHandle->ulLastGoodPacket = systime_get_ms();
+			ptDhcpHandle->uiRetryCnt = g_t_romloader_options.t_ethernet.ucDhcpRetries;
 
 		}
 		else
 		{
 			/* cleanup */
-			dhcp_cleanup();
+			dhcp_cleanup(ptDhcpHandle);
 
-			tState = DHCP_STATE_Error;
+			ptDhcpHandle->tState = DHCP_STATE_Error;
 		}
 	}
 }
@@ -520,14 +537,17 @@ void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver)
 
 void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 {
+	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	TIMER_HANDLE_T tHandle;
 	int iRes;
 
 
-	tHandle.ulStart = ulLastGoodPacket;
+	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
+
+	tHandle.ulStart = ptDhcpHandle->ulLastGoodPacket;
 	tHandle.ulDuration = g_t_romloader_options.t_ethernet.usDhcpTimeout;
 
-	switch(tState)
+	switch(ptDhcpHandle->tState)
 	{
 	case DHCP_STATE_Idle:
 	case DHCP_STATE_Error:
@@ -539,20 +559,20 @@ void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 		if( iRes!=0 )
 		{
 			/* Timeout -> are retries left? */
-			if( uiRetryCnt>0 )
+			if( ptDhcpHandle->uiRetryCnt>0 )
 			{
 				/* Re-send the last packet. */
 				dhcp_send_discover_packet(ptNetworkDriver);
 
-				ulLastGoodPacket = systime_get_ms();
-				--uiRetryCnt;
+				ptDhcpHandle->ulLastGoodPacket = systime_get_ms();
+				--(ptDhcpHandle->uiRetryCnt);
 			}
 			else
 			{
 				/* Close the connection. */
-				dhcp_cleanup();
+				dhcp_cleanup(ptDhcpHandle);
 
-				tState = DHCP_STATE_Error;
+				ptDhcpHandle->tState = DHCP_STATE_Error;
 			}
 		}
 		break;
@@ -562,20 +582,20 @@ void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 		if( iRes!=0 )
 		{
 			/* Timeout -> are retries left? */
-			if( uiRetryCnt>0 )
+			if( ptDhcpHandle->uiRetryCnt>0 )
 			{
 				/* Re-send the last packet. */
 				dhcp_send_request_packet(ptNetworkDriver);
 
-				ulLastGoodPacket = systime_get_ms();
-				--uiRetryCnt;
+				ptDhcpHandle->ulLastGoodPacket = systime_get_ms();
+				--(ptDhcpHandle->uiRetryCnt);
 			}
 			else
 			{
 				/* Close the connection. */
-				dhcp_cleanup();
+				dhcp_cleanup(ptDhcpHandle);
 
-				tState = DHCP_STATE_Error;
+				ptDhcpHandle->tState = DHCP_STATE_Error;
 			}
 		}
 		break;

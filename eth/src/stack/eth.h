@@ -28,16 +28,10 @@
 #define ETH_USER_DATA_ADR(a) (((unsigned char*)&a)+sizeof(a))
 
 
-typedef struct STRUCT_MAC_ADR
-{
-	unsigned char aucMac[6];
-} __attribute__((packed)) tMacAdr;
-
-
 typedef struct STRUCT_ETH2_HEADER
 {
-	tMacAdr tDstMac;
-	tMacAdr tSrcMac;
+	MAC_ADR_T tDstMac;
+	MAC_ADR_T tSrcMac;
 	unsigned short usTyp;
 } __attribute__((packed)) ETH2_HEADER_T;
 
@@ -48,9 +42,9 @@ typedef struct STRUCT_ARP_PACKET
 	unsigned char ucHardwareSize;
 	unsigned char ucProtocolSize;
 	unsigned short usOpcode;
-	tMacAdr tSrcMacAdr;
+	MAC_ADR_T tSrcMacAdr;
 	unsigned long ulSrcIpAdr;
-	tMacAdr tDstMacAdr;
+	MAC_ADR_T tDstMacAdr;
 	unsigned long ulDstIpAdr;
 } __attribute__((packed)) ARP_PACKET_T;
 
@@ -168,13 +162,13 @@ typedef struct STRUCT_ETH2_PACKET
 
 
 
-extern const tMacAdr g_tBroadcastMac;
-extern const tMacAdr g_tEmptyMac;
+extern const MAC_ADR_T g_tBroadcastMac;
+extern const MAC_ADR_T g_tEmptyMac;
 
 
 void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver);
 
-void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const tMacAdr *ptDstMac, unsigned int uiTyp);
+void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp);
 
 ETH2_PACKET_T *eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver);
 

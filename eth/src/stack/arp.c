@@ -8,7 +8,6 @@
  ***************************************************************************/
 
 
-#include <stddef.h>
 #include <string.h>
 
 #include "arp.h"
@@ -17,44 +16,6 @@
 #include "options.h"
 #include "systime.h"
 
-
-/* Maximum number of entries in the ARP cache. */
-#define ARP_CACHE_MAX_ENTRIES 8
-
-/* Maximum age value of one ARP entry, older entries will *not* be deleted,
- * it just limits the age value to this value.
- */
-#define ARP_CACHE_MAX_AGE 0xff
-
-/* Maximum number of waiting packets in the ARP queue. */
-#define ARP_PACKET_QUEUE_MAX_ENTRIES 8
-
-
-typedef enum
-{
-	ARPSTATE_Unused		= 0,    /* The entry is unused. */
-	ARPSTATE_Requesting	= 1,    /* The request for this entry is send out, but no reply yet. */
-	ARPSTATE_Valid		= 2     /* The entry is valid. */
-} ARP_STATE_T;
-
-
-typedef struct
-{
-	ARP_STATE_T tState;                     /* state of this entry */
-	int iAge;                               /* age of the entry (i.e. last used time) */
-	unsigned long ulIp;                     /* IP address */
-	tMacAdr tMac;                           /* MAC address */
-	unsigned long ulRequestTimeStamp;       /* system timestamp when the last request was send, only valid for 'requesting' entries */
-	unsigned int uiRetryCnt;                /* counts how many retries are left, only valid for 'requesting' entries */
-} ARP_CACHE_ENTRY_T;
-
-
-typedef struct
-{
-	unsigned int sizPacket;                 /* this is the size of the packet in bytes and the "valid" flag, a size of 0 means "invalid" */
-	unsigned long ulIp;                     /* the destination IP for this packet */
-	ETH2_PACKET_T *ptPkt;                   /* pointer to the packet */
-} PACKET_QUEUE_ENTRY_T;
 
 
 static const unsigned char aucArpFixedHdr[6] =
@@ -66,13 +27,8 @@ static const unsigned char aucArpFixedHdr[6] =
 };
 
 
-static PACKET_QUEUE_ENTRY_T atPacketQueue[ARP_PACKET_QUEUE_MAX_ENTRIES];
 
-
-static ARP_CACHE_ENTRY_T aui_arp_cache[ARP_CACHE_MAX_ENTRIES];
-
-
-static ARP_CACHE_ENTRY_T *arp_get_cache_entry(unsigned long ulIp)
+static ARP_CACHE_ENTRY_T *arp_get_cache_entry(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulIp)
 {
 	ARP_CACHE_ENTRY_T *ptCnt;
 	ARP_CACHE_ENTRY_T *ptEnd;
@@ -81,7 +37,7 @@ static ARP_CACHE_ENTRY_T *arp_get_cache_entry(unsigned long ulIp)
 
 
 	/* Loop over the ARP cache. */
-	ptCnt = aui_arp_cache;
+	ptCnt = ptNetworkDriver->tNetworkDriverData.auiArpCache;
 	ptEnd = ptCnt + ARP_CACHE_MAX_ENTRIES;
 	ptHit = NULL;
 	while(ptCnt<ptEnd)
@@ -113,7 +69,7 @@ static ARP_CACHE_ENTRY_T *arp_get_cache_entry(unsigned long ulIp)
 }
 
 
-static PACKET_QUEUE_ENTRY_T *arp_get_waiting_packet(unsigned long ulIp)
+static PACKET_QUEUE_ENTRY_T *arp_get_waiting_packet(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulIp)
 {
 	PACKET_QUEUE_ENTRY_T *ptCnt;
 	PACKET_QUEUE_ENTRY_T *ptEnd;
@@ -121,7 +77,7 @@ static PACKET_QUEUE_ENTRY_T *arp_get_waiting_packet(unsigned long ulIp)
 
 
 	/* Loop over all queue entries. */
-	ptCnt = atPacketQueue;
+	ptCnt = ptNetworkDriver->tNetworkDriverData.atPacketQueue;
 	ptEnd = ptCnt + ARP_PACKET_QUEUE_MAX_ENTRIES;
 	ptHit = NULL;
 	while( ptCnt<ptEnd )
@@ -141,7 +97,7 @@ static PACKET_QUEUE_ENTRY_T *arp_get_waiting_packet(unsigned long ulIp)
 }
 
 
-static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulNewIp, tMacAdr *ptMac)
+static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulNewIp, MAC_ADR_T *ptMac)
 {
 	PACKET_QUEUE_ENTRY_T *ptEntry;
 
@@ -150,7 +106,7 @@ static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsig
 	do
 	{
 		/* Look for a packet in the queue which was waiting for the new IP. */
-		ptEntry = arp_get_waiting_packet(ulNewIp);
+		ptEntry = arp_get_waiting_packet(ptNetworkDriver, ulNewIp);
 		if( ptEntry!=NULL )
 		{
 			/* Found a waiting packet -> send it. */
@@ -163,7 +119,7 @@ static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsig
 
 
 
-static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
+static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
 {
 	PACKET_QUEUE_ENTRY_T *ptCnt;
 	PACKET_QUEUE_ENTRY_T *ptEnd;
@@ -171,7 +127,7 @@ static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(ETH2_PACKET_T *ptPkt, unsign
 
 
 	/* Loop over all queue entries. */
-	ptCnt = atPacketQueue;
+	ptCnt = ptNetworkDriver->tNetworkDriverData.atPacketQueue;
 	ptEnd = ptCnt + ARP_PACKET_QUEUE_MAX_ENTRIES;
 	ptHit = NULL;
 	while( ptCnt<ptEnd )
@@ -199,7 +155,7 @@ static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(ETH2_PACKET_T *ptPkt, unsign
 
 
 
-static void arp_set_mac_request(unsigned long ulIp)
+static void arp_set_mac_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulIp)
 {
 	ARP_CACHE_ENTRY_T *ptCnt;
 	ARP_CACHE_ENTRY_T *ptEnd;
@@ -212,7 +168,7 @@ static void arp_set_mac_request(unsigned long ulIp)
 	iTopAge = -1;
 
 	/* loop over the ARP cache */
-	ptCnt = aui_arp_cache;
+	ptCnt = ptNetworkDriver->tNetworkDriverData.auiArpCache;
 	ptEnd = ptCnt + ARP_CACHE_MAX_ENTRIES;
 	ptFree = ptCnt;
 
@@ -272,7 +228,7 @@ static void arp_send_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ul
 
 
 
-void arp_init(void)
+void arp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	ARP_CACHE_ENTRY_T *ptCacheCnt;
 	ARP_CACHE_ENTRY_T *ptCacheEnd;
@@ -281,7 +237,7 @@ void arp_init(void)
 
 
 	/* invalidate all queue entries */
-	ptQueueCnt = atPacketQueue;
+	ptQueueCnt = ptNetworkDriver->tNetworkDriverData.atPacketQueue;
 	ptQueueEnd = ptQueueCnt + ARP_PACKET_QUEUE_MAX_ENTRIES;
 	while( ptQueueCnt<ptQueueEnd )
 	{
@@ -290,7 +246,7 @@ void arp_init(void)
 	}
 
 	/* invalidate all cache entries */
-	ptCacheCnt = aui_arp_cache;
+	ptCacheCnt = ptNetworkDriver->tNetworkDriverData.auiArpCache;
 	ptCacheEnd = ptCacheCnt + ARP_CACHE_MAX_ENTRIES;
 	while( ptCacheCnt<ptCacheEnd )
 	{
@@ -347,7 +303,7 @@ static void arp_process_reply(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *
 {
 	ARP_CACHE_ENTRY_T *ptCacheEntry;
 	unsigned long ulSrcIp;
-	tMacAdr *ptSrcMac;
+	MAC_ADR_T *ptSrcMac;
 
 
 	/* Destination IP must be my IP. */
@@ -358,7 +314,7 @@ static void arp_process_reply(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *
 		{
 			/* Look for the supplied IP in the "wanted" list. */
 			ulSrcIp = ptEthPkt->uEth2Data.tArpPkt.ulSrcIpAdr;
-			ptCacheEntry = arp_get_cache_entry(ulSrcIp);
+			ptCacheEntry = arp_get_cache_entry(ptNetworkDriver, ulSrcIp);
 			if( ptCacheEntry!=NULL )
 			{
 				if( ptCacheEntry->tState==ARPSTATE_Requesting )
@@ -413,8 +369,8 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 {
 	ARP_CACHE_ENTRY_T *ptCacheEntry;
 	PACKET_QUEUE_ENTRY_T *ptQueueEntry;
-	const tMacAdr *ptMac;
-	tMacAdr tMac;
+	const MAC_ADR_T *ptMac;
+	MAC_ADR_T tMac;
 
 
 	ptMac = NULL;
@@ -440,15 +396,15 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 	else
 	{
 		/* look for the requested IP in the cache */
-		ptCacheEntry = arp_get_cache_entry(ulDstIp);
+		ptCacheEntry = arp_get_cache_entry(ptNetworkDriver, ulDstIp);
 		if( ptCacheEntry==NULL )
 		{
 			/* queue packet */
-			ptQueueEntry = arp_add_waiting_packet(ptPkt, sizPacket, ulDstIp);
+			ptQueueEntry = arp_add_waiting_packet(ptNetworkDriver, ptPkt, sizPacket, ulDstIp);
 			if( ptQueueEntry!=NULL )
 			{
 				/* enter the request in the cache */
-				arp_set_mac_request(ulDstIp);
+				arp_set_mac_request(ptNetworkDriver, ulDstIp);
 				/* send request for the IP */
 				arp_send_request(ptNetworkDriver, ulDstIp);
 			}
@@ -457,7 +413,7 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 		{
 			/* This IP is already in the request list.
 			 * Just add the packet to the queue. */
-			arp_add_waiting_packet(ptPkt, sizPacket, ulDstIp);
+			arp_add_waiting_packet(ptNetworkDriver, ptPkt, sizPacket, ulDstIp);
 		}
 		else
 		{
@@ -485,7 +441,7 @@ void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 	/* Loop over the ARP cache. */
-	ptCnt = aui_arp_cache;
+	ptCnt = ptNetworkDriver->tNetworkDriverData.auiArpCache;
 	ptEnd = ptCnt + ARP_CACHE_MAX_ENTRIES;
 	while(ptCnt<ptEnd)
 	{
@@ -517,7 +473,7 @@ void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 					do
 					{
 						/* Look for a packet in the queue which was waiting for the new IP. */
-						ptEntry = arp_get_waiting_packet(ulIp);
+						ptEntry = arp_get_waiting_packet(ptNetworkDriver, ulIp);
 						if( ptEntry!=NULL )
 						{
 							/* Free the packet. */

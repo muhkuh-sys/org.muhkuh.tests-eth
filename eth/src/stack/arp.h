@@ -19,7 +19,7 @@
 #define ARP_OPCODE_REPLY	MUS2NUS(0x0002)
 
 
-void arp_init(void);
+void arp_init(NETWORK_DRIVER_T *ptNetworkDriver);
 
 void arp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 

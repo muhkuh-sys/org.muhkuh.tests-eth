@@ -14,19 +14,9 @@
 #define __DHCP_H__
 
 
-typedef enum
-{
-	DHCP_STATE_Idle			= 0,
-	DHCP_STATE_Discover		= 1,
-	DHCP_STATE_Request		= 2,
-	DHCP_STATE_Error		= 3,
-	DHCP_STATE_Ok			= 4
-} DHCP_STATE_T;
+void dhcp_init(NETWORK_DRIVER_T *ptNetworkDriver);
 
-
-void dhcp_init(void);
-
-DHCP_STATE_T dhcp_getState(void);
+DHCP_STATE_T dhcp_getState(NETWORK_DRIVER_T *ptNetworkDriver);
 
 void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver);
 

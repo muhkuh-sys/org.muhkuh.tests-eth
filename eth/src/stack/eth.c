@@ -44,12 +44,12 @@
 #endif
 
 
-const tMacAdr g_tBroadcastMac =
+const MAC_ADR_T g_tBroadcastMac =
 {
 	.aucMac = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
 };
 
-const tMacAdr g_tEmptyMac =
+const MAC_ADR_T g_tEmptyMac =
 {
 	.aucMac = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 };
@@ -105,7 +105,7 @@ void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 
-void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const tMacAdr *ptDstMac, unsigned int uiTyp)
+void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp)
 {
 	unsigned int sizPacket;
 
@@ -113,9 +113,9 @@ void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket,
 	/* Fill the ETH2 header. */
 
 	/* Set the remote MAC. */
-	memcpy(&ptPacket->tEth2Hdr.tDstMac, ptDstMac, sizeof(tMacAdr));
+	memcpy(&ptPacket->tEth2Hdr.tDstMac, ptDstMac, sizeof(MAC_ADR_T));
 	/* Set my MAC. */
-	memcpy(&ptPacket->tEth2Hdr.tSrcMac, g_t_romloader_options.t_ethernet.aucMac, sizeof(tMacAdr));
+	memcpy(&ptPacket->tEth2Hdr.tSrcMac, g_t_romloader_options.t_ethernet.aucMac, sizeof(MAC_ADR_T));
 	/* Set the packet type. */
 	ptPacket->tEth2Hdr.usTyp = (unsigned short)uiTyp;
 

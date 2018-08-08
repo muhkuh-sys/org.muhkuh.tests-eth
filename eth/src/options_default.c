@@ -23,12 +23,6 @@ const ROMLOADER_OPTIONS_T t_default_options =
 		.ulIp = IP_ADR(192,168,64,20),
 		.ulGatewayIp = 0U,
 		.ulNetmask = 0U,
-		.ulPhyControl = (PHYCTRL_MODE_ALL_CAPABLE_AUTONEG_AUTOMDIXEN << HOSTSRT(int_phy_cfg_phy_ctrl_phy0_mode)) |
-		                (PHYCTRL_MODE_ALL_CAPABLE_AUTONEG_AUTOMDIXEN << HOSTSRT(int_phy_cfg_phy_ctrl_phy1_mode)) |
-		                HOSTMSK(int_phy_cfg_phy_ctrl_phy0_automdix) |
-		                HOSTMSK(int_phy_cfg_phy_ctrl_phy1_automdix) |
-		                HOSTMSK(int_phy_cfg_phy_ctrl_phy0_enable) |
-		                HOSTMSK(int_phy_cfg_phy_ctrl_phy1_enable),
 		.usLinkUpDelay = 1000,
 		.usArpTimeout = 1000,
 		.usDhcpTimeout = 3000,

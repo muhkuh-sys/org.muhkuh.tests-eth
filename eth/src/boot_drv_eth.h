@@ -32,7 +32,6 @@ typedef struct STRUCT_ETHERNET_CONFIGURATION
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;
-	unsigned long ulPhyControl;
 	unsigned short usLinkUpDelay;
 	unsigned short usArpTimeout;
 	unsigned short usDhcpTimeout;

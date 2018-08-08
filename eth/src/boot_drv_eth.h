@@ -39,9 +39,6 @@ typedef struct STRUCT_ETHERNET_CONFIGURATION
 	unsigned char ucArpRetries;
 	unsigned char ucDhcpRetries;
 	unsigned char aucMmioCfg[2];
-	unsigned char aucPadCtrlExtCommon[4];
-	unsigned char aucPadCtrlExt0[16];
-	unsigned char aucPadCtrlExt1[16];
 	PHY_MACRO_T tPhyMacroIntern;
 	PHY_MACRO_T tPhyMacroExtern;
 } ETHERNET_CONFIGURATION_T;

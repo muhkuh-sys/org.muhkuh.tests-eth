@@ -25,7 +25,6 @@
 
 #include "boot_drv_eth.h"
 #include "options.h"
-#include "pad_control.h"
 #include "rdy_run.h"
 #include "systime.h"
 #include "uprintf.h"
@@ -47,7 +46,6 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 
 	systime_init();
 	options_initialize();
-	pad_control_init();
 
 	/* Set the verbose mode. */
 	s_ulVerbosity = ptTestParams->ulVerbose;
@@ -61,8 +59,10 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		uprintf(".   Verbose: 0x%08x\n", ptTestParams->ulVerbose);
 	}
 
-//	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY0, "CH0");
-	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY1, "CH1");
+
+
+	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY0, "CH0");
+//	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY1, "CH1");
 	while(1)
 	{
 		ethernet_cyclic_process(&tNetworkDriver);

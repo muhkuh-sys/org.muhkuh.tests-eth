@@ -5,7 +5,6 @@
 #include "netx_io_areas.h"
 #include "driver/ethmac_xpec_regdef.h"
 #include "options.h"
-#include "pad_control.h"
 #include "phy.h"
 #include "phy_std_regs.h"
 #include "systime.h"
@@ -198,57 +197,6 @@ static const unsigned long* const paulxMacTpuCodes[2] =
 {
 	XcCode_tpu_ethmac0,
 	XcCode_tpu_ethmac1
-};
-
-
-static const unsigned char aucPadCtrlRegsExtCommon[4] =
-{
-	PAD_REG2OFFSET(mii_mdc),
-	PAD_REG2OFFSET(mii_mdio),
-	PAD_REG2OFFSET(rst_out_n),
-	PAD_REG2OFFSET(clk25out)
-};
-
-
-static const unsigned char aucPadCtrlRegsExt0[16] =
-{
-	PAD_REG2OFFSET(mii0_rxclk),
-	PAD_AREG2OFFSET(mii0_rxd, 0),
-	PAD_AREG2OFFSET(mii0_rxd, 1),
-	PAD_AREG2OFFSET(mii0_rxd, 2),
-	PAD_AREG2OFFSET(mii0_rxd, 3),
-	PAD_REG2OFFSET(mii0_rxdv),
-	PAD_REG2OFFSET(mii0_rxer),
-	PAD_REG2OFFSET(mii0_txclk),
-	PAD_AREG2OFFSET(mii0_txd, 0),
-	PAD_AREG2OFFSET(mii0_txd, 1),
-	PAD_AREG2OFFSET(mii0_txd, 2),
-	PAD_AREG2OFFSET(mii0_txd, 3),
-	PAD_REG2OFFSET(mii0_txen),
-	PAD_REG2OFFSET(mii0_col),
-	PAD_REG2OFFSET(mii0_crs),
-	PAD_REG2OFFSET(phy0_led_link_in)
-};
-
-
-static const unsigned char aucPadCtrlRegsExt1[16] =
-{
-	PAD_REG2OFFSET(mii1_rxclk),
-	PAD_AREG2OFFSET(mii1_rxd, 0),
-	PAD_AREG2OFFSET(mii1_rxd, 1),
-	PAD_AREG2OFFSET(mii1_rxd, 2),
-	PAD_AREG2OFFSET(mii1_rxd, 3),
-	PAD_REG2OFFSET(mii1_rxdv),
-	PAD_REG2OFFSET(mii1_rxer),
-	PAD_REG2OFFSET(mii1_txclk),
-	PAD_AREG2OFFSET(mii1_txd, 0),
-	PAD_AREG2OFFSET(mii1_txd, 1),
-	PAD_AREG2OFFSET(mii1_txd, 2),
-	PAD_AREG2OFFSET(mii1_txd, 3),
-	PAD_REG2OFFSET(mii1_txen),
-	PAD_REG2OFFSET(mii1_col),
-	PAD_REG2OFFSET(mii1_crs),
-	PAD_REG2OFFSET(phy1_led_link_in)
 };
 
 
@@ -1328,21 +1276,6 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 			ptAsicCtrlArea->asClock_enable[0].ulEnable = ulValue;
 
-			/* Configure the pad_ctrl for all signals. */
-			if( uiPort>=2 )
-			{
-				/* Configure the common pins. */
-				pad_control_apply(aucPadCtrlRegsExtCommon, g_t_romloader_options.t_ethernet.aucPadCtrlExtCommon, sizeof(aucPadCtrlRegsExtCommon));
-				if( uiPort==2 )
-				{
-					pad_control_apply(aucPadCtrlRegsExt0, g_t_romloader_options.t_ethernet.aucPadCtrlExt0, sizeof(aucPadCtrlRegsExt0));
-				}
-				else
-				{
-					pad_control_apply(aucPadCtrlRegsExt1, g_t_romloader_options.t_ethernet.aucPadCtrlExt1, sizeof(aucPadCtrlRegsExt1));
-				}
-			}
-
 			/* Initialize the XC. */
 			pfifo_reset();
 
@@ -1453,21 +1386,6 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 			configure_mode_lvds();
 
 			eth_initialize(uiPort);
-#if 0
-			pusPortcontrol_Index = NULL;
-			switch(uiPort)
-			{
-			case 0:
-				pusPortcontrol_Index = ausPortcontrol_Index_Lvds0;
-				break;
-			case 1:
-				pusPortcontrol_Index = ausPortcontrol_Index_Lvds1;
-				break;
-			}
-			pusPortControl_Values = g_t_romloader_options.t_ethernet.ausLvdsPortControl;
-			sizPortControl_Values = sizeof(g_t_romloader_options.t_ethernet.ausLvdsPortControl)/sizeof(g_t_romloader_options.t_ethernet.ausLvdsPortControl[0]);
-			portcontrol_apply(pusPortcontrol_Index, pusPortControl_Values, sizPortControl_Values);
-#endif
 
 			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXcLvds, sizeof(NETWORK_IF_T));
 

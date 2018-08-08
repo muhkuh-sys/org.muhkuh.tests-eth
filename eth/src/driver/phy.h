@@ -82,7 +82,6 @@ typedef enum PHY_SETUP_COMMAND_ENUM
 
 
 int phy_setup_execute_sequence(const unsigned char *pucSequence, unsigned int sizSequence);
-int extphy_auto_setup(unsigned int *puiExtPhyCtrlInst, unsigned int *puiExtPhyAddress);
 
 
 #endif  /* __PHY_H__ */

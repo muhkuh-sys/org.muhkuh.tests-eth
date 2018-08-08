@@ -1021,7 +1021,7 @@ static int intphy_reset(void)
 
 
 
-static int extphy_reset(DRV_ETH_XC_HANDLE_T *ptHandle)
+static int extphy_reset(void)
 {
 	const unsigned char *pucMacro;
 	int iResult;
@@ -1035,7 +1035,7 @@ static int extphy_reset(DRV_ETH_XC_HANDLE_T *ptHandle)
 	 */
 	if( *pucMacro==0x00U )
 	{
-		iResult = extphy_auto_setup(ptHandle->auiExtPhyCtrlInst, ptHandle->auiExtPhyAddress);
+		iResult = -1;
 	}
 	else
 	{
@@ -1114,7 +1114,7 @@ static void configure_mode(DRV_ETH_XC_HANDLE_T *ptHandle)
 	}
 	else
 	{
-		extphy_reset(ptHandle);
+		extphy_reset();
 	}
 
 }

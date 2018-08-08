@@ -24,7 +24,7 @@
 #define IP_PROTOCOL_UDP 0x11
 
 
-void ipv4_init(void);
+void ipv4_init(NETWORK_DRIVER_T *ptNetworkDriver);
 
 void ipv4_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 

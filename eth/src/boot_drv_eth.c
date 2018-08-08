@@ -79,7 +79,7 @@ int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface,
 	{
 		buckets_init();
 		arp_init(ptNetworkDriver);
-		ipv4_init();
+		ipv4_init(ptNetworkDriver);
 		udp_init();
 		dhcp_init(ptNetworkDriver);
 

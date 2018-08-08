@@ -18,9 +18,6 @@
 
 
 
-static unsigned int uiIpOutputId;
-
-
 static unsigned long ipv4_get_destination_ip(unsigned long ulDstIp)
 {
 	unsigned long ulMyNetwork;
@@ -55,9 +52,9 @@ static unsigned long ipv4_get_destination_ip(unsigned long ulDstIp)
 }
 
 
-void ipv4_init(void)
+void ipv4_init(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	uiIpOutputId = 0;
+	ptNetworkDriver->tNetworkDriverData.tIpv4Data.uiIpOutputId = 0;
 }
 
 
@@ -109,8 +106,8 @@ void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, u
 	/* Set the IP packet size. */
 	ptPkt->uEth2Data.tIpPkt.tIpHdr.usLength = MUS2NUS(sizIpPacket);
 	/* Set the output ID- */
-	ptPkt->uEth2Data.tIpPkt.tIpHdr.usId = MUS2NUS(uiIpOutputId);
-	++uiIpOutputId;
+	ptPkt->uEth2Data.tIpPkt.tIpHdr.usId = MUS2NUS(ptNetworkDriver->tNetworkDriverData.tIpv4Data.uiIpOutputId);
+	++(ptNetworkDriver->tNetworkDriverData.tIpv4Data.uiIpOutputId);
 	/* Set the 'do not fragment' flag. */
 	ptPkt->uEth2Data.tIpPkt.tIpHdr.usFlags = MUS2NUS(0x4000);
 	/* Set the default time to live. */

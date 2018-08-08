@@ -954,7 +954,7 @@ static void pfifo_reset(void)
 	}
 	
 	/* Clear the reset flag of all FIFOs. */
-	ptPointerFifoArea->ulPfifo_reset = 0xffffffffU;
+	ptPointerFifoArea->ulPfifo_reset = 0;
 }
 
 
@@ -962,11 +962,7 @@ static void pfifo_reset(void)
 static void pfifo_init(unsigned int uiPortNo)
 {
 	HOSTDEF(ptPointerFifoArea);
-	unsigned long ulValue;
 	unsigned long ulFifoStart;
-	unsigned long ulFifoMask;
-	unsigned int uiFifoCnt;
-	unsigned long ulBorder;
 	unsigned char *pucStart;
 	unsigned char *pucEnd;
 	unsigned char *pucCnt;
@@ -975,26 +971,6 @@ static void pfifo_init(unsigned int uiPortNo)
 
 
 	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * (uiPortNo & 1);
-	ulFifoMask = ((1U<<NUM_FIFO_CHANNELS_PER_UNIT) - 1U) << ulFifoStart;
-
-	/* Set reset bit for all used pointer FIFOs. */
-	ulValue  = ptPointerFifoArea->ulPfifo_reset;
-	ulValue |= ulFifoMask;
-	ptPointerFifoArea->ulPfifo_reset = ulValue;
-
-	ulBorder = FIFO_ENTRIES - 1U;
-	uiFifoCnt = 0;
-	do
-	{
-		ptPointerFifoArea->aulPfifo_border[uiFifoCnt] = ulBorder;
-		ulBorder += FIFO_ENTRIES;
-		++uiFifoCnt;
-	} while( uiFifoCnt<NUM_FIFO_CHANNELS_PER_UNIT );
-
-	/* Clear reset bit for all pointer FIFOs. */
-	ulValue  = ptPointerFifoArea->ulPfifo_reset;
-	ulValue &= ~ulFifoMask;
-	ptPointerFifoArea->ulPfifo_reset = ulValue;
 
 	/*** fill empty pointer FIFO ***/
 	pucStart = aucEthernetBuffer_start;

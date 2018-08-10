@@ -40,7 +40,10 @@
 
 /* This is the Ethernet buffer from the linker description file. */
 extern unsigned char aucEthernetBuffer_start[];
-extern unsigned char aucEthernetBuffer_end[];
+extern unsigned char aucEthernetBuffer0_start[];
+extern unsigned char aucEthernetBuffer0_end[];
+extern unsigned char aucEthernetBuffer1_start[];
+extern unsigned char aucEthernetBuffer1_end[];
 
 
 
@@ -666,7 +669,7 @@ static void *convert_fifo_value_to_packet_pointer(unsigned long ulFifoValue)
 	void *pvPacket;
 
 
-	/* extract ram bank and frame number */ 
+	/* Extract the RAM bank and frame number. */
 	ulFrameNr   = ulFifoValue;
 	ulFrameNr  &= MSK_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM;
 	ulFrameNr >>= SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM;
@@ -882,7 +885,7 @@ static const NETWORK_IF_T tNetworkIfXcLvds =
 };
 
 
-static void pfifo_reset(void)
+void pfifo_reset(void)
 {
 	HOSTDEF(ptPointerFifoArea);
 	unsigned int uiCnt;
@@ -910,6 +913,7 @@ static void pfifo_reset(void)
 static void pfifo_init(unsigned int uiPortNo)
 {
 	HOSTDEF(ptPointerFifoArea);
+	unsigned int uiXC;
 	unsigned long ulFifoStart;
 	unsigned char *pucStart;
 	unsigned char *pucEnd;
@@ -918,27 +922,44 @@ static void pfifo_init(unsigned int uiPortNo)
 	unsigned long ulFifoPtr;
 
 
-	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * (uiPortNo & 1);
+	uiXC = uiPortNo & 1U;
+	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * uiXC;
 
 	/*** fill empty pointer FIFO ***/
-	pucStart = aucEthernetBuffer_start;
-	pucEnd = aucEthernetBuffer_end;
-	ulFrameNumber = 0U;
-	do
+	if( uiXC==0 )
 	{
-		/* Get the pointer to the frame. */
-		pucCnt = pucStart + ulFrameNumber*ETH_FRAME_BUF_SIZE;
+		pucStart = aucEthernetBuffer0_start;
+		pucEnd = aucEthernetBuffer0_end;
+	}
+	else
+	{
+		pucStart = aucEthernetBuffer1_start;
+		pucEnd = aucEthernetBuffer1_end;
+	}
+
+	/* Get the first frame number. */
+	ulFrameNumber = 0U;
+	pucCnt = aucEthernetBuffer_start;
+	while( pucCnt<pucStart )
+	{
+		pucCnt += ETH_FRAME_BUF_SIZE;
+		++ulFrameNumber;
+	}
+
+	while( pucCnt<pucEnd )
+	{
 		/* Is the pointer still in the defined area? */
-		if( (pucCnt+ETH_FRAME_BUF_SIZE)<pucEnd )
+		if( (pucCnt+ETH_FRAME_BUF_SIZE)<=pucEnd )
 		{
 			/* Use INTRAM3. */
 			ulFifoPtr  = (0U << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
 			ulFifoPtr |= (ulFrameNumber << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
-			uprintf("FIFO fill 0x%08x\n", ulFifoPtr);
+			uprintf("Port %d FIFO fill 0x%08x\n", uiPortNo, ulFifoPtr);
 			ptPointerFifoArea->aulPfifo[ulFifoStart + ETHERNET_FIFO_EMPTY] = ulFifoPtr;
 		}
+		pucCnt += ETH_FRAME_BUF_SIZE;
 		++ulFrameNumber;
-	} while( pucCnt<pucEnd );
+	}
 }
 
 
@@ -1103,7 +1124,7 @@ static void configure_mode_lvds(void)
 
 
 
-static int eth_initialize(unsigned int uiPortNr)
+static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPortNr)
 {
 	HOSTDEF(ptXpecIrqRegistersArea);
 	HOSTDEF(ptSystimeComArea);
@@ -1113,6 +1134,7 @@ static int eth_initialize(unsigned int uiPortNr)
 	unsigned int uiCnt;
 	unsigned long ulValue;
 	unsigned int uiXC;
+	unsigned char *pucMAC;
 
 
 	uiXC = uiPortNr & 1U;
@@ -1179,14 +1201,15 @@ static int eth_initialize(unsigned int uiPortNr)
 #endif
 
 		/* Set the MAC address. */
-		ulValue  =                  g_t_romloader_options.t_ethernet.aucMac[0];
-		ulValue |= ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[1])) <<  8U;
-		ulValue |= ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[2])) << 16U;
-		ulValue |= ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[3])) << 24U;
+		pucMAC = ptNetworkDriver->tEthernetPortCfg.aucMac;
+		ulValue  =                  pucMAC[0];
+		ulValue |= ((unsigned long)(pucMAC[1])) <<  8U;
+		ulValue |= ((unsigned long)(pucMAC[2])) << 16U;
+		ulValue |= ((unsigned long)(pucMAC[3])) << 24U;
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_INTERFACE_MAC_ADDRESS_LO = ulValue;
 
-		ulValue  =                  g_t_romloader_options.t_ethernet.aucMac[4];
-		ulValue |= ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[5])) << 8U;
+		ulValue  =                  pucMAC[4];
+		ulValue |= ((unsigned long)(pucMAC[5])) << 8U;
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_INTERFACE_MAC_ADDRESS_HI = ulValue;
 	}
 
@@ -1276,12 +1299,9 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 			ptAsicCtrlArea->asClock_enable[0].ulEnable = ulValue;
 
-			/* Initialize the XC. */
-			pfifo_reset();
-
 			configure_mode(ptHandle);
 
-			eth_initialize(uiPort);
+			eth_initialize(ptNetworkDriver, uiPort);
 
 			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
 
@@ -1385,7 +1405,7 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 
 			configure_mode_lvds();
 
-			eth_initialize(uiPort);
+			eth_initialize(ptNetworkDriver, uiPort);
 
 			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXcLvds, sizeof(NETWORK_IF_T));
 

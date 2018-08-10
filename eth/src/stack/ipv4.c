@@ -18,7 +18,7 @@
 
 
 
-static unsigned long ipv4_get_destination_ip(unsigned long ulDstIp)
+static unsigned long ipv4_get_destination_ip(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulDstIp)
 {
 	unsigned long ulMyNetwork;
 	unsigned long ulDstNetwork;
@@ -29,25 +29,25 @@ static unsigned long ipv4_get_destination_ip(unsigned long ulDstIp)
 	 *  - the destination is not the broadcast address
 	 *  - the destination is not a multicast address
 	 */
-	if( g_t_romloader_options.t_ethernet.ulNetmask!=0 &&
+	if( ptNetworkDriver->tEthernetPortCfg.ulNetmask!=0 &&
 	    ulDstIp!=IP_ADR(0xff, 0xff, 0xff, 0xff) &&
 	    (ulDstIp&IP_ADR(0xf0, 0x00, 0x00, 0x00))!=IP_ADR(0xe0, 0x00, 0x00, 0x00)
 	  )
 	{
 		/* get my network */
-		ulMyNetwork = g_t_romloader_options.t_ethernet.ulIp & g_t_romloader_options.t_ethernet.ulNetmask;
+		ulMyNetwork = ptNetworkDriver->tEthernetPortCfg.ulIp & ptNetworkDriver->tEthernetPortCfg.ulNetmask;
 		/* get the destination network */
-		ulDstNetwork = ulDstIp & g_t_romloader_options.t_ethernet.ulNetmask;
+		ulDstNetwork = ulDstIp & ptNetworkDriver->tEthernetPortCfg.ulNetmask;
 
-		/* is the destination ip in my network? */
+		/* Is the destination IP in my network? */
 		if( ulMyNetwork!=ulDstNetwork )
 		{
 			/* no -> send this packet to the gateway */
-			ulDstIp = g_t_romloader_options.t_ethernet.ulGatewayIp;
+			ulDstIp = ptNetworkDriver->tEthernetPortCfg.ulGatewayIp;
 		}
 	}
 
-	/* return the destination ip */
+	/* return the destination IP */
 	return ulDstIp;
 }
 
@@ -117,7 +117,7 @@ void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, u
 	/* Clear the checksum for the calculation below. */
 	ptPkt->uEth2Data.tIpPkt.tIpHdr.usChecksum = 0;
 	/* Source IP is my IP. */
-	ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp = g_t_romloader_options.t_ethernet.ulIp;
+	ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp = ptNetworkDriver->tEthernetPortCfg.ulIp;
 	/* Set the requested destination IP. */
 	ptPkt->uEth2Data.tIpPkt.tIpHdr.ulDstIp = ulDstIp;
 
@@ -125,7 +125,7 @@ void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, u
 	ptPkt->uEth2Data.tIpPkt.tIpHdr.usChecksum = MUS2NUS(checksum_add_complement(&ptPkt->uEth2Data.tIpPkt.tIpHdr, sizeof(IPV4_HEADER_T)));
 
 	/* Get the destination IP. */
-	ulFirstDstIp = ipv4_get_destination_ip(ulDstIp);
+	ulFirstDstIp = ipv4_get_destination_ip(ptNetworkDriver, ulDstIp);
 
 	/* Send the packet. */
 	arp_send_ipv4_packet(ptNetworkDriver, ptPkt, sizIpPacket, ulFirstDstIp);

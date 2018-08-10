@@ -41,7 +41,10 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 {
 	TEST_RESULT_T tTestResult;
 	int iResult;
-	NETWORK_DRIVER_T tNetworkDriver;
+	NETWORK_DRIVER_T atNetworkDriver[MAX_NETWORK_INTERFACES];
+	ETHERNET_PORT_CONFIGURATION_T *ptEthCfg;
+	NETWORK_DRIVER_T *ptNetworkDriver;
+	unsigned int uiCnt;
 
 
 	systime_init();
@@ -59,13 +62,31 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		uprintf(".   Verbose: 0x%08x\n", ptTestParams->ulVerbose);
 	}
 
+	/* Initialize the XC. */
+	pfifo_reset();
 
-
-	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY0, "CH0");
-//	iResult = boot_drv_eth_init(&tNetworkDriver, INTERFACE_INTPHY1, "CH1");
-	while(1)
+	/* Loop over all Ethernet ports and try to configure them. */
+	for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 	{
-		ethernet_cyclic_process(&tNetworkDriver);
+		ptEthCfg = g_t_romloader_options.t_ethernet.atPorts + uiCnt;
+		ptNetworkDriver = atNetworkDriver + uiCnt;
+		iResult = boot_drv_eth_init(uiCnt, ptEthCfg, ptNetworkDriver);
+		if( iResult!=0 )
+		{
+			break;
+		}
+	}
+
+
+	if( iResult==0 )
+	{
+		while(1)
+		{
+			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
+			{
+				ethernet_cyclic_process(atNetworkDriver + uiCnt);
+			}
+		}
 	}
 
 	if( iResult==0 )

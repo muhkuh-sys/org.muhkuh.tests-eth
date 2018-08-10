@@ -180,7 +180,7 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 		ptDhcpPacket->ulSiAddr = 0;
 		ptDhcpPacket->ulGiAddr = 0;
 
-		memcpy(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
+		memcpy(ptDhcpPacket->aucChAddr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6);
 		memset(ptDhcpPacket->aucChAddr+6, 0, 10);
 		memset(ptDhcpPacket->acSName, 0, 64);
 		memset(ptDhcpPacket->acFile, 0, 128);
@@ -248,7 +248,7 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 		ptDhcpPacket->ulSiAddr = 0;
 		ptDhcpPacket->ulGiAddr = 0;
 
-		memcpy(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6);
+		memcpy(ptDhcpPacket->aucChAddr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6);
 		memset(ptDhcpPacket->aucChAddr+6, 0, 10);
 		memset(ptDhcpPacket->acSName, 0, 64);
 		memset(ptDhcpPacket->acFile, 0, 128);
@@ -362,7 +362,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 		    ptDhcpPacket->ucHType==1 &&
 		    ptDhcpPacket->ucHLen==6 &&
 		    ptDhcpPacket->ulXId==ptDhcpHandle->ulXId &&
-		    memcmp(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6) == 0 &&
+		    memcmp(ptDhcpPacket->aucChAddr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6) == 0 &&
 		    ptDhcpPacket->ulYiAddr!=0 )
 		{
 			/* is this a dhcp offer? */
@@ -408,7 +408,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 		    ptDhcpPacket->ucHType==1 &&
 		    ptDhcpPacket->ucHLen==6 &&
 		    ptDhcpPacket->ulXId==ptDhcpHandle->ulXId &&
-		    memcmp(ptDhcpPacket->aucChAddr, g_t_romloader_options.t_ethernet.aucMac, 6) == 0 &&
+		    memcmp(ptDhcpPacket->aucChAddr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6) == 0 &&
 		    ptDhcpPacket->ulYiAddr!=0 )
 		{
 			/* Store the new IP address. */
@@ -435,9 +435,9 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 							ulNewGatewayIp = IP_ADR(pucOpt[2], pucOpt[3], pucOpt[4], pucOpt[5]);
 
 							/* now the settings are complete, accept the stored values */
-							g_t_romloader_options.t_ethernet.ulIp = ulNewIp;
-							g_t_romloader_options.t_ethernet.ulNetmask = ulNewNetmask;
-							g_t_romloader_options.t_ethernet.ulGatewayIp = ulNewGatewayIp;
+							ptNetworkDriver->tEthernetPortCfg.ulIp = ulNewIp;
+							ptNetworkDriver->tEthernetPortCfg.ulNetmask = ulNewNetmask;
+							ptNetworkDriver->tEthernetPortCfg.ulGatewayIp = ulNewGatewayIp;
 
 							/* cleanup */
 							dhcp_cleanup(ptDhcpHandle);
@@ -477,6 +477,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 void dhcp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	DHCP_HANDLE_DATA_T *ptDhcpHandle;
+	unsigned char *pucMAC;
 
 
 	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
@@ -487,10 +488,11 @@ void dhcp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 	ptDhcpHandle->ptAssoc = NULL;
 
 	/* Initialize XID. */
-	ptDhcpHandle->ulXId = ((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[0])) |
-	                      (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[1])) <<  8U) |
-		              (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[2])) << 16U) |
-		              (((unsigned long)(g_t_romloader_options.t_ethernet.aucMac[3])) << 24U);
+	pucMAC = ptNetworkDriver->tEthernetPortCfg.aucMac;
+	ptDhcpHandle->ulXId = ((unsigned long)(pucMAC[0])) |
+	                      (((unsigned long)(pucMAC[1])) <<  8U) |
+		              (((unsigned long)(pucMAC[2])) << 16U) |
+		              (((unsigned long)(pucMAC[3])) << 24U);
 }
 
 

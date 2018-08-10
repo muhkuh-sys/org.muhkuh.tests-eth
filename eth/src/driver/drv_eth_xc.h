@@ -25,7 +25,7 @@ typedef enum PHYCTRL_MODE_Etag
 } PHYCTRL_MODE_E;
 
 
-
+void pfifo_reset(void);
 int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 

@@ -115,7 +115,7 @@ void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket,
 	/* Set the remote MAC. */
 	memcpy(&ptPacket->tEth2Hdr.tDstMac, ptDstMac, sizeof(MAC_ADR_T));
 	/* Set my MAC. */
-	memcpy(&ptPacket->tEth2Hdr.tSrcMac, g_t_romloader_options.t_ethernet.aucMac, sizeof(MAC_ADR_T));
+	memcpy(&ptPacket->tEth2Hdr.tSrcMac, ptNetworkDriver->tEthernetPortCfg.aucMac, sizeof(MAC_ADR_T));
 	/* Set the packet type. */
 	ptPacket->tEth2Hdr.usTyp = (unsigned short)uiTyp;
 

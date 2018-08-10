@@ -132,7 +132,7 @@ void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, un
 		/* Set the requested protocol. */
 		ptPkt->uEth2Data.tIpPkt.tIpHdr.ucProtocol = IP_PROTOCOL_UDP;
 		/* Source IP is my IP. */
-		ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp = g_t_romloader_options.t_ethernet.ulIp;
+		ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp = ptNetworkDriver->tEthernetPortCfg.ulIp;
 		/* Set the requested destination IP. */
 		ptPkt->uEth2Data.tIpPkt.tIpHdr.ulDstIp = ptAssoc->ulRemoteIp;
 

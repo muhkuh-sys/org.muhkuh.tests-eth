@@ -215,8 +215,8 @@ static void arp_send_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ul
 		/* this is a reply */
 		ptSendPacket->uEth2Data.tArpPkt.usOpcode = ARP_OPCODE_REQUEST;
 		/* the sender of the request is me */
-		memcpy(ptSendPacket->uEth2Data.tArpPkt.tSrcMacAdr.aucMac, g_t_romloader_options.t_ethernet.aucMac, 6);
-		ptSendPacket->uEth2Data.tArpPkt.ulSrcIpAdr = g_t_romloader_options.t_ethernet.ulIp;
+		memcpy(ptSendPacket->uEth2Data.tArpPkt.tSrcMacAdr.aucMac, ptNetworkDriver->tEthernetPortCfg.aucMac, 6);
+		ptSendPacket->uEth2Data.tArpPkt.ulSrcIpAdr = ptNetworkDriver->tEthernetPortCfg.ulIp;
 		/* i'm looking for the MAC */
 		memset(&ptSendPacket->uEth2Data.tArpPkt.tDstMacAdr, 0, 6);
 		ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ulIp;
@@ -265,7 +265,7 @@ static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T
 
 
 	ulReqIp = ptEthPkt->uEth2Data.tArpPkt.ulDstIpAdr;
-	if( ulReqIp==g_t_romloader_options.t_ethernet.ulIp )
+	if( ulReqIp==ptNetworkDriver->tEthernetPortCfg.ulIp )
 	{
 		/* The MAC field must not be filled. */
 		uiMacOr = 0;
@@ -284,8 +284,8 @@ static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T
 				/* this is a reply */
 				ptSendPacket->uEth2Data.tArpPkt.usOpcode = ARP_OPCODE_REPLY;
 				/* the sender of the reply is me */
-				memcpy(ptSendPacket->uEth2Data.tArpPkt.tSrcMacAdr.aucMac, g_t_romloader_options.t_ethernet.aucMac, 6);
-				ptSendPacket->uEth2Data.tArpPkt.ulSrcIpAdr = g_t_romloader_options.t_ethernet.ulIp;
+				memcpy(ptSendPacket->uEth2Data.tArpPkt.tSrcMacAdr.aucMac, ptNetworkDriver->tEthernetPortCfg.aucMac, 6);
+				ptSendPacket->uEth2Data.tArpPkt.ulSrcIpAdr = ptNetworkDriver->tEthernetPortCfg.ulIp;
 				/* the receiver of the reply is the sender of the request */
 				ptSendPacket->uEth2Data.tArpPkt.tDstMacAdr = ptEthPkt->uEth2Data.tArpPkt.tSrcMacAdr;
 				ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ptEthPkt->uEth2Data.tArpPkt.ulSrcIpAdr;
@@ -307,10 +307,10 @@ static void arp_process_reply(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *
 
 
 	/* Destination IP must be my IP. */
-	if( ptEthPkt->uEth2Data.tArpPkt.ulDstIpAdr==g_t_romloader_options.t_ethernet.ulIp )
+	if( ptEthPkt->uEth2Data.tArpPkt.ulDstIpAdr==ptNetworkDriver->tEthernetPortCfg.ulIp )
 	{
 		/* The destination MAC address must be my MAC address. */
-		if( memcmp(&ptEthPkt->uEth2Data.tArpPkt.tDstMacAdr, g_t_romloader_options.t_ethernet.aucMac, 6)==0 )
+		if( memcmp(&ptEthPkt->uEth2Data.tArpPkt.tDstMacAdr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6)==0 )
 		{
 			/* Look for the supplied IP in the "wanted" list. */
 			ulSrcIp = ptEthPkt->uEth2Data.tArpPkt.ulSrcIpAdr;

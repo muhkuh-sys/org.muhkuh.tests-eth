@@ -26,25 +26,22 @@ typedef struct PHY_MACRO_STRUCT
 
 
 
-typedef struct STRUCT_ETHERNET_CONFIGURATION
+typedef struct ETHERNET_CONFIGURATION_STRUCT
 {
-	unsigned char aucMac[6];
-	unsigned long ulIp;
-	unsigned long ulGatewayIp;
-	unsigned long ulNetmask;
-	unsigned short usLinkUpDelay;
+	ETHERNET_PORT_CONFIGURATION_T atPorts[MAX_NETWORK_INTERFACES];
+
 	unsigned short usArpTimeout;
 	unsigned short usDhcpTimeout;
 	unsigned char ucArpRetries;
 	unsigned char ucDhcpRetries;
-	unsigned char aucMmioCfg[2];
+
 	PHY_MACRO_T tPhyMacroIntern;
 	PHY_MACRO_T tPhyMacroExtern;
 } ETHERNET_CONFIGURATION_T;
 
 
 
-int boot_drv_eth_init(NETWORK_DRIVER_T *ptNetworkDriver, INTERFACE_T tInterface, const char *pcName);
+int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
 void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver);
 
 

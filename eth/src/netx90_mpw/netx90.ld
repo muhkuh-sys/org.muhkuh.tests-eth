@@ -84,12 +84,15 @@ SECTIONS
 	/* INTRAM3 is used for the INTRAM image and the ethernet buffer. */
 	.INTRAM_IMAGE_ETH_BUFFER ORIGIN(INTRAM3_S) :
 	{
-		__INTRAM_IMAGE__ = .;
 		aucEthernetBuffer_start = .;
 
-		. = ORIGIN(INTRAM3_S) + 0x4000 ;
+		aucEthernetBuffer0_start = .;
+		. = . + 0x5550 ;
+		aucEthernetBuffer0_end = .;
 
-		aucEthernetBuffer_end = .;
+		aucEthernetBuffer1_start = .;
+		. = . + 0x5550 ;
+		aucEthernetBuffer1_end = .;
 	} >INTRAM3_S
 
 

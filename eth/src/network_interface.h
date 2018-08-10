@@ -4,6 +4,9 @@
 #define __NETWORK_INTERFACE_H__
 
 
+#define MAX_NETWORK_INTERFACES 2
+
+
 struct NETWORK_DRIVER_STRUCT;
 
 typedef unsigned int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
@@ -34,12 +37,13 @@ typedef struct STRUCT_NETWORK_IF
 
 typedef enum INTERFACE_ENUM
 {
-	INTERFACE_INTPHY0  = 0,
-	INTERFACE_INTPHY1  = 1,
-	INTERFACE_EXTPHY0  = 2,
-	INTERFACE_EXTPHY1  = 3,
-	INTERFACE_LVDS0    = 4,
-	INTERFACE_LVDS1    = 5
+	INTERFACE_None     = 0,
+	INTERFACE_INTPHY0  = 1,
+	INTERFACE_INTPHY1  = 2,
+	INTERFACE_EXTPHY0  = 3,
+	INTERFACE_EXTPHY1  = 4,
+	INTERFACE_LVDS0    = 5,
+	INTERFACE_LVDS1    = 6
 } INTERFACE_T;
 
 
@@ -168,12 +172,25 @@ typedef struct NETWORK_DRIVER_DATA_STRUCT
 
 
 
+typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
+{
+	const char *pcName;
+	INTERFACE_T tInterface;
+	unsigned char aucMac[6];
+	unsigned long ulIp;
+	unsigned long ulGatewayIp;
+	unsigned long ulNetmask;
+	unsigned short usLinkUpDelay;
+} ETHERNET_PORT_CONFIGURATION_T;
+
+
+
 typedef struct NETWORK_DRIVER_STRUCT
 {
 	int f_is_configured;
-	const char *pcName;
-	NETWORK_IF_T tNetworkIf;
 	NETWORK_STATE_T tState;
+	NETWORK_IF_T tNetworkIf;
+	ETHERNET_PORT_CONFIGURATION_T tEthernetPortCfg;
 	TIMER_HANDLE_T tLinkUpTimer;
 	TIMER_HANDLE_T tEthernetHandlerTimer;
 	UDP_ASSOCIATION_T *ptEchoUdpAssoc;

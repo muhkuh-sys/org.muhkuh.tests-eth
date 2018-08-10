@@ -19,20 +19,33 @@ const ROMLOADER_OPTIONS_T t_default_options =
 {
 	.t_ethernet =
 	{
-		.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x00U },
-		.ulIp = IP_ADR(192,168,64,20),
-		.ulGatewayIp = 0U,
-		.ulNetmask = 0U,
-		.usLinkUpDelay = 1000,
+		.atPorts =
+		{
+			/* Port 0 */
+			{
+				.pcName = "CH0",
+				.tInterface = INTERFACE_INTPHY0,
+				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x00U },
+				.ulIp = IP_ADR(192,168,64,20),
+				.ulGatewayIp = 0,
+				.ulNetmask = IP_ADR(255,255,255,0),
+				.usLinkUpDelay = 1000
+			},
+			/* Port 1 */
+			{
+				.pcName = "CH1",
+				.tInterface = INTERFACE_INTPHY1,
+				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x01U },
+				.ulIp = IP_ADR(192,168,64,21),
+				.ulGatewayIp = 0,
+				.ulNetmask = IP_ADR(255,255,255,0),
+				.usLinkUpDelay = 1000
+			}
+		},
 		.usArpTimeout = 1000,
 		.usDhcpTimeout = 3000,
 		.ucArpRetries = 10,
 		.ucDhcpRetries = 5,
-		.aucMmioCfg =
-		{
-			0xff,   /* Ethernet link LED. */
-			0xff    /* Ethernet activity LED. */
-		},
 		.tPhyMacroIntern =
 		{
 			.aucMacro =

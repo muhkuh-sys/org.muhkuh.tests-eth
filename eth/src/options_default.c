@@ -25,6 +25,7 @@ const ROMLOADER_OPTIONS_T t_default_options =
 			{
 				.pcName = "CH0",
 				.tInterface = INTERFACE_INTPHY0,
+				.tFunction = INTERFACE_FUNCTION_EchoServer,
 				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x00U },
 				.ulIp = IP_ADR(192,168,64,20),
 				.ulGatewayIp = 0,
@@ -35,6 +36,7 @@ const ROMLOADER_OPTIONS_T t_default_options =
 			{
 				.pcName = "CH1",
 				.tInterface = INTERFACE_INTPHY1,
+				.tFunction = INTERFACE_FUNCTION_EchoClient,
 				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x01U },
 				.ulIp = IP_ADR(192,168,64,21),
 				.ulGatewayIp = 0,

@@ -42,7 +42,8 @@ typedef struct ETHERNET_CONFIGURATION_STRUCT
 
 
 int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
-void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver);
+int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver);
+int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver);
 
 
 #endif  /* __BOOT_DRV_ETH_H__ */

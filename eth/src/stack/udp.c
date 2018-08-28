@@ -16,12 +16,6 @@
 
 
 
-#define UDP_PORTLIST_MAX 8
-
-static UDP_ASSOCIATION_T atUdpPortAssoc[UDP_PORTLIST_MAX];
-
-
-
 static unsigned short udp_buildChecksum(ETH2_PACKET_T *ptPkt, unsigned int sizUdpPacketSize)
 {
 	unsigned int uiIpChecksum;
@@ -51,13 +45,13 @@ static unsigned short udp_buildChecksum(ETH2_PACKET_T *ptPkt, unsigned int sizUd
 
 
 
-void udp_init(void)
+void udp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	UDP_ASSOCIATION_T *ptAssocCnt;
 	UDP_ASSOCIATION_T *ptAssocEnd;
 
 
-	ptAssocCnt = atUdpPortAssoc;
+	ptAssocCnt = ptNetworkDriver->tNetworkDriverData.tUdpData.atUdpPortAssoc;
 	ptAssocEnd = ptAssocCnt + UDP_PORTLIST_MAX;
 	while( ptAssocCnt<ptAssocEnd )
 	{
@@ -77,6 +71,7 @@ void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt,
 	unsigned int uiUdpChecksum;
 	UDP_ASSOCIATION_T *ptAssocCnt;
 	UDP_ASSOCIATION_T *ptAssocEnd;
+	PFN_UDP_RECEIVE_HANDLER pfnRecHandler;
 
 
 	/* check size */
@@ -96,18 +91,28 @@ void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt,
 				uiDstPort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usDstPort;
 
 				/* loop over all port associations */
-				ptAssocCnt = atUdpPortAssoc;
+				pfnRecHandler = NULL;
+				ptAssocCnt = ptNetworkDriver->tNetworkDriverData.tUdpData.atUdpPortAssoc;
 				ptAssocEnd = ptAssocCnt + UDP_PORTLIST_MAX;
 				while( ptAssocCnt<ptAssocEnd )
 				{
 					/* does the local port match? */
+//					uprintf("%s: check %d %d\n", ptNetworkDriver->tEthernetPortCfg.pcName, NUS2MUS(ptAssocCnt->uiLocalPort), NUS2MUS(uiDstPort));
 					if( ptAssocCnt->uiLocalPort==uiDstPort )
 					{
 						/* yes -> pass packet data to the callback */
-						ptAssocCnt->pfn_recHandler(ptNetworkDriver, ptPkt, sizUdpPacketSize-sizeof(UDP_HEADER_T), ptAssocCnt->pvUser);
+						pfnRecHandler = ptAssocCnt->pfn_recHandler;
 						break;
 					}
 					++ptAssocCnt;
+				}
+				if( pfnRecHandler==NULL )
+				{
+//					uprintf("%s: drop UPD packet\n", ptNetworkDriver->tEthernetPortCfg.pcName);
+				}
+				else
+				{
+					pfnRecHandler(ptNetworkDriver, ptPkt, sizUdpPacketSize-sizeof(UDP_HEADER_T), ptAssocCnt->pvUser);
 				}
 			}
 		}
@@ -119,9 +124,11 @@ void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt,
 void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc)
 {
 	unsigned int sizPacketSize;
+	UDP_ASSOCIATION_T *atUdpPortAssoc;
 
 
 	/* Is the pointer inside the array? */
+	atUdpPortAssoc = ptNetworkDriver->tNetworkDriverData.tUdpData.atUdpPortAssoc;
 	if( ptAssoc>=atUdpPortAssoc && ptAssoc<(atUdpPortAssoc+UDP_PORTLIST_MAX) )
 	{
 		/* Get the size of the complete packet. */
@@ -148,7 +155,7 @@ void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, un
 
 
 
-UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, PFN_UDP_RECEIVE_HANDLER pfn_recHandler, void *pvUser)
+UDP_ASSOCIATION_T *udp_registerPort(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, PFN_UDP_RECEIVE_HANDLER pfn_recHandler, void *pvUser)
 {
 	UDP_ASSOCIATION_T *ptAssocCnt;
 	UDP_ASSOCIATION_T *ptAssocEnd;
@@ -156,7 +163,7 @@ UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRe
 
 
 	/* Find a free port table entry. */
-	ptAssocCnt = atUdpPortAssoc;
+	ptAssocCnt = ptNetworkDriver->tNetworkDriverData.tUdpData.atUdpPortAssoc;
 	ptAssocEnd = ptAssocCnt + UDP_PORTLIST_MAX;
 	ptAssocHit = NULL;
 	while( ptAssocCnt<ptAssocEnd )
@@ -180,8 +187,12 @@ UDP_ASSOCIATION_T *udp_registerPort(unsigned int uiLocalPort, unsigned long ulRe
 
 
 
-void udp_unregisterPort(UDP_ASSOCIATION_T *ptAssoc)
+void udp_unregisterPort(NETWORK_DRIVER_T *ptNetworkDriver, UDP_ASSOCIATION_T *ptAssoc)
 {
+	UDP_ASSOCIATION_T *atUdpPortAssoc;
+
+
+	atUdpPortAssoc = ptNetworkDriver->tNetworkDriverData.tUdpData.atUdpPortAssoc;
 	if( ptAssoc>=atUdpPortAssoc && ptAssoc<(atUdpPortAssoc+UDP_PORTLIST_MAX) )
 	{
 		ptAssoc->uiLocalPort = 0;

@@ -132,7 +132,7 @@ static const unsigned char aucDhcpOptionParamReqList[7] =
 };
 
 
-static void dhcp_cleanup(DHCP_HANDLE_DATA_T *ptDhcpHandle)
+static void dhcp_cleanup(NETWORK_DRIVER_T *ptNetworkDriver, DHCP_HANDLE_DATA_T *ptDhcpHandle)
 {
 	UDP_ASSOCIATION_T *ptAssoc;
 
@@ -140,7 +140,7 @@ static void dhcp_cleanup(DHCP_HANDLE_DATA_T *ptDhcpHandle)
 	ptAssoc = ptDhcpHandle->ptAssoc;
 	if( ptAssoc!=NULL )
 	{
-		udp_unregisterPort(ptAssoc);
+		udp_unregisterPort(ptNetworkDriver, ptAssoc);
 		ptDhcpHandle->ptAssoc = NULL;
 	}
 }
@@ -365,7 +365,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 		    memcmp(ptDhcpPacket->aucChAddr, ptNetworkDriver->tEthernetPortCfg.aucMac, 6) == 0 &&
 		    ptDhcpPacket->ulYiAddr!=0 )
 		{
-			/* is this a dhcp offer? */
+			/* Is this a DHCP offer? */
 			pucOpt = dhcp_getOption(ptDhcpPacket, sizDhcpLength, DHCP_OPT_DHCPMessageType);
 			if( pucOpt!=NULL && pucOpt[1]==1 && pucOpt[2]==DHCP_MSGTYP_DHCPOFFER )
 			{
@@ -396,7 +396,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 				else
 				{
 					/* cleanup */
-					dhcp_cleanup(ptDhcpHandle);
+					dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 				}
 			}
 		}
@@ -440,14 +440,14 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 							ptNetworkDriver->tEthernetPortCfg.ulGatewayIp = ulNewGatewayIp;
 
 							/* cleanup */
-							dhcp_cleanup(ptDhcpHandle);
+							dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 							ptDhcpHandle->tState = DHCP_STATE_Ok;
 						}
 						else
 						{
 							/* cleanup */
-							dhcp_cleanup(ptDhcpHandle);
+							dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 							ptDhcpHandle->tState = DHCP_STATE_Error;
 						}
@@ -455,7 +455,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 					else
 					{
 						/* cleanup */
-						dhcp_cleanup(ptDhcpHandle);
+						dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 						ptDhcpHandle->tState = DHCP_STATE_Error;
 					}
@@ -463,7 +463,7 @@ static void dhcp_recHandler(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, uns
 				else if( pucOpt[2]==DHCP_MSGTYP_DHCPNAK )
 				{
 					/* cleanup */
-					dhcp_cleanup(ptDhcpHandle);
+					dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 					ptDhcpHandle->tState = DHCP_STATE_Error;
 				}
@@ -511,7 +511,14 @@ void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver)
 	ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
 	/* open UDP port and register callback */
-	ptDhcpHandle->ptAssoc = udp_registerPort(MUS2NUS(DHCP_DISCOVER_SRC_PORT), DHCP_DISCOVER_DST_IP, MUS2NUS(DHCP_DISCOVER_DST_PORT), dhcp_recHandler, NULL);
+	ptDhcpHandle->ptAssoc = udp_registerPort(
+		ptNetworkDriver,
+		MUS2NUS(DHCP_DISCOVER_SRC_PORT),
+		DHCP_DISCOVER_DST_IP,
+		MUS2NUS(DHCP_DISCOVER_DST_PORT),
+		dhcp_recHandler,
+		NULL
+	);
 	if( ptDhcpHandle->ptAssoc!=NULL )
 	{
 		++(ptDhcpHandle->ulXId);
@@ -529,7 +536,7 @@ void dhcp_request(NETWORK_DRIVER_T *ptNetworkDriver)
 		else
 		{
 			/* cleanup */
-			dhcp_cleanup(ptDhcpHandle);
+			dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 			ptDhcpHandle->tState = DHCP_STATE_Error;
 		}
@@ -572,7 +579,7 @@ void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 			else
 			{
 				/* Close the connection. */
-				dhcp_cleanup(ptDhcpHandle);
+				dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 				ptDhcpHandle->tState = DHCP_STATE_Error;
 			}
@@ -595,7 +602,7 @@ void dhcp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 			else
 			{
 				/* Close the connection. */
-				dhcp_cleanup(ptDhcpHandle);
+				dhcp_cleanup(ptNetworkDriver, ptDhcpHandle);
 
 				ptDhcpHandle->tState = DHCP_STATE_Error;
 			}

@@ -48,6 +48,15 @@ typedef enum INTERFACE_ENUM
 
 
 
+typedef enum INTERFACE_FUNCTION_ENUM
+{
+	INTERFACE_FUNCTION_None = 0,          /* No special function. ARP and ICMP is active. */
+	INTERFACE_FUNCTION_EchoServer = 1,    /* Echo all UDP data on the configured port. */
+	INTERFACE_FUNCTION_EchoClient = 2     /* Send UDP packets and expect an echo. */
+} INTERFACE_FUNCTION_T;
+
+
+
 typedef enum NETWORK_STATE_ENUM
 {
 	NETWORK_STATE_NoLink             = 0,
@@ -55,8 +64,20 @@ typedef enum NETWORK_STATE_ENUM
 	NETWORK_STATE_LinkUp_Ready       = 2,
 	NETWORK_STATE_Dhcp               = 3,
 	NETWORK_STATE_Ready              = 4,
-	NETWORK_STATE_Error              = 5
+	NETWORK_STATE_Ok                 = 5,
+	NETWORK_STATE_Error              = 6
 } NETWORK_STATE_T;
+
+
+
+typedef enum ECHO_CLIENT_STATE_ENUM
+{
+	ECHO_CLIENT_STATE_Idle               = 0,
+	ECHO_CLIENT_STATE_WaitingForResponse = 1,
+	ECHO_CLIENT_STATE_PacketReceived     = 2,
+	ECHO_CLIENT_STATE_Ok                 = 3,
+	ECHO_CLIENT_STATE_Error              = 4
+} ECHO_CLIENT_STATE_T;
 
 
 
@@ -161,6 +182,15 @@ typedef struct IPV4_HANDLE_DATA_STRUCT
 
 
 
+#define UDP_PORTLIST_MAX 8
+
+typedef struct UDP_HANDLE_DATA_STRUCT
+{
+	UDP_ASSOCIATION_T atUdpPortAssoc[UDP_PORTLIST_MAX];
+} UDP_HANDLE_DATA_T;
+
+
+
 typedef struct NETWORK_DRIVER_DATA_STRUCT
 {
 	DRV_ETH_XC_HANDLE_T tDrvEthXcHandle;
@@ -168,6 +198,7 @@ typedef struct NETWORK_DRIVER_DATA_STRUCT
 	ARP_CACHE_ENTRY_T auiArpCache[ARP_CACHE_MAX_ENTRIES];
 	DHCP_HANDLE_DATA_T tDhcpData;
 	IPV4_HANDLE_DATA_T tIpv4Data;
+	UDP_HANDLE_DATA_T tUdpData;
 } NETWORK_DRIVER_DATA_T;
 
 
@@ -176,12 +207,41 @@ typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 {
 	const char *pcName;
 	INTERFACE_T tInterface;
+	INTERFACE_FUNCTION_T tFunction;
 	unsigned char aucMac[6];
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;
 	unsigned short usLinkUpDelay;
 } ETHERNET_PORT_CONFIGURATION_T;
+
+
+
+typedef struct FUNCTION_ECHO_SERVER_HANDLE_STRUCT
+{
+	UDP_ASSOCIATION_T *ptUdpAssoc;
+} FUNCTION_ECHO_SERVER_HANDLE_T;
+
+
+
+typedef struct FUNCTION_ECHO_CLIENT_HANDLE_STRUCT
+{
+	ECHO_CLIENT_STATE_T tState;
+	unsigned int uiPacketsLeft;
+	unsigned long ulServerIp;
+	unsigned short usServerPort;
+	UDP_ASSOCIATION_T *ptUdpAssoc;
+	TIMER_HANDLE_T tReceiveTimer;
+	unsigned long ulPacketSeed;
+} FUNCTION_ECHO_CLIENT_HANDLE_T;
+
+
+
+typedef union FUNCTION_HANDLE_ENUM
+{
+	FUNCTION_ECHO_SERVER_HANDLE_T tServer;
+	FUNCTION_ECHO_CLIENT_HANDLE_T tClient;
+} FUNCTION_HANDLE_T;
 
 
 
@@ -193,8 +253,8 @@ typedef struct NETWORK_DRIVER_STRUCT
 	ETHERNET_PORT_CONFIGURATION_T tEthernetPortCfg;
 	TIMER_HANDLE_T tLinkUpTimer;
 	TIMER_HANDLE_T tEthernetHandlerTimer;
-	UDP_ASSOCIATION_T *ptEchoUdpAssoc;
 	NETWORK_DRIVER_DATA_T tNetworkDriverData;
+	FUNCTION_HANDLE_T tFunctionHandle;
 } NETWORK_DRIVER_T;
 
 

@@ -17,11 +17,12 @@
 #include "options.h"
 #include "rdy_run.h"
 
-
+#define CFG_DEBUGMSG 0
 #if CFG_DEBUGMSG==1
-#       include "uprintf_debug.h"
+static const unsigned long ul_networking_eth = 0xffffffff;
+#       include "uprintf.h"
 
-#       define DEBUGZONE(n)  (g_t_romloader_options.t_debug_settings.ul_networking_eth&(0x00000001<<(n)))
+#       define DEBUGZONE(n)  (ul_networking_eth&(0x00000001<<(n)))
 
 	/*
 	 * These defines must match the ZONE_* defines
@@ -38,7 +39,7 @@
 #       define ZONE_INIT                DEBUGZONE(DBG_ZONE_INIT)
 #       define ZONE_VERBOSE             DEBUGZONE(DBG_ZONE_VERBOSE)
 
-#       define DEBUGMSG(cond,...) ((void)((cond)?(uprintf_debug(__VA_ARGS__)),1:0))
+#       define DEBUGMSG(cond,...) ((void)((cond)?(uprintf(__VA_ARGS__)),1:0))
 #else
 #       define DEBUGMSG(cond,...) ((void)0)
 #endif
@@ -67,6 +68,7 @@ void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	ptPacket = ptNetworkDriver->tNetworkIf.pfnGetReceivedPacket(ptNetworkDriver, &sizPacket);
 	if( ptPacket!=NULL )
 	{
+//		uprintf("%s: rec\n", ptNetworkDriver->tEthernetPortCfg.pcName);
 		/* Check the size of the received packet. */
 		if( sizPacket<sizeof(ETH2_HEADER_T) )
 		{

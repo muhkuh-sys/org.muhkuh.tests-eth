@@ -12,7 +12,7 @@
 #include "uprintf.h"
 
 
-static void process_echo_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
+static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
 {
 	ETH2_PACKET_T *ptPkt;
 	UDP_ASSOCIATION_T *ptAssoc;
@@ -21,7 +21,7 @@ static void process_echo_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData,
 	if( sizPacket>0 )
 	{
 		/* The user data is the pointer to the network driver. */
-		ptAssoc = ptNetworkDriver->ptEchoUdpAssoc;
+		ptAssoc = ptNetworkDriver->tFunctionHandle.tServer.ptUdpAssoc;
 
 		/* Cast the data to a eth2 packet. */
 		ptPkt = (ETH2_PACKET_T*)pvData;
@@ -33,6 +33,269 @@ static void process_echo_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData,
 		ptAssoc->uiRemotePort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usSrcPort;
 		udp_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptAssoc);
 	}
+}
+
+
+
+static unsigned long pseudo_generator(unsigned long ulSeed)
+{
+	/* Works with a LFSR (linear feedback left shift register)
+	 * with 32 Bits with MLS (Max Length sequence)
+	 * which reproduces only after 2^32-1 generations
+	 */
+	ulSeed =
+		(
+			(
+				(
+					(ulSeed >> 31U)
+					^ (ulSeed >> 6U)
+					^ (ulSeed >> 4U)
+					^ (ulSeed >> 1U)
+					^  ulSeed
+				)
+				&  0x00000001
+			)
+			<< 31
+		)
+		| (ulSeed>>1);
+
+	return ulSeed;
+}
+
+
+
+static unsigned int get_test_data_size(FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle)
+{
+	unsigned int sizPacket;
+
+
+	/* Send between 64 and 1024 bytes.
+	 * Note that the last 2 bits are masked out, so the
+	 * size is always a multiple of DWORDS.
+	 */
+	sizPacket = ptHandle->uiPacketsLeft & 0x03fcU;
+	if( sizPacket<64U )
+	{
+		sizPacket = 64U;
+	}
+	return sizPacket;
+}
+
+
+
+static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle;
+	ECHO_CLIENT_STATE_T tState;
+	ETH2_PACKET_T *ptPkt;
+	unsigned int sizPacket;
+	unsigned char *pucDataCnt;
+	unsigned char *pucDataEnd;
+	unsigned long ulData;
+	int iIsElapsed;
+	const char *pcName;
+
+
+	/* Get a shortcut to the handle. */
+	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
+
+	pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+
+	tState = ptHandle->tState;
+	switch( tState )
+	{
+	case ECHO_CLIENT_STATE_Idle:
+	case ECHO_CLIENT_STATE_PacketReceived:
+		/* Check if there are packets left to send. */
+		if( ptHandle->uiPacketsLeft==0 )
+		{
+			/* No packets left to send -> go back to the idle state. */
+			tState = ECHO_CLIENT_STATE_Idle;
+		}
+		else
+		{
+			/* Create a new packet. */
+			ptPkt = ptNetworkDriver->tNetworkIf.pfnGetEmptyPacket(ptNetworkDriver);
+			if( ptPkt==NULL )
+			{
+				uprintf("%s: No free Ethernet packet available.\n", pcName);
+				tState = ECHO_CLIENT_STATE_Error;
+			}
+			else
+			{
+				sizPacket = get_test_data_size(ptHandle);
+
+				/* Fill the packet with pseudo random data. */
+				ulData = ptHandle->ulPacketSeed;
+				pucDataCnt = (unsigned char*)(&(ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData));
+				pucDataEnd = pucDataCnt + sizPacket;
+				do
+				{
+					*(pucDataCnt++) = (unsigned char)( ulData & 0xffU);
+					*(pucDataCnt++) = (unsigned char)((ulData >>  8U) & 0xffU);
+					*(pucDataCnt++) = (unsigned char)((ulData >> 16U) & 0xffU);
+					*(pucDataCnt++) = (unsigned char)((ulData >> 24U) & 0xffU);
+					ulData = pseudo_generator(ulData);
+				} while( pucDataCnt<pucDataEnd );
+
+				/* Send the packet. */
+				udp_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptHandle->ptUdpAssoc);
+
+				/* Start the timeout for the receive operation.
+				 * A value of 1000ms is much too high, but does not hurt on the other hand.
+				 */
+				systime_handle_start_ms(&(ptHandle->tReceiveTimer), 1000);
+
+				/* Wait for the response. */
+				tState = ECHO_CLIENT_STATE_WaitingForResponse;
+			}
+		}
+		break;
+
+	case ECHO_CLIENT_STATE_WaitingForResponse:
+		/* Check for a timeout. */
+		iIsElapsed = systime_handle_is_elapsed(&(ptHandle->tReceiveTimer));
+		if( iIsElapsed!=0 )
+		{
+			uprintf("%s: Timeout receiving a packet.\n", pcName);
+			tState = ECHO_CLIENT_STATE_Error;
+		}
+		break;
+
+	case ECHO_CLIENT_STATE_Ok:
+		break;
+
+	case ECHO_CLIENT_STATE_Error:
+		uprintf("%s: in error state\n", pcName);
+		break;
+	}
+	ptHandle->tState = tState;
+
+	return tState;
+}
+
+
+
+static void echo_client_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
+{
+	ETH2_PACKET_T *ptPkt;
+	FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle;
+	ECHO_CLIENT_STATE_T tState;
+	unsigned int sizPacketExpected;
+	unsigned char *pucCnt;
+	unsigned char *pucEnd;
+	unsigned long ulPacketData;
+	unsigned long ulExpectedData;
+	const char *pcName;
+
+
+	pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+
+	if( sizPacket>0 )
+	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
+
+		tState = ptHandle->tState;
+		switch(tState)
+		{
+		case ECHO_CLIENT_STATE_Idle:
+			/* Ignore the packet. */
+			break;
+
+		case ECHO_CLIENT_STATE_WaitingForResponse:
+			/* Cast the data to a eth2 packet. */
+			ptPkt = (ETH2_PACKET_T*)pvData;
+
+			/* Get the expected size of the packet. */
+			sizPacketExpected = get_test_data_size(ptHandle);
+			if( sizPacket!=sizPacketExpected )
+			{
+				uprintf("%s: The received packet has %d, but it should have %d bytes.\n", pcName, sizPacket, sizPacketExpected);
+				tState = ECHO_CLIENT_STATE_Error;
+			}
+			else
+			{
+				/* Loop over the complete packet. */
+				ulExpectedData = ptHandle->ulPacketSeed;
+				pucCnt = (unsigned char*)(&(ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData));
+				pucEnd = pucCnt + sizPacket;
+				do
+				{
+					/* Get the next DWORD. */
+					ulPacketData  =  (unsigned long)*(pucCnt++);
+					ulPacketData |= ((unsigned long)*(pucCnt++)) <<  8U;
+					ulPacketData |= ((unsigned long)*(pucCnt++)) << 16U;
+					ulPacketData |= ((unsigned long)*(pucCnt++)) << 24U;
+
+					if( ulPacketData!=ulExpectedData )
+					{
+						uprintf("%s: The received data differs from the expected: 0x%08x - 0x%08x\n", pcName, ulPacketData, ulExpectedData);
+						tState = ECHO_CLIENT_STATE_Error;
+						break;
+					}
+
+					ulExpectedData = pseudo_generator(ulExpectedData);
+				} while( pucCnt<pucEnd );
+
+				if( tState!=ECHO_CLIENT_STATE_Error )
+				{
+					/* The packet is OK! */
+					--(ptHandle->uiPacketsLeft);
+					ptHandle->ulPacketSeed = ulExpectedData;
+					tState = ECHO_CLIENT_STATE_PacketReceived;
+				}
+			}
+			break;
+
+		case ECHO_CLIENT_STATE_PacketReceived:
+			/* Ignore the packet. */
+			break;
+
+		case ECHO_CLIENT_STATE_Ok:
+			/* Ignore the packet. */
+			break;
+
+		case ECHO_CLIENT_STATE_Error:
+			/* Ignore the packet. */
+			uprintf("%s: process packet called in error state.\n", pcName);
+			break;
+		}
+		ptHandle->tState = tState;
+	}
+}
+
+
+
+static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg)
+{
+	FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle;
+	unsigned long ulSeed;
+
+
+	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
+
+	ptHandle->tState = ECHO_CLIENT_STATE_Idle;
+	ptHandle->uiPacketsLeft = 1024;
+	ptHandle->ulServerIp = IP_ADR(192,168,64,20);
+	ptHandle->usServerPort = MUS2NUS(53280);
+	ptHandle->ptUdpAssoc = udp_registerPort(
+		ptNetworkDriver,
+		MUS2NUS(1024),               /* The local port. */
+		IP_ADR(192,168,64,20),       /* The IP of the echo server. */
+		MUS2NUS(53280),              /* The port of the echo server. */
+		echo_client_process_packet,  /* The handler routine for received packets. */
+		NULL                         /* The user parameter for the receive handler. */
+	);
+	ptHandle->tReceiveTimer.ulDuration = 0;
+	ptHandle->tReceiveTimer.ulStart = 0;
+
+	/* Generate the seed from the MAC. */
+	ulSeed  =  (unsigned long)(ptEthCfg->aucMac[0]);
+	ulSeed |= ((unsigned long)(ptEthCfg->aucMac[1])) <<  8U;
+	ulSeed |= ((unsigned long)(ptEthCfg->aucMac[2])) << 16U;
+	ulSeed |= ((unsigned long)(ptEthCfg->aucMac[3])) << 24U;
+	ptHandle->ulPacketSeed = ulSeed;
 }
 
 
@@ -112,7 +375,7 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 				buckets_init();
 				arp_init(ptNetworkDriver);
 				ipv4_init(ptNetworkDriver);
-				udp_init();
+				udp_init(ptNetworkDriver);
 				dhcp_init(ptNetworkDriver);
 
 				ptNetworkDriver->f_is_configured = 1;
@@ -120,7 +383,27 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 				ptNetworkDriver->tState = NETWORK_STATE_NoLink;
 				systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
 				systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
-				ptNetworkDriver->ptEchoUdpAssoc = udp_registerPort(MUS2NUS(53280), IP_ADR(0, 0, 0, 0), 0, process_echo_packet, NULL);
+
+				switch( ptEthCfg->tFunction )
+				{
+				case INTERFACE_FUNCTION_None:
+					break;
+
+				case INTERFACE_FUNCTION_EchoServer:
+					ptNetworkDriver->tFunctionHandle.tServer.ptUdpAssoc = udp_registerPort(
+						ptNetworkDriver,
+						MUS2NUS(53280),
+						IP_ADR(0, 0, 0, 0),
+						0,
+						echo_server_process_packet,
+						NULL
+					);
+					break;
+
+				case INTERFACE_FUNCTION_EchoClient:
+					echo_client_initialize(ptNetworkDriver, ptEthCfg);
+					break;
+				}
 
 				uprintf("%s: Interface initialized.\n", pcName);
 			}
@@ -132,8 +415,26 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 
 
 
-void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
+static void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
+	/* Process waiting packets. */
+	eth_process_packet(ptNetworkDriver);
+
+	if( systime_handle_is_elapsed(&(ptNetworkDriver->tEthernetHandlerTimer))!=0 )
+	{
+		/* process cyclic events here */
+		arp_timer(ptNetworkDriver);
+		dhcp_timer(ptNetworkDriver);
+
+		systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
+	}
+}
+
+
+
+int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	int iResult;
 	NETWORK_STATE_T tState;
 	unsigned int uiLinkState;
 	unsigned long ulDelay;
@@ -142,6 +443,9 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	unsigned long ulIp;
 
 
+	/* Be optimistic. */
+	iResult = 0;
+
 	if( ptNetworkDriver->f_is_configured!=0 )
 	{
 		pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
@@ -149,17 +453,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		/* Get the current link state. */
 		uiLinkState = eth_get_link_status(ptNetworkDriver);
 
-		/* Process waiting packets. */
-		eth_process_packet(ptNetworkDriver);
-
-		if( systime_handle_is_elapsed(&(ptNetworkDriver->tEthernetHandlerTimer))!=0 )
-		{
-			/* process cyclic events here */
-			arp_timer(ptNetworkDriver);
-			dhcp_timer(ptNetworkDriver);
-
-			systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
-		}
+		ethernet_cyclic_process(ptNetworkDriver);
 
 		tState = ptNetworkDriver->tState;
 		switch(tState)
@@ -285,7 +579,7 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 		case NETWORK_STATE_Ready:
-			/* Echo packets until link goes down. */
+			/* This interface is up. Now wait for all others. */
 			if( uiLinkState==0U )
 			{
 				uprintf("%s: link down\n", pcName);
@@ -294,11 +588,106 @@ void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			break;
 
 
+		case NETWORK_STATE_Ok:
+			break;
+
+
 		case NETWORK_STATE_Error:
+			iResult = -1;
 			break;
 		}
 
 		/* Remember the current state. */
 		ptNetworkDriver->tState = tState;
 	}
+
+	return iResult;
+}
+
+
+
+int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	int iResult;
+	ECHO_CLIENT_STATE_T tActionResult;
+	NETWORK_STATE_T tState;
+	unsigned int uiLinkState;
+	const char *pcName;
+
+
+	/* Be optimistic. */
+	iResult = 0;
+
+	if( ptNetworkDriver->f_is_configured!=0 )
+	{
+		pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+
+		/* Get the current link state. */
+		uiLinkState = eth_get_link_status(ptNetworkDriver);
+
+		ethernet_cyclic_process(ptNetworkDriver);
+
+		tState = ptNetworkDriver->tState;
+		switch(tState)
+		{
+		case NETWORK_STATE_NoLink:
+		case NETWORK_STATE_LinkUp_Delay:
+		case NETWORK_STATE_LinkUp_Ready:
+		case NETWORK_STATE_Dhcp:
+			/* During the test process the interface should never end up here. */
+			uprintf("%s: invalid state during test process: %d\n", pcName, tState);
+			tState = NETWORK_STATE_Error;
+			break;
+
+
+		case NETWORK_STATE_Ready:
+			/* The link should never go down during a test. */
+			if( uiLinkState==0U )
+			{
+				uprintf("%s: link went down during test.\n", pcName);
+				tState = NETWORK_STATE_Error;
+			}
+			else
+			{
+				switch(ptNetworkDriver->tEthernetPortCfg.tFunction)
+				{
+				case INTERFACE_FUNCTION_None:
+					/* No actions here... */
+					break;
+
+				case INTERFACE_FUNCTION_EchoServer:
+					/* The echo server just responds to packets. */
+					break;
+
+				case INTERFACE_FUNCTION_EchoClient:
+					tActionResult = echo_client_action(ptNetworkDriver);
+					if( tActionResult==ECHO_CLIENT_STATE_Ok )
+					{
+						tState = NETWORK_STATE_Ok;
+					}
+					else if( tActionResult==ECHO_CLIENT_STATE_Error )
+					{
+						tState = NETWORK_STATE_Error;
+					}
+					break;
+				}
+
+			}
+			break;
+
+
+		case NETWORK_STATE_Ok:
+			break;
+
+
+		case NETWORK_STATE_Error:
+			iResult = -1;
+			break;
+		}
+
+		/* Remember the current state. */
+		ptNetworkDriver->tState = tState;
+	}
+
+	return iResult;
 }

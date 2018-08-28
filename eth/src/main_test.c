@@ -45,6 +45,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	ETHERNET_PORT_CONFIGURATION_T *ptEthCfg;
 	NETWORK_DRIVER_T *ptNetworkDriver;
 	unsigned int uiCnt;
+	int iAllInterfacesUp;
 
 
 	systime_init();
@@ -77,14 +78,43 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		}
 	}
 
+	if( iResult==0 )
+	{
+		do
+		{
+			/* Be optimistic. */
+			iAllInterfacesUp = 1;
+
+			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
+			{
+				iResult = ethernet_startup_process(atNetworkDriver + uiCnt);
+				if( iResult!=0 )
+				{
+					uprintf("Error on port %d\n", uiCnt);
+					break;
+				}
+				else if( atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
+				{
+					iAllInterfacesUp = 0;
+				}
+			}
+		} while( iAllInterfacesUp==0 && iResult==0 );
+	}
 
 	if( iResult==0 )
 	{
-		while(1)
+		uprintf("--- All interfaces are up. ---\n");
+
+		while( iResult==0 )
 		{
 			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 			{
-				ethernet_cyclic_process(atNetworkDriver + uiCnt);
+				iResult = ethernet_test_process(atNetworkDriver + uiCnt);
+				if( iResult!=0 )
+				{
+					uprintf("Error on port %d\n", uiCnt);
+					break;
+				}
 			}
 		}
 	}

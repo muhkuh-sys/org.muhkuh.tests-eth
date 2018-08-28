@@ -954,7 +954,6 @@ static void pfifo_init(unsigned int uiPortNo)
 			/* Use INTRAM3. */
 			ulFifoPtr  = (0U << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
 			ulFifoPtr |= (ulFrameNumber << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
-			uprintf("Port %d FIFO fill 0x%08x\n", uiPortNo, ulFifoPtr);
 			ptPointerFifoArea->aulPfifo[ulFifoStart + ETHERNET_FIFO_EMPTY] = ulFifoPtr;
 		}
 		pucCnt += ETH_FRAME_BUF_SIZE;

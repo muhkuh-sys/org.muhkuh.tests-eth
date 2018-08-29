@@ -1126,8 +1126,6 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	HOSTDEF(ptAsicCtrlArea);
 	int iResult;
 	DRV_ETH_XC_HANDLE_T *ptHandle;
-	unsigned int uiXcUnit;
-	unsigned int uiXcPort;
 	unsigned long ulMask;
 	unsigned long ulValue;
 
@@ -1142,12 +1140,9 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
 
 		/* Initialize the internal handle. */
-		uiXcUnit = (uiPort>>1U)&1;
-		uiXcPort = uiPort & 1;
-
 		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXcUnit = uiXcUnit;
-		ptHandle->uiXcPort = uiXcPort;
+		ptHandle->uiXcUnit = (uiPort >> 1U) & 1U;
+		ptHandle->uiXcPort = uiPort & 1U;
 
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable_mask_xc_misc);

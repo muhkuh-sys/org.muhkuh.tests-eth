@@ -1,9 +1,9 @@
-#include "driver/drv_eth_xc.h"
+#include "driver/netx90/drv_eth_xc.h"
 
 #include <string.h>
 
 #include "netx_io_areas.h"
-#include "driver/ethmac_xpec_regdef.h"
+#include "driver/netx90/ethmac_xpec_regdef.h"
 #include "options.h"
 #include "phy.h"
 #include "phy_std_regs.h"
@@ -164,16 +164,16 @@ static const unsigned long * const paulTpuResetCodes[2]=
 };
 
 
-#include "driver/rpec_ethmac_rpec0.h"
-#include "driver/rpec_ethmac_rpec1.h"
-#include "driver/tpec_ethmac_tpec0.h"
-#include "driver/tpec_ethmac_tpec1.h"
+#include "driver/netx90/rpec_ethmac_rpec0.h"
+#include "driver/netx90/rpec_ethmac_rpec1.h"
+#include "driver/netx90/tpec_ethmac_tpec0.h"
+#include "driver/netx90/tpec_ethmac_tpec1.h"
 
-#include "driver/rpu_ethmac0.h"
-#include "driver/rpu_ethmac1.h"
+#include "driver/netx90/rpu_ethmac0.h"
+#include "driver/netx90/rpu_ethmac1.h"
 
-#include "driver/tpu_ethmac0.h"
-#include "driver/tpu_ethmac1.h"
+#include "driver/netx90/tpu_ethmac0.h"
+#include "driver/netx90/tpu_ethmac1.h"
 
 static const unsigned long *const paulxPecRpecCodes[2] =
 {
@@ -723,7 +723,7 @@ static unsigned int drv_eth_xc_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver
 	if( uiPort<2U )
 	{
 		/* retrieve the link status from the Ethernet port */
-		ptPhyCtrl = aptPhyCtrl[ptHandle->uiXC];
+		ptPhyCtrl = aptPhyCtrl[ptHandle->uiXcPort];
 		ulValue  = ptPhyCtrl->ulInt_phy_ctrl_led;
 		ulValue &= HOSTMSK(int_phy_ctrl_led_link_ro);
 		if( ulValue!=0 )
@@ -762,7 +762,7 @@ static void *drv_eth_xc_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	pvPacket = NULL;
 
 	/* Get the FIFO fill level and check if there is at least one element. */
-	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXcPort * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
 
 	/* Keep at least one pointer for the XC level (two parties share this empty pointer FIFO). */
 	ulValue = ptPointerFifoArea->aulPfifo_fill_level[uiFifoNr];
@@ -788,7 +788,7 @@ static void drv_eth_xc_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *p
 	/* Convert the pointer to a FIFO value. */
 	ulFifoValue = convert_packet_pointer_to_fifo_value(pvPacket);
 
-	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXcPort * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_EMPTY;
 	ptPointerFifoArea->aulPfifo[uiFifoNr] = ulFifoValue;
 }
 
@@ -819,7 +819,7 @@ static void drv_eth_xc_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPa
 	/* Add the size information. */
 	ulFifoValue |= uiPacketSize << SRT_ETHMAC_FIFO_ELEMENT_FRAME_LEN;
 
-	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_REQ_LO;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXcPort * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_REQ_LO;
 	ptPointerFifoArea->aulPfifo[uiFifoNr] = ulFifoValue;
 }
 
@@ -837,7 +837,7 @@ static void *drv_eth_xc_get_received_packet(NETWORK_DRIVER_T *ptNetworkDriver, u
 	/* Expect no packet. */
 	pvPacket = NULL;
 
-	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXC * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_IND_LO;
+	uiFifoNr = (ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle.uiXcPort * NUM_FIFO_CHANNELS_PER_UNIT) + ETHERNET_FIFO_IND_LO;
 	ulFillLevel = ptPointerFifoArea->aulPfifo_fill_level[uiFifoNr];
 	if( ulFillLevel!=0 )
 	{
@@ -913,7 +913,7 @@ void pfifo_reset(void)
 static void pfifo_init(unsigned int uiPortNo)
 {
 	HOSTDEF(ptPointerFifoArea);
-	unsigned int uiXC;
+	unsigned int uiXcPort;
 	unsigned long ulFifoStart;
 	unsigned char *pucStart;
 	unsigned char *pucEnd;
@@ -922,11 +922,11 @@ static void pfifo_init(unsigned int uiPortNo)
 	unsigned long ulFifoPtr;
 
 
-	uiXC = uiPortNo & 1U;
-	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * uiXC;
+	uiXcPort = uiPortNo & 1U;
+	ulFifoStart = NUM_FIFO_CHANNELS_PER_UNIT * uiXcPort;
 
 	/*** fill empty pointer FIFO ***/
-	if( uiXC==0 )
+	if( uiXcPort==0 )
 	{
 		pucStart = aucEthernetBuffer0_start;
 		pucEnd = aucEthernetBuffer0_end;
@@ -1132,27 +1132,27 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	int iResult;
 	unsigned int uiCnt;
 	unsigned long ulValue;
-	unsigned int uiXC;
+	unsigned int uiXcPort;
 	unsigned char *pucMAC;
 
 
-	uiXC = uiPortNr & 1U;
+	uiXcPort = uiPortNr & 1U;
 
 	/* initialize pointer to xPEC DRAM */
-	ptEthStdMac = aptXpecDramArea[uiXC];
+	ptEthStdMac = aptXpecDramArea[uiXcPort];
 
 	/* reset the hardware block */
-	iResult = NX90_XC_Reset(uiXC);
+	iResult = NX90_XC_Reset(uiXcPort);
 	if( iResult==0 )
 	{
 		/* initialize the FIFO unit */
-		pfifo_init(uiXC);
+		pfifo_init(uiXcPort);
 
 		/* load the microcode into the hardware block */
-		NX90_XC_Load(paulxMacRpuCodes[uiXC]);
-		NX90_XC_Load(paulxMacTpuCodes[uiXC]);
-		NX90_XC_Load(paulxPecRpecCodes[uiXC]);
-		NX90_XC_Load(paulxPecTpecCodes[uiXC]);
+		NX90_XC_Load(paulxMacRpuCodes[uiXcPort]);
+		NX90_XC_Load(paulxMacTpuCodes[uiXcPort]);
+		NX90_XC_Load(paulxPecRpecCodes[uiXcPort]);
+		NX90_XC_Load(paulxPecTpecCodes[uiXcPort]);
 
 		/* Disable monitoring mode. */
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_MONITORING_MODE = 0U;
@@ -1164,7 +1164,7 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_SYSTIME_BORDER_COPY_PLUS1 = ptSystimeComArea->ulSystime_border + 1;
 
 		/* Configure the PHY LEDs. */
-		ptPhyCtrl = aptPhyCtrl[uiXC];
+		ptPhyCtrl = aptPhyCtrl[uiXcPort];
 		ptPhyCtrl->ulInt_phy_ctrl_led = ((unsigned long)PHYCTRL_LED_MODE_STATIC)<<HOSTSRT(int_phy_ctrl_led_mode);
 
 		/* Enable all Multicast addresses */
@@ -1188,7 +1188,7 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		ptXpecIrqRegistersArea->aulXc0_irq_xpec[uiPortNr] = 0x0000ffffU;
 
 		/* start XC port */
-		NX90_XC_Start(uiXC);
+		NX90_XC_Start(uiXcPort);
 
 #if 0
 		/* configure MII timing */
@@ -1225,7 +1225,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	unsigned long ulMask;
 	unsigned long ulEnable;
 	unsigned long ulValue;
-	unsigned int uiXC;
+	unsigned int uiXcPort;
 
 
 	/* Be pessimistic. */
@@ -1237,11 +1237,11 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		/* Get a shortcut to the handle. */
 		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
 
-		uiXC = uiPort & 1;
+		uiXcPort = uiPort & 1;
 
 		/* Initialize the internal handle. */
 		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXC = uiXC;
+		ptHandle->uiXcPort = uiXcPort;
 		ptHandle->auiExtPhyCtrlInst[0] = 0;
 		ptHandle->auiExtPhyCtrlInst[1] = 0;
 		ptHandle->auiExtPhyAddress[0] = 0;
@@ -1253,7 +1253,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 #if ASIC_TYP==ASIC_TYP_NETX90_FULL
 		ulEnable |= HOSTMSK(clock_enable0_xc_misc_wm);
 #endif
-		if( uiXC==0U )
+		if( uiXcPort==0U )
 		{
 			ulMask |= HOSTMSK(clock_enable0_mask_xmac0);
 			ulMask |= HOSTMSK(clock_enable0_mask_tpec0);
@@ -1321,7 +1321,7 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 	unsigned long ulMask;
 	unsigned long ulEnable;
 	unsigned long ulValue;
-	unsigned int uiXC;
+	unsigned int uiXcPort;
 #if 0
 	const unsigned short *pusPortcontrol_Index;
 	unsigned short *pusPortControl_Values;
@@ -1337,11 +1337,11 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 		/* Get a shortcut to the handle. */
 		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
 
-		uiXC = uiPort & 1;
+		uiXcPort = uiPort & 1;
 
 		/* Initialize the internal handle. */
 		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXC = uiXC;
+		ptHandle->uiXcPort = uiXcPort;
 		ptHandle->auiExtPhyCtrlInst[0] = 0;
 		ptHandle->auiExtPhyCtrlInst[1] = 0;
 		ptHandle->auiExtPhyAddress[0] = 0;

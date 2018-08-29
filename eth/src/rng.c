@@ -13,6 +13,33 @@
 #include "netx_io_areas.h"
 
 
+#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+void rng_init(void)
+{
+}
+
+
+
+unsigned long rng_get_value(void)
+{
+	HOSTDEF(ptSystime0Area);
+	HOSTDEF(ptRAPSysctrlArea);
+	unsigned long ulValue;
+
+
+	/* Get the combination of seconds and nanoseconds. */
+	ulValue  = ptSystime0Area->ulSystime_s;
+	ulValue ^= ptSystime0Area->ulSystime_ns;
+	/* Add the chip ID. */
+	ulValue ^= ptRAPSysctrlArea->aulRAP_SYSCTRL_CHIP_ID_[0];
+	ulValue ^= ptRAPSysctrlArea->aulRAP_SYSCTRL_CHIP_ID_[1];
+	ulValue ^= ptRAPSysctrlArea->aulRAP_SYSCTRL_CHIP_ID_[2];
+	ulValue ^= ptRAPSysctrlArea->aulRAP_SYSCTRL_CHIP_ID_[3];
+
+	return ulValue;
+}
+
+#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
 void rng_init(void)
 {
 	HOSTDEF(ptRandomArea);
@@ -38,4 +65,4 @@ unsigned long rng_get_value(void)
 
 	return ptRandomArea->ulRandom_random;
 }
-
+#endif

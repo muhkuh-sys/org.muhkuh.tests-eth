@@ -24,12 +24,19 @@
 #include <string.h>
 
 #include "boot_drv_eth.h"
+#include "netx_io_areas.h"
 #include "options.h"
 #include "rdy_run.h"
 #include "systime.h"
 #include "uprintf.h"
 #include "version.h"
 
+#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+#       include "netx4000/cr7_global_timer.h"
+#       include "driver/netx4000/drv_eth_xc.h"
+#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+#       include "driver/netx90/drv_eth_xc.h"
+#endif
 
 
 static unsigned long s_ulVerbosity;
@@ -50,6 +57,9 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 
 	systime_init();
 	options_initialize();
+#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+	cr7_global_timer_initialize();
+#endif
 
 	/* Set the verbose mode. */
 	s_ulVerbosity = ptTestParams->ulVerbose;

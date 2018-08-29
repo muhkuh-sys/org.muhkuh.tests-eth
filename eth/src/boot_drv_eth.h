@@ -10,7 +10,6 @@
 
 #include "network_interface.h"
 #include "systime.h"
-#include "driver/drv_eth_xc.h"
 #include "stack/udp.h"
 
 
@@ -35,6 +34,7 @@ typedef struct ETHERNET_CONFIGURATION_STRUCT
 	unsigned char ucArpRetries;
 	unsigned char ucDhcpRetries;
 
+	unsigned long ulPhyControl;
 	PHY_MACRO_T tPhyMacroIntern;
 	PHY_MACRO_T tPhyMacroExtern;
 } ETHERNET_CONFIGURATION_T;

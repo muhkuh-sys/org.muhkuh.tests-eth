@@ -30,6 +30,40 @@ Import('atEnv')
 #----------------------------------------------------------------------------
 # This is the list of sources. The elements must be separated with whitespace
 # (i.e. spaces, tabs, newlines). The amount of whitespace does not matter.
+sources_netx4000 = """
+	src/driver/netx4000/drv_eth_xc.c
+	src/driver/netx4000/rpu_eth0.c
+	src/driver/netx4000/rpu_eth1.c
+	src/driver/netx4000/rpu_eth2.c
+	src/driver/netx4000/rpu_eth3.c
+	src/driver/netx4000/tpu_eth0.c
+	src/driver/netx4000/tpu_eth1.c
+	src/driver/netx4000/tpu_eth2.c
+	src/driver/netx4000/tpu_eth3.c
+	src/driver/netx4000/xpec_clean_tpec0.c
+	src/driver/netx4000/xpec_clean_tpec1.c
+	src/driver/netx4000/xpec_clean_tpec2.c
+	src/driver/netx4000/xpec_clean_tpec3.c
+	src/driver/netx4000/xpec_eth_std_mac_rpec0.c
+	src/driver/netx4000/xpec_eth_std_mac_rpec1.c
+	src/driver/netx4000/xpec_eth_std_mac_rpec2.c
+	src/driver/netx4000/xpec_eth_std_mac_rpec3.c
+	src/netx4000/cr7_global_timer.c
+"""
+
+sources_netx90 = """
+	src/driver/netx90/drv_eth_xc.c
+	src/driver/netx90/phy.c
+	src/driver/netx90/rpec_ethmac_rpec0.c
+	src/driver/netx90/rpec_ethmac_rpec1.c
+	src/driver/netx90/rpu_ethmac0.c
+	src/driver/netx90/rpu_ethmac1.c
+	src/driver/netx90/tpec_ethmac_tpec0.c
+	src/driver/netx90/tpec_ethmac_tpec1.c
+	src/driver/netx90/tpu_ethmac0.c
+	src/driver/netx90/tpu_ethmac1.c
+"""
+
 sources_common = """
 	src/header.c
 	src/init_muhkuh.S
@@ -39,16 +73,6 @@ sources_common = """
 	src/options.c
 	src/options_default.c
 	src/rng.c
-	src/driver/drv_eth_xc.c
-	src/driver/phy.c
-	src/driver/rpec_ethmac_rpec0.c
-	src/driver/rpec_ethmac_rpec1.c
-	src/driver/rpu_ethmac0.c
-	src/driver/rpu_ethmac1.c
-	src/driver/tpec_ethmac_tpec0.c
-	src/driver/tpec_ethmac_tpec1.c
-	src/driver/tpu_ethmac0.c
-	src/driver/tpu_ethmac1.c
 	src/stack/arp.c
 	src/stack/buckets.c
 	src/stack/checksum.c
@@ -59,15 +83,19 @@ sources_common = """
 	src/stack/udp.c
 """
 
-
-sources_netx90_mpw = """
-"""
-
 #----------------------------------------------------------------------------
 #
 # Build the crc test.
 #
 aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
+
+env_netx4000_t = atEnv.NETX4000.Clone()
+env_netx4000_t.Replace(LDFILE = 'src/netx4000/netx4000.ld')
+env_netx4000_t.Append(CPPPATH = aCppPath)
+src_netx4000_t = env_netx4000_t.SetBuildPath('targets/netx4000', 'src', sources_common + sources_netx4000)
+elf_netx4000_t = env_netx4000_t.Elf('targets/netx4000/eth_netx4000.elf', src_netx4000_t + env_netx4000_t['PLATFORM_LIBRARY'])
+ETH_NETX4000 = env_netx4000_t.ObjCopy('targets/netx4000/eth_netx4000.bin', elf_netx4000_t)
+txt_netx4000_t = env_netx4000_t.ObjDump('targets/netx4000/eth_netx4000.txt', elf_netx4000_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 #env_netx500_t = atEnv.NETX500.Clone()
 #env_netx500_t.Replace(LDFILE = 'src/netx500/netx500.ld')
@@ -79,7 +107,7 @@ aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
 env_netx90_mpw_t = atEnv.NETX90_MPW.Clone()
 env_netx90_mpw_t.Replace(LDFILE = 'src/netx90_mpw/netx90.ld')
 env_netx90_mpw_t.Append(CPPPATH = aCppPath)
-src_netx90_mpw_t = env_netx90_mpw_t.SetBuildPath('targets/netx90_mpw', 'src', sources_common + sources_netx90_mpw)
+src_netx90_mpw_t = env_netx90_mpw_t.SetBuildPath('targets/netx90_mpw', 'src', sources_common + sources_netx90)
 elf_netx90_mpw_t = env_netx90_mpw_t.Elf('targets/netx90_mpw/eth_netx90_mpw.elf', src_netx90_mpw_t + env_netx90_mpw_t['PLATFORM_LIBRARY'])
 ETH_NETX90_MPW = env_netx90_mpw_t.ObjCopy('targets/netx90_mpw/eth_netx90_mpw.bin', elf_netx90_mpw_t)
 txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.txt', elf_netx90_mpw_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
@@ -105,7 +133,7 @@ txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.t
 #elf_netx10_t = env_netx10_t.Elf('targets/netx10/iomatrix_netx10.elf', src_netx10_t + env_netx10_t['PLATFORM_LIBRARY'])
 #IOMATRIX_NETX10 = env_netx10_t.ObjCopy('targets/netx10/iomatrix_netx10.bin', elf_netx10_t)
 
-Export('ETH_NETX90_MPW')
+Export('ETH_NETX90_MPW', 'ETH_NETX4000')
 
 
 #----------------------------------------------------------------------------

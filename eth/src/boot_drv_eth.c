@@ -12,6 +12,12 @@
 #include "uprintf.h"
 
 
+#if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+#       include "driver/netx90/drv_eth_xc.h"
+#elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+#       include "driver/netx4000/drv_eth_xc.h"
+#endif
+
 static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
 {
 	ETH2_PACKET_T *ptPkt;

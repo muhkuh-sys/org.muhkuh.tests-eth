@@ -43,7 +43,7 @@ env_arm9.CreateCompilerEnv('NETX10', ['arch=armv5te'])
 
 # Create a build environment for the Cortex-R7 and Cortex-A9 based netX chips.
 env_cortexR7 = atEnv.DEFAULT.CreateEnvironment(['gcc-arm-none-eabi-4.9', 'asciidoc'])
-env_cortexR7.CreateCompilerEnv('NETX4000_RELAXED', ['arch=armv7', 'thumb'], ['arch=armv7-r', 'thumb'])
+env_cortexR7.CreateCompilerEnv('NETX4000', ['arch=armv7', 'thumb'], ['arch=armv7-r', 'thumb'])
 
 # Create a build environment for the Cortex-M4 based netX chips.
 env_cortexM4 = atEnv.DEFAULT.CreateEnvironment(['gcc-arm-none-eabi-4.9', 'asciidoc'])
@@ -71,7 +71,8 @@ atEnv.DEFAULT.Version('targets/version/version.h', 'templates/version.h')
 #
 SConscript('eth/SConscript')
 Import(
-    'ETH_NETX90_MPW'
+    'ETH_NETX90_MPW',
+    'ETH_NETX4000'
 )
 
 """
@@ -160,7 +161,8 @@ tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s
 #
 # Copy all binary binaries.
 atFiles = {
-    'targets/testbench/netx/eth_netx90_mpw.bin':  ETH_NETX90_MPW
+    'targets/testbench/netx/eth_netx90_mpw.bin':  ETH_NETX90_MPW,
+    'targets/testbench/netx/eth_netx4000.bin':  ETH_NETX4000
 
     # Copy all LUA scripts.
 #    'targets/testbench/lua/io_matrix.lua':             'iomatrix/templates/io_matrix.lua',

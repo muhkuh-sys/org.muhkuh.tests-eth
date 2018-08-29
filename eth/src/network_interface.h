@@ -84,7 +84,8 @@ typedef enum ECHO_CLIENT_STATE_ENUM
 typedef struct DRV_ETH_XC_HANDLE_STRUCT
 {
 	unsigned int uiEthPortNr;       /* The Ethernet port 0-3. */
-	unsigned int uiXC;              /* The XC instance 0-1. */
+	unsigned int uiXcUnit;
+	unsigned int uiXcPort;          /* The XC instance 0-1. */
 	unsigned int auiExtPhyCtrlInst[2];
 	unsigned int auiExtPhyAddress[2];
 } DRV_ETH_XC_HANDLE_T;

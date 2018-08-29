@@ -8,11 +8,17 @@
  ***************************************************************************/
 
 
-#include "driver/drv_eth_xc.h"
-#include "driver/phy.h"
 #include "stack/ipv4.h"
 #include "netx_io_areas.h"
 #include "options.h"
+
+#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+#       include "driver/netx4000/drv_eth_xc.h"
+#       include "driver/netx4000/nec_cb12.h"
+#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+#       include "driver/netx90/drv_eth_xc.h"
+#       include "driver/netx90/phy.h"
+#endif
 
 
 const ROMLOADER_OPTIONS_T t_default_options =
@@ -48,6 +54,14 @@ const ROMLOADER_OPTIONS_T t_default_options =
 		.usDhcpTimeout = 3000,
 		.ucArpRetries = 10,
 		.ucDhcpRetries = 5,
+#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+		.ulPhyControl = (PHYCTRL_MODE_ALL_CAPABLE_AUTONEG_AUTOMDIXEN << HOSTSRT(phy_control_phy_mode)) |
+		                HOSTMSK(phy_control_phy0_automdixen) |
+		                HOSTMSK(phy_control_phy1_automdixen) |
+		                HOSTMSK(phy_control_phy0_enable) |
+		                HOSTMSK(phy_control_phy1_enable)
+#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+		.ulPhyControl = 0,
 		.tPhyMacroIntern =
 		{
 			.aucMacro =
@@ -153,6 +167,7 @@ const ROMLOADER_OPTIONS_T t_default_options =
 				PHY_SETUP_COMMAND_End
 			}
 		}
+#endif
 	}
 };
 

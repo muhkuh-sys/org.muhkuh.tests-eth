@@ -115,8 +115,8 @@ static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
 		/* Check if there are packets left to send. */
 		if( ptHandle->uiPacketsLeft==0 )
 		{
-			/* No packets left to send -> go back to the idle state. */
-			tState = ECHO_CLIENT_STATE_Idle;
+			/* No packets left to send -> The test has finished. */
+			tState = ECHO_CLIENT_STATE_Ok;
 		}
 		else
 		{

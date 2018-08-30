@@ -888,18 +888,18 @@ void pfifo_reset(void)
 	ptXc1PointerFifoArea->ulPfifo_reset = 0xffffffffU;
 
 	/* Reset the pointer FIFO borders. */
-	ulBorderCnt = 99;
+	ulBorderCnt = FIFO_ENTRIES - 1U;
 	for(uiCnt=0; uiCnt<(sizeof(ptXc0PointerFifoArea->aulPfifo_border)/sizeof(unsigned long)); ++uiCnt)
 	{
 		ptXc0PointerFifoArea->aulPfifo_border[uiCnt] = ulBorderCnt;
 		ptXc1PointerFifoArea->aulPfifo_border[uiCnt] = ulBorderCnt;
 
-		ulBorderCnt += 100U;
+		ulBorderCnt += FIFO_ENTRIES;
 	}
 	
 	/* clear reset flag of all FIFOs */
-	ptXc0PointerFifoArea->ulPfifo_reset = 0xffffffffU;
-	ptXc1PointerFifoArea->ulPfifo_reset = 0xffffffffU;
+	ptXc0PointerFifoArea->ulPfifo_reset = 0x00000000U;
+	ptXc1PointerFifoArea->ulPfifo_reset = 0x00000000U;
 }
 
 

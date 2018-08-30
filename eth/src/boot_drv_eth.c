@@ -282,7 +282,7 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
 	ptHandle->tState = ECHO_CLIENT_STATE_Idle;
-	ptHandle->uiPacketsLeft = 1024;
+	ptHandle->uiPacketsLeft = 4096;
 	ptHandle->ulServerIp = IP_ADR(192,168,64,20);
 	ptHandle->usServerPort = MUS2NUS(53280);
 	ptHandle->ptUdpAssoc = udp_registerPort(

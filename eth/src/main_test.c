@@ -53,6 +53,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	NETWORK_DRIVER_T *ptNetworkDriver;
 	unsigned int uiCnt;
 	int iAllInterfacesUp;
+	ETHERNET_TEST_RESULT_T tResult;
 
 
 	systime_init();
@@ -111,31 +112,34 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		} while( iAllInterfacesUp==0 && iResult==0 );
 	}
 
+	tResult = ETHERNET_TEST_RESULT_Error;
 	if( iResult==0 )
 	{
 		uprintf("--- All interfaces are up. ---\n");
 
-		while( iResult==0 )
+		do
 		{
 			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 			{
-				iResult = ethernet_test_process(atNetworkDriver + uiCnt);
-				if( iResult!=0 )
+				tResult = ethernet_test_process(atNetworkDriver + uiCnt);
+				if( tResult==ETHERNET_TEST_RESULT_Error )
 				{
 					uprintf("Error on port %d\n", uiCnt);
 					break;
 				}
 			}
-		}
+		} while( tResult==ETHERNET_TEST_RESULT_InProgress );
 	}
 
-	if( iResult==0 )
+	if( tResult==ETHERNET_TEST_RESULT_FinishedOk )
 	{
 		tTestResult = TEST_RESULT_OK;
+		rdy_run_setLEDs(RDYRUN_GREEN);
 	}
 	else
 	{
 		tTestResult = TEST_RESULT_ERROR;
+		rdy_run_setLEDs(RDYRUN_YELLOW);
 	}
 
 	return tTestResult;

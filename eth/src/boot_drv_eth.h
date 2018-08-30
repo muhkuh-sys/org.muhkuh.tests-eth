@@ -41,9 +41,18 @@ typedef struct ETHERNET_CONFIGURATION_STRUCT
 
 
 
+typedef enum ETHERNET_TEST_RESULT_ENUM
+{
+	ETHERNET_TEST_RESULT_InProgress = 0,
+	ETHERNET_TEST_RESULT_FinishedOk = 1,
+	ETHERNET_TEST_RESULT_Error = 2
+} ETHERNET_TEST_RESULT_T;
+
+
+
 int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
 int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver);
-int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver);
+ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver);
 
 
 #endif  /* __BOOT_DRV_ETH_H__ */

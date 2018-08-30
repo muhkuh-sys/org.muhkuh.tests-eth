@@ -612,19 +612,25 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 
-int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
+ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	int iResult;
+	ETHERNET_TEST_RESULT_T tResult;
 	ECHO_CLIENT_STATE_T tActionResult;
 	NETWORK_STATE_T tState;
 	unsigned int uiLinkState;
 	const char *pcName;
+	unsigned long ulFlags;
 
 
-	/* Be optimistic. */
-	iResult = 0;
+	/* Be pessimistic. */
+	tResult = ETHERNET_TEST_RESULT_Error;
 
-	if( ptNetworkDriver->f_is_configured!=0 )
+	if( ptNetworkDriver->f_is_configured==0 )
+	{
+		/* Unconfigured devices are always finished. */
+		tResult = ETHERNET_TEST_RESULT_FinishedOk;
+	}
+	else
 	{
 		pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
 
@@ -632,6 +638,8 @@ int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		uiLinkState = eth_get_link_status(ptNetworkDriver);
 
 		ethernet_cyclic_process(ptNetworkDriver);
+
+		ulFlags = ptNetworkDriver->tEthernetPortCfg.ulFlags;
 
 		tState = ptNetworkDriver->tState;
 		switch(tState)
@@ -658,22 +666,52 @@ int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 				switch(ptNetworkDriver->tEthernetPortCfg.tFunction)
 				{
 				case INTERFACE_FUNCTION_None:
-					/* No actions here... */
+					if( (ulFlags & ETHERNET_PORT_FLAG_Permanent)==0 )
+					{
+						/* An interface with no function is always finished if it is not permanent. */
+						tResult = ETHERNET_TEST_RESULT_FinishedOk;
+					}
+					else
+					{
+						/* The function should keep running. This is nice for tests where the device can be pinged. */
+						tResult = ETHERNET_TEST_RESULT_InProgress;
+					}
 					break;
 
 				case INTERFACE_FUNCTION_EchoServer:
-					/* The echo server just responds to packets. */
+					if( (ulFlags & ETHERNET_PORT_FLAG_Permanent)==0 )
+					{
+						/* An echo server is always finished if it is not permanent. */
+						tResult = ETHERNET_TEST_RESULT_FinishedOk;
+					}
+					else
+					{
+						/* The server should keep running. This is necessary for tests between 2 devices. */
+						tResult = ETHERNET_TEST_RESULT_InProgress;
+					}
 					break;
 
 				case INTERFACE_FUNCTION_EchoClient:
 					tActionResult = echo_client_action(ptNetworkDriver);
-					if( tActionResult==ECHO_CLIENT_STATE_Ok )
+					switch(tActionResult)
 					{
+					case ECHO_CLIENT_STATE_Idle:
+					case ECHO_CLIENT_STATE_WaitingForResponse:
+					case ECHO_CLIENT_STATE_PacketReceived:
+						/* The client is still running the test. */
+						tResult = ETHERNET_TEST_RESULT_InProgress;
+						break;
+
+					case ECHO_CLIENT_STATE_Ok:
+						/* The test is finished. */
 						tState = NETWORK_STATE_Ok;
-					}
-					else if( tActionResult==ECHO_CLIENT_STATE_Error )
-					{
+						tResult = ETHERNET_TEST_RESULT_FinishedOk;
+						break;
+
+					case ECHO_CLIENT_STATE_Error:
+						/* The test failed. */
 						tState = NETWORK_STATE_Error;
+						break;
 					}
 					break;
 				}
@@ -683,11 +721,11 @@ int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 		case NETWORK_STATE_Ok:
+			tResult = ETHERNET_TEST_RESULT_FinishedOk;
 			break;
 
 
 		case NETWORK_STATE_Error:
-			iResult = -1;
 			break;
 		}
 
@@ -695,5 +733,5 @@ int ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		ptNetworkDriver->tState = tState;
 	}
 
-	return iResult;
+	return tResult;
 }

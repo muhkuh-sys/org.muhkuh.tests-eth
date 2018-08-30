@@ -204,11 +204,15 @@ typedef struct NETWORK_DRIVER_DATA_STRUCT
 
 
 
+#define ETHERNET_PORT_FLAG_Permanent 0x00000001U
+
+
 typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 {
 	const char *pcName;
 	INTERFACE_T tInterface;
 	INTERFACE_FUNCTION_T tFunction;
+	unsigned long ulFlags;
 	unsigned char aucMac[6];
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;

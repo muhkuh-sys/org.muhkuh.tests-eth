@@ -1163,8 +1163,10 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		else
 		{
 			/* Enable the clocks. */
+			ulValue  = ptAsicCtrlArea->ulClock_enable;
+			ulValue |= ulMask;
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-			ptAsicCtrlArea->ulClock_enable = ulMask;
+			ptAsicCtrlArea->ulClock_enable = ulValue;
 
 			/* Initialize the XC. */
 			configure_mode();

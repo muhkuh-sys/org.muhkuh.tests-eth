@@ -916,7 +916,6 @@ static void pfifo_init(unsigned int uPortNo)
 	unsigned long ulFrame;
 	unsigned int uiXcUnit;
 	unsigned int uiXcPortNo = (uPortNo)&1;
-	unsigned long ulValue;
 
 
 	uiXcUnit = (uPortNo >> 1U) & 1U;
@@ -924,24 +923,9 @@ static void pfifo_init(unsigned int uPortNo)
 
 	ptPfifoArea = aptPFifo[uiXcUnit];
 
-	/* set reset bit for all pointer FIFOs */
-	ulValue  = ptPfifoArea->ulPfifo_reset;
-	ulValue |= ((1U<<NUM_FIFO_CHANNELS_PER_UNIT)-1U) << (NUM_FIFO_CHANNELS_PER_UNIT * uiXcPortNo);
-	ptPfifoArea->ulPfifo_reset = ulValue;
-
 	/* get FIFO start and end number of this port number */
 	ulFifoStart = uiXcPortNo * NUM_FIFO_CHANNELS_PER_UNIT;
 	ulFifoEnd = ulFifoStart + NUM_FIFO_CHANNELS_PER_UNIT;
-
-	for( ulFifoNum = ulFifoStart; ulFifoNum < ulFifoEnd; ulFifoNum++ )
-	{
-		ptPfifoArea->aulPfifo_border[ulFifoNum] = (ulFifoNum * FIFO_ENTRIES) + FIFO_ENTRIES - 1;
-	}
-
-	/* clear reset bit for all pointer FIFO */
-	ulValue  = ptPfifoArea->ulPfifo_reset;
-	ulValue &= ~(((1U<<NUM_FIFO_CHANNELS_PER_UNIT)-1U) << (NUM_FIFO_CHANNELS_PER_UNIT * uiXcPortNo));
-	ptPfifoArea->ulPfifo_reset = ulValue;
 
 	/*** fill empty pointer FIFO ***/
 

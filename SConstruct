@@ -109,13 +109,14 @@ tDoc = atEnv.DEFAULT.Asciidoc(
     ASCIIDOC_BACKEND='html5',
     ASCIIDOC_ATTRIBUTES=aAttribs
 )
+"""
 
 #----------------------------------------------------------------------------
 #
 # Build the artifacts.
 #
 strGroup = 'org.muhkuh.tests'
-strModule = 'iomatrix'
+strModule = 'eth'
 
 # Split the group by dots.
 aGroup = strGroup.split('.')
@@ -123,37 +124,28 @@ aGroup = strGroup.split('.')
 strModulePath = 'targets/jonchki/repository/%s/%s/%s' % ('/'.join(aGroup), strModule, PROJECT_VERSION)
 
 # Set the name of the artifact.
-strArtifact0 = 'lua5.1-iomatrix'
+strArtifact0 = 'lua5.1-eth'
 
 tArcList0 = atEnv.DEFAULT.ArchiveList('zip')
 tArcList0.AddFiles('netx/',
-    IOMATRIX_NETX500,
-    IOMATRIX_NETX90_MPW,
-    IOMATRIX_NETX56,
-    IOMATRIX_NETX10)
+    ETH_NETX90_MPW,
+    ETH_NETX4000)
 tArcList0.AddFiles('lua/',
-    'iomatrix/templates/io_matrix.lua',
-    'lua/test_class_iomatrix.lua')
-tArcList0.AddFiles('lua/io_matrix',
-    'iomatrix/templates/io_matrix/ftdi_2232h.lua',
-    'iomatrix/templates/io_matrix/ftdi.lua',
-    LUA_NETX_BASE,
-    LUA_NETX90_MPW,
-    'iomatrix/templates/io_matrix/netx.lua')
+    'eth/lua/test_class_eth.lua')
 tArcList0.AddFiles('templates',
-    'lua/test.lua')
-tArcList0.AddFiles('doc/',
-    tDoc)
+    'eth/lua/test.lua')
+#tArcList0.AddFiles('doc/',
+#    tDoc)
 tArcList0.AddFiles('',
-    'installer/jonchki/install.lua',
-    'installer/jonchki/install_testcase.lua')
+    'installer/jonchki/lua5.1/install.lua',
+    'installer/jonchki/lua5.1/install_testcase.lua')
 
 tArtifact0 = atEnv.DEFAULT.Archive(os.path.join(strModulePath, '%s-%s.zip' % (strArtifact0, PROJECT_VERSION)), None, ARCHIVE_CONTENTS = tArcList0)
 tArtifact0Hash = atEnv.DEFAULT.Hash('%s.hash' % tArtifact0[0].get_path(), tArtifact0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
-tConfiguration0 = atEnv.DEFAULT.Version(os.path.join(strModulePath, '%s-%s.xml' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/%s.xml' % strModule)
+tConfiguration0 = atEnv.DEFAULT.Version(os.path.join(strModulePath, '%s-%s.xml' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/lua5.1/%s.xml' % strModule)
 tConfiguration0Hash = atEnv.DEFAULT.Hash('%s.hash' % tConfiguration0[0].get_path(), tConfiguration0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
-tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s.pom' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/pom.xml')
-"""
+tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s.pom' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/lua5.1/pom.xml')
+
 
 #----------------------------------------------------------------------------
 #

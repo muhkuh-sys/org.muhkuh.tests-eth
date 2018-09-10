@@ -1,45 +1,17 @@
 local class = require 'pl.class'
-local TestClassEth = class()
+local TestClass = require 'test_class'
+local TestClassEth = class(TestClass)
 
-function TestClassEth:_init(strTestName)
-  self.parameters = require 'parameters'
-  self.pl = require'pl.import_into'()
-
-  self.CFG_strTestName = strTestName
-
-  self.CFG_aParameterDefinitions = {
---[[
-    {
-      name="expected_boot_mode",
-      default=nil,
-      help="The expected boot mode.",
-      mandatory=true,
-      validate=parameters.test_uint32,
-      constrains=nil
-    },
-    {
-      name="expected_strapping_options",
-      default=0,
-      help="The expected strapping options.",
-      mandatory=false,
-      validate=parameters.test_uint32,
-      constrains=nil
-    },
-    {
-      name="expected_chip_id",
-      default=nil,
-      help="The expected chip ID.",
-      mandatory=true,
-      validate=parameters.test_choice_single,
-      constrains="NETX500,NETX100,NETX50,NETX10,NETX51A_NETX50_COMPATIBILITY_MODE,NETX51B_NETX50_COMPATIBILITY_MODE,NETX51A,NETX51B,NETX52A,NETX52B,NETX4000_RELAXED,NETX4000_FULL,NETX4000_SMALL,NETX90_MPW,NETX90"
-    }
---]]
-  }
+function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
+  self:super(strTestName, uiTestCase, tLogWriter, strLogLevel)
 end
 
 
 
-function TestClassEth:run(aParameters, tLog)
+function TestClassEth:run()
+  local aParameters = self.aParameters
+  local tLog = self.tLog
+
   ----------------------------------------------------------------------
   --
   -- Parse the parameters and collect all options.

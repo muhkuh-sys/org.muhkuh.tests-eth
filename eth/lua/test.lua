@@ -1,2 +1,2 @@
 local TestClassEth = require 'test_class_eth'
-return TestClassEth('@NAME@')
+return function(ulTestID, tLogWriter, strLogLevel) return TestClassEth('@NAME@', ulTestID, tLogWriter, strLogLevel) end

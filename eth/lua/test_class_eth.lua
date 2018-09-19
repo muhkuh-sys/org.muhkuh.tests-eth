@@ -60,6 +60,10 @@ function TestClassEth:run()
     0
   }
   local ulResult = tester.mbin_simple_run(nil, tPlugin, strNetxBinary, aParameter)
+  -- FIXME: How to avoid this?!?
+  if ulResult~=0 and tAsicTyp==romloader.ROMLOADER_CHIPTYP_NETX90 then
+    ulResult = tester.mbin_simple_run(nil, tPlugin, strNetxBinary, aParameter)
+  end
   if ulResult~=0 then
     error('The test failed with return code:' .. ulResult)
   end

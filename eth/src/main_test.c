@@ -91,6 +91,15 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 
 	if( iResult==0 )
 	{
+		/* Setup the PHYs.
+		 * FIXME: this is hard-coded for now, but it should depend on the configured interfaces.
+		 */
+#if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+		setup_phy_internal();
+#elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+		/* TODO: add this for the netX4000. */
+#endif
+
 		do
 		{
 			/* Be optimistic. */

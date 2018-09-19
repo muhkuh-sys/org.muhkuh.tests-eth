@@ -112,6 +112,14 @@ elf_netx90_mpw_t = env_netx90_mpw_t.Elf('targets/netx90_mpw/eth_netx90_mpw.elf',
 ETH_NETX90_MPW = env_netx90_mpw_t.ObjCopy('targets/netx90_mpw/eth_netx90_mpw.bin', elf_netx90_mpw_t)
 txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.txt', elf_netx90_mpw_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
+env_netx90_t = atEnv.NETX90.Clone()
+env_netx90_t.Replace(LDFILE = 'src/netx90/netx90.ld')
+env_netx90_t.Append(CPPPATH = aCppPath)
+src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90', 'src', sources_common + sources_netx90)
+elf_netx90_t = env_netx90_t.Elf('targets/netx90/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'])
+ETH_NETX90 = env_netx90_t.ObjCopy('targets/netx90/eth_netx90.bin', elf_netx90_t)
+txt_netx90_t = env_netx90_t.ObjDump('targets/netx90/eth_netx90.txt', elf_netx90_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+
 #env_netx56_t = atEnv.NETX56.Clone()
 #env_netx56_t.Replace(LDFILE = 'src/netx56/netx56.ld')
 #env_netx56_t.Append(CPPPATH = aCppPath)
@@ -133,7 +141,7 @@ txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.t
 #elf_netx10_t = env_netx10_t.Elf('targets/netx10/iomatrix_netx10.elf', src_netx10_t + env_netx10_t['PLATFORM_LIBRARY'])
 #IOMATRIX_NETX10 = env_netx10_t.ObjCopy('targets/netx10/iomatrix_netx10.bin', elf_netx10_t)
 
-Export('ETH_NETX90_MPW', 'ETH_NETX4000')
+Export('ETH_NETX90_MPW', 'ETH_NETX90', 'ETH_NETX4000')
 
 
 #----------------------------------------------------------------------------

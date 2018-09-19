@@ -175,7 +175,7 @@ static int phy_setup_command_mii_eth_system(unsigned long ulMiiValue, unsigned l
 	} while( iIsElapsed==0 );
 
 	return iIsElapsed;
-#elif ASIC_TYP==ASIC_TYP_NETX90_FULL
+#elif ASIC_TYP==ASIC_TYP_NETX90
 	HOSTDEF(ptEthArea);
 	unsigned long ulValue;
 	int iIsElapsed;

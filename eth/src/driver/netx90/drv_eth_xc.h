@@ -29,6 +29,10 @@ void pfifo_reset(void);
 int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 
+void setup_phy_internal(void);
+void setup_phy_external(void);
+void setup_phy_lvds(void);
+
 
 #endif  /* __DRV_ETH_XC_H__ */
 

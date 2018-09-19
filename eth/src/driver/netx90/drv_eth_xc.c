@@ -1015,51 +1015,38 @@ static int extphy_reset(void)
 
 
 
-static void configure_mode(DRV_ETH_XC_HANDLE_T *ptHandle)
+void setup_phy_internal(void)
 {
 	HOSTDEF(ptAsicCtrlArea);
-	unsigned int uiPort;
 	unsigned long ulValue;
 	unsigned long ulXmMiiCfg;
 	unsigned long ulXcMdioCfg;
 	unsigned long ulPhyCtrl;
 
 
-	uiPort = ptHandle->uiEthPortNr;
-	if( uiPort<2U )
-	{
-		/* Connect to internal PHY. */
-		ulXmMiiCfg = 8U;
-		ulXcMdioCfg = 2U;
-		ulPhyCtrl = HOSTDFLT(phy_ctrl0);
-	}
-	else
-	{
-		/* Connect to external PHY. */
-		ulXmMiiCfg = 6U;
-		ulXcMdioCfg = 1U;
-		ulPhyCtrl  = 4U << HOSTSRT(phy_ctrl0_phy0_led_invert);
-		ulPhyCtrl |= 4U << HOSTSRT(phy_ctrl0_phy1_led_invert);
-	}
+	/* Connect to internal PHY. */
+	ulXmMiiCfg = 8U;
+	ulXcMdioCfg = 2U;
+	ulPhyCtrl = HOSTDFLT(phy_ctrl0);
 
 	/* Disable LVDS connections. */
 	ulValue  = ulXmMiiCfg << HOSTSRT(io_config0_sel_xm0_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config0_sel_xm0_mii_cfg_wm);
 #endif
 	ulValue |= ulXcMdioCfg << HOSTSRT(io_config0_sel_xc0_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config0_sel_xc0_mdio_wm);
 #endif
 	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 	ptAsicCtrlArea->asIo_config[0].ulConfig = ulValue;
 
 	ulValue  = ulXmMiiCfg << HOSTSRT(io_config1_sel_xm1_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config1_sel_xm1_mii_cfg_wm);
 #endif
 	ulValue |= ulXcMdioCfg << HOSTSRT(io_config1_sel_xc1_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config1_sel_xc1_mdio_wm);
 #endif
 	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
@@ -1068,28 +1055,63 @@ static void configure_mode(DRV_ETH_XC_HANDLE_T *ptHandle)
 	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 	ptAsicCtrlArea->ulPhy_ctrl0 = ulPhyCtrl;
 
-	if( uiPort>=2U )
-	{
-		ulValue  = ptAsicCtrlArea->asIo_config[2].ulConfig;
-		ulValue |= HOSTMSK(io_config2_clk25out_oe);
-		ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-		ptAsicCtrlArea->asIo_config[2].ulConfig = ulValue;
-	}
-
-	if( uiPort<2U )
-	{
-		intphy_reset();
-	}
-	else
-	{
-		extphy_reset();
-	}
-
+	intphy_reset();
 }
 
 
 
-static void configure_mode_lvds(void)
+void setup_phy_external(void)
+{
+	HOSTDEF(ptAsicCtrlArea);
+	unsigned long ulValue;
+	unsigned long ulXmMiiCfg;
+	unsigned long ulXcMdioCfg;
+	unsigned long ulPhyCtrl;
+
+
+	/* Connect to external PHY. */
+	ulXmMiiCfg = 6U;
+	ulXcMdioCfg = 1U;
+	ulPhyCtrl  = 4U << HOSTSRT(phy_ctrl0_phy0_led_invert);
+	ulPhyCtrl |= 4U << HOSTSRT(phy_ctrl0_phy1_led_invert);
+
+	/* Disable LVDS connections. */
+	ulValue  = ulXmMiiCfg << HOSTSRT(io_config0_sel_xm0_mii_cfg);
+#if ASIC_TYP==ASIC_TYP_NETX90
+	ulValue |= HOSTMSK(io_config0_sel_xm0_mii_cfg_wm);
+#endif
+	ulValue |= ulXcMdioCfg << HOSTSRT(io_config0_sel_xc0_mdio);
+#if ASIC_TYP==ASIC_TYP_NETX90
+	ulValue |= HOSTMSK(io_config0_sel_xc0_mdio_wm);
+#endif
+	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
+	ptAsicCtrlArea->asIo_config[0].ulConfig = ulValue;
+
+	ulValue  = ulXmMiiCfg << HOSTSRT(io_config1_sel_xm1_mii_cfg);
+#if ASIC_TYP==ASIC_TYP_NETX90
+	ulValue |= HOSTMSK(io_config1_sel_xm1_mii_cfg_wm);
+#endif
+	ulValue |= ulXcMdioCfg << HOSTSRT(io_config1_sel_xc1_mdio);
+#if ASIC_TYP==ASIC_TYP_NETX90
+	ulValue |= HOSTMSK(io_config1_sel_xc1_mdio_wm);
+#endif
+	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
+	ptAsicCtrlArea->asIo_config[1].ulConfig = ulValue;
+
+	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
+	ptAsicCtrlArea->ulPhy_ctrl0 = ulPhyCtrl;
+
+	ulValue  = ptAsicCtrlArea->asIo_config[2].ulConfig;
+	ulValue |= HOSTMSK(io_config2_clk25out_oe);
+	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
+	ptAsicCtrlArea->asIo_config[2].ulConfig = ulValue;
+
+	extphy_reset();
+}
+
+
+
+void setup_phy_lvds(void)
 {
 	HOSTDEF(ptAsicCtrlArea);
 	unsigned long ulValue;
@@ -1097,22 +1119,22 @@ static void configure_mode_lvds(void)
 
 	/* Enable LVDS connections. */
 	ulValue  = 9U << HOSTSRT(io_config0_sel_xm0_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config0_sel_xm0_mii_cfg_wm);
 #endif
 	ulValue |= 2U << HOSTSRT(io_config0_sel_xc0_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config0_sel_xc0_mdio_wm);
 #endif
 	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 	ptAsicCtrlArea->asIo_config[0].ulConfig = ulValue;
 
 	ulValue  = 9U << HOSTSRT(io_config1_sel_xm1_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config1_sel_xm1_mii_cfg_wm);
 #endif
 	ulValue |= 2U << HOSTSRT(io_config1_sel_xc1_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 	ulValue |= HOSTMSK(io_config1_sel_xc1_mdio_wm);
 #endif
 	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
@@ -1250,7 +1272,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);
 		ulEnable  = HOSTMSK(clock_enable0_xc_misc);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 		ulEnable |= HOSTMSK(clock_enable0_xc_misc_wm);
 #endif
 		if( uiXcPort==0U )
@@ -1262,7 +1284,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ulEnable |= HOSTMSK(clock_enable0_xmac0);
 			ulEnable |= HOSTMSK(clock_enable0_tpec0);
 			ulEnable |= HOSTMSK(clock_enable0_rpec0);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 			ulEnable |= HOSTMSK(clock_enable0_xmac0_wm);
 			ulEnable |= HOSTMSK(clock_enable0_tpec0_wm);
 			ulEnable |= HOSTMSK(clock_enable0_rpec0_wm);
@@ -1277,7 +1299,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ulEnable |= HOSTMSK(clock_enable0_xmac1);
 			ulEnable |= HOSTMSK(clock_enable0_tpec1);
 			ulEnable |= HOSTMSK(clock_enable0_rpec1);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 			ulEnable |= HOSTMSK(clock_enable0_xmac1_wm);
 			ulEnable |= HOSTMSK(clock_enable0_tpec1_wm);
 			ulEnable |= HOSTMSK(clock_enable0_rpec1_wm);
@@ -1298,7 +1320,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 			ptAsicCtrlArea->asClock_enable[0].ulEnable = ulValue;
 
-			configure_mode(ptHandle);
+//			setup_phy_internal();
 
 			eth_initialize(ptNetworkDriver, uiPort);
 
@@ -1350,7 +1372,7 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable0_mask_xc_misc);
 		ulEnable  = HOSTMSK(clock_enable0_xc_misc);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 		ulEnable |= HOSTMSK(clock_enable0_xc_misc_wm);
 #endif
 		switch(uiPort)
@@ -1363,7 +1385,7 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 			ulEnable |= HOSTMSK(clock_enable0_xmac0);
 			ulEnable |= HOSTMSK(clock_enable0_tpec0);
 			ulEnable |= HOSTMSK(clock_enable0_rpec0);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 			ulEnable |= HOSTMSK(clock_enable0_xmac0_wm);
 			ulEnable |= HOSTMSK(clock_enable0_tpec0_wm);
 			ulEnable |= HOSTMSK(clock_enable0_rpec0_wm);
@@ -1377,7 +1399,7 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 			ulEnable |= HOSTMSK(clock_enable0_xmac1);
 			ulEnable |= HOSTMSK(clock_enable0_tpec1);
 			ulEnable |= HOSTMSK(clock_enable0_rpec1);
-#if ASIC_TYP==ASIC_TYP_NETX90_FULL
+#if ASIC_TYP==ASIC_TYP_NETX90
 			ulEnable |= HOSTMSK(clock_enable0_xmac1_wm);
 			ulEnable |= HOSTMSK(clock_enable0_tpec1_wm);
 			ulEnable |= HOSTMSK(clock_enable0_rpec1_wm);
@@ -1401,8 +1423,6 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 
 			/* Initialize the XC. */
 			pfifo_reset();
-
-			configure_mode_lvds();
 
 			eth_initialize(ptNetworkDriver, uiPort);
 

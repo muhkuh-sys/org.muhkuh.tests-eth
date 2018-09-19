@@ -214,7 +214,7 @@ static const unsigned long XcCode_xc1_tpu_reset1[27] = {
 };
 
 
-static const unsigned long* paulRpuResetCodes[4]=
+static const unsigned long* const paulRpuResetCodes[4]=
 {
   XcCode_xc0_rpu_reset0,
   XcCode_xc0_rpu_reset1,
@@ -222,7 +222,7 @@ static const unsigned long* paulRpuResetCodes[4]=
   XcCode_xc1_rpu_reset1,
 };
 
-static const unsigned long* paulTpuResetCodes[4]=
+static const unsigned long* const paulTpuResetCodes[4]=
 {
   XcCode_xc0_tpu_reset0,
   XcCode_xc0_tpu_reset1,
@@ -300,11 +300,11 @@ static void NX4000_XC_Load(const unsigned long* pulXcPrg)
 
 	/* Get the number of code elements. */
 	uiElements = pulXcPrg[0] / sizeof(unsigned long) - 1;
-  
+
 	/* Get the pointer in the XC area. */
 	/* ram_virtual_start + code_physical_start - ram_physical_start */
 	pulDst = (volatile unsigned long*) pulXcPrg[2];
-  
+
 	/* get source start and end pointer */
 	pulSrcStart = pulXcPrg + 3;
 	pulSrcEnd = pulSrcStart + uiElements;
@@ -318,21 +318,21 @@ static void NX4000_XC_Load(const unsigned long* pulXcPrg)
 		pulDstCnt++;
 		pulSrcCnt++;
 	}
-  
+
 	/* get the number of trailing loads */
 	uiElements = pulXcPrg[1] / sizeof(unsigned long);
-  
+
 	/* get source start and end pointer */
 	pulSrcCnt = pulXcPrg + 2 + pulXcPrg[0] / sizeof(unsigned long);
 	pulSrcEnd = pulSrcCnt + uiElements;
-  
+
 	/* write all trailing loads */
 	while( pulSrcCnt<pulSrcEnd )
 	{
 		/* get the destination address ( ram_virtual_start + data_physical_start - ram_physical_start) */
 		pulDst = (volatile unsigned long*) *pulSrcCnt;
 		pulSrcCnt++;
-    
+
 		/* write the data */
 		*pulDst = *pulSrcCnt;
 		pulSrcCnt++;
@@ -365,7 +365,7 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	volatile unsigned long* pulTpecPram;
 	unsigned int uIdx;
 	unsigned int uPortNo = uXcNo * 2 + uXcPortNo;
-  
+
 
 	ptXmac      = aptXmacArea[uPortNo];
 	ptRpec      = aptRpecRegArea[uPortNo];
@@ -384,7 +384,7 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	/* Clear output enable of io0..5 asap */
 
 	ptRpec->aulStatcfg[uPortNo] = 0xffff0000;
-            
+
 	switch (uPortNo)
 	{
 	case 0:
@@ -394,11 +394,11 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 		ptRpec->ulXpec_config = MSK_NX4000_xpec_config_reset_urx_fifo1 | MSK_NX4000_xpec_config_reset_utx_fifo1; 
 		break;
 	}
-  
+
 	/* load ratemul reset code */
 	NX4000_XC_Load(paulRpuResetCodes[uPortNo]);
 	NX4000_XC_Load(paulTpuResetCodes[uPortNo]);
-  
+
 	ptXmac->ulXmac_rpu_pc      = 0; /* Reset PC to 0 */
 	ptXmac->ulXmac_tpu_pc      = 0; /* Reset PC to 0 */
 
@@ -464,7 +464,7 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	ptTpec->ulUrx_count        = 0;
 	ptRpec->ulUtx_count        = 0;
 	ptTpec->ulUtx_count        = 0;
-  
+
 	/* Stop all Timers */
 	ptRpec->ulTimer4       = 0;
 	ptTpec->ulTimer4       = 0;
@@ -519,7 +519,7 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	{
 		ptRpec->aulXpec_sr[uIdx] = 0;
 	}
-    
+
 	ptRpec->ulDatach_wr_cfg = 0;
 	ptTpec->ulDatach_wr_cfg = 0;
 	ptRpec->ulDatach_rd_cfg = 0;
@@ -536,11 +536,11 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	{
 		ptXpecIrqRegistersArea->aulXc1_irq_xpec[uXcPortNo] = 0x0000FFFF;
 	}
-  
+
 	/* hold xMAC */
 	ptXcStartStopArea->ulXc_start_stop_ctrl = (MSK_NX4000_xc_start_stop_ctrl_xc0_stop_rpu0 |
                                            MSK_NX4000_xc_start_stop_ctrl_xc0_stop_tpu0) << (4*uPortNo);
-      
+
 	/* reset all xMAC registers to default values */
 	ptXmac->ulXmac_rx_hw               = 0;
 	ptXmac->ulXmac_rx_hw_count         = 0;
@@ -575,7 +575,7 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	ptXmac->ulXmac_tpm_val0            = 0;
 	ptXmac->ulXmac_tpm_mask1           = 0;
 	ptXmac->ulXmac_tpm_val1            = 0;
-	
+
 	ptXmac->ulXmac_rx_crc_polynomial_l = 0;
 	ptXmac->ulXmac_rx_crc_polynomial_h = 0;
 	ptXmac->ulXmac_rx_crc_l            = 0;
@@ -586,17 +586,17 @@ static int NX4000_XC_Reset( unsigned int uXcNo, unsigned int uXcPortNo)
 	ptXmac->ulXmac_tx_crc_l            = 0;
 	ptXmac->ulXmac_tx_crc_h            = 0;
 	ptXmac->ulXmac_tx_crc_cfg          = 0;
-	
+
 	ptXmac->ulXmac_rx_crc32_l          = 0;
 	ptXmac->ulXmac_rx_crc32_h          = 0;
 	ptXmac->ulXmac_rx_crc32_cfg        = 0;
 	ptXmac->ulXmac_tx_crc32_l          = 0;
 	ptXmac->ulXmac_tx_crc32_h          = 0;
 	ptXmac->ulXmac_tx_crc32_cfg        = 0;
-	
+
 	ptXmac->ulXmac_config_sbu2         = DFLT_VAL_NX4000_xmac_config_sbu2;
 	ptXmac->ulXmac_config_obu2         = DFLT_VAL_NX4000_xmac_config_obu2;
-	
+
 	ptXmac->ulXmac_rpu_pc              = 0;
 	ptXmac->ulXmac_tpu_pc              = 0;
 	
@@ -907,11 +907,8 @@ void pfifo_reset(void)
 static void pfifo_init(unsigned int uPortNo)
 {
 	NX4000_POINTER_FIFO_AREA_T *ptPfifoArea;
-
-	unsigned long ulFifoPtr = 0;
+	unsigned long ulFifoPtr;
 	unsigned long ulFifoStart;
-	unsigned long ulFifoEnd;
-	unsigned long ulFifoNum;
 	unsigned long ulEmptyPtrCnt;
 	unsigned long ulFrame;
 	unsigned int uiXcUnit;
@@ -925,7 +922,6 @@ static void pfifo_init(unsigned int uPortNo)
 
 	/* get FIFO start and end number of this port number */
 	ulFifoStart = uiXcPortNo * NUM_FIFO_CHANNELS_PER_UNIT;
-	ulFifoEnd = ulFifoStart + NUM_FIFO_CHANNELS_PER_UNIT;
 
 	/*** fill empty pointer FIFO ***/
 
@@ -933,7 +929,7 @@ static void pfifo_init(unsigned int uPortNo)
 	ulEmptyPtrCnt = (INTRAM_SEGMENT_SIZE / ETH_FRAME_BUF_SIZE) - 1;
 
 	/* each port has it's own internal ram bank */
-	ulFifoPtr |= (uPortNo << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
+	ulFifoPtr = (uPortNo << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
 
 	/* fill the empty pointer FIFO */
 	for( ulFrame = 1; ulFrame <= ulEmptyPtrCnt; ulFrame++ )

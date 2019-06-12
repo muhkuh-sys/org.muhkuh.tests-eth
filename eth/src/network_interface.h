@@ -218,6 +218,9 @@ typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;
 	unsigned short usLinkUpDelay;
+	unsigned short usLocalPort;
+	unsigned long ulRemoteIp;
+	unsigned short usRemotePort;
 } ETHERNET_PORT_CONFIGURATION_T;
 
 

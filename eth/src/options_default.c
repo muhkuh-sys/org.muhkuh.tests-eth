@@ -31,25 +31,31 @@ const ROMLOADER_OPTIONS_T t_default_options =
 			{
 				.pcName = "CH0",
 				.tInterface = INTERFACE_INTPHY0,
-				.tFunction = INTERFACE_FUNCTION_EchoServer,
-				.ulFlags = ETHERNET_PORT_FLAG_Permanent,
+				.tFunction = INTERFACE_FUNCTION_EchoClient,
+				.ulFlags = 0,
 				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x00U },
 				.ulIp = IP_ADR(192,168,64,20),
 				.ulGatewayIp = 0,
 				.ulNetmask = IP_ADR(255,255,255,0),
-				.usLinkUpDelay = 1000
+				.usLinkUpDelay = 1000,
+				.usLocalPort = MUS2NUS(1024),
+				.ulRemoteIp = IP_ADR(192,168,64,1),
+				.usRemotePort = MUS2NUS(5555)
 			},
 			/* Port 1 */
 			{
 				.pcName = "CH1",
 				.tInterface = INTERFACE_INTPHY1,
 				.tFunction = INTERFACE_FUNCTION_EchoClient,
-				.ulFlags = ETHERNET_PORT_FLAG_Permanent,
+				.ulFlags = 0,
 				.aucMac = { 0x00U, 0x02U, 0xa2U, 0x20U, 0x20U, 0x01U },
-				.ulIp = IP_ADR(192,168,64,21),
+				.ulIp = IP_ADR(192,168,65,20),
 				.ulGatewayIp = 0,
 				.ulNetmask = IP_ADR(255,255,255,0),
-				.usLinkUpDelay = 1000
+				.usLinkUpDelay = 1000,
+				.usLocalPort = MUS2NUS(1025),
+				.ulRemoteIp = IP_ADR(192,168,65,1),
+				.usRemotePort = MUS2NUS(5555)
 			}
 		},
 		.usArpTimeout = 1000,

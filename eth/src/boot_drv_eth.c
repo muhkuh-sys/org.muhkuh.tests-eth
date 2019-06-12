@@ -277,19 +277,26 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 {
 	FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle;
 	unsigned long ulSeed;
+	unsigned short usLocalPort;
+	unsigned long ulRemoteIp;
+	unsigned short usRemotePort;
 
+
+	usLocalPort = ptEthCfg->usLocalPort;
+	ulRemoteIp = ptEthCfg->ulRemoteIp;
+	usRemotePort = ptEthCfg->usRemotePort;
 
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
 	ptHandle->tState = ECHO_CLIENT_STATE_Idle;
 	ptHandle->uiPacketsLeft = 4096;
-	ptHandle->ulServerIp = IP_ADR(192,168,64,20);
-	ptHandle->usServerPort = MUS2NUS(53280);
+	ptHandle->ulServerIp = ulRemoteIp;
+	ptHandle->usServerPort = usRemotePort;
 	ptHandle->ptUdpAssoc = udp_registerPort(
 		ptNetworkDriver,
-		MUS2NUS(1024),               /* The local port. */
-		IP_ADR(192,168,64,20),       /* The IP of the echo server. */
-		MUS2NUS(53280),              /* The port of the echo server. */
+		usLocalPort,                 /* The local port. */
+		ulRemoteIp,                  /* The IP of the echo server. */
+		usRemotePort,                /* The port of the echo server. */
 		echo_client_process_packet,  /* The handler routine for received packets. */
 		NULL                         /* The user parameter for the receive handler. */
 	);

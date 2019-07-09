@@ -20,7 +20,7 @@
 
 typedef struct PHY_MACRO_STRUCT
 {
-	unsigned char  aucMacro[512];
+	unsigned char  aucMacro[1024];
 } PHY_MACRO_T;
 
 

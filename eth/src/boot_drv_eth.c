@@ -289,7 +289,7 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
 	ptHandle->tState = ECHO_CLIENT_STATE_Idle;
-	ptHandle->uiPacketsLeft = 4096;
+	ptHandle->uiPacketsLeft = 2048;
 	ptHandle->ulServerIp = ulRemoteIp;
 	ptHandle->usServerPort = usRemotePort;
 	ptHandle->ptUdpAssoc = udp_registerPort(

@@ -343,6 +343,8 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 		{
 			uprintf("%s: Initializing interface...\n", pcName);
 
+			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
+
 			switch(tInterface)
 			{
 			case INTERFACE_None:
@@ -392,7 +394,6 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 				dhcp_init(ptNetworkDriver);
 
 				ptNetworkDriver->f_is_configured = 1;
-				memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
 				ptNetworkDriver->tState = NETWORK_STATE_NoLink;
 				systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
 				systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);

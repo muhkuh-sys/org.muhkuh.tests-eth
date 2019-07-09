@@ -113,7 +113,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 					uprintf("Error on port %d\n", uiCnt);
 					break;
 				}
-				else if( atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
+				else if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
 				{
 					iAllInterfacesUp = 0;
 				}

@@ -1151,12 +1151,17 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	HOSTDEF(ptSystimeComArea);
 	ETHMAC_XPEC_DPM *ptEthStdMac;
 	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
+	NX90_XMAC_AREA_T *ptXmac;
 	int iResult;
 	unsigned int uiCnt;
 	unsigned long ulValue;
 	unsigned int uiXcPort;
 	unsigned char *pucMAC;
 
+
+	/* Set the systime. */
+	ptSystimeComArea->ulSystime_border = 1000000000U - 1U;
+	ptSystimeComArea->ulSystime_count_value = 0xa0000000U;
 
 	uiXcPort = uiPortNr & 1U;
 
@@ -1209,17 +1214,15 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		/* Confirm all pending IRQs. */
 		ptXpecIrqRegistersArea->aulXc0_irq_xpec[uiPortNr] = 0x0000ffffU;
 
-		/* start XC port */
-		NX90_XC_Start(uiXcPort);
-
-#if 0
 		/* configure MII timing */
-		/* NOTE: this is only important for an external PHY. */
-		if( ETH_OKAY != EthMac_CfgMii(ptEthMac->uiPort, ptConfig->uiMiiCfg) )
-		{
-		FATAL_ERROR("%s:%d:EthMac_CfgMii() failed", s_pszModule, __LINE__);
-		}
-#endif
+		ptXmac = aptXmacArea[uiPortNr];
+		ulValue  = ptXmac->ulXmac_config_tx_nibble_fifo;
+		ulValue &= ~HOSTMSK(xmac_config_tx_nibble_fifo_output_phase);
+		ulValue |= 0 << HOSTSRT(xmac_config_tx_nibble_fifo_output_phase);
+		ptXmac->ulXmac_config_tx_nibble_fifo = ulValue;
+
+		/* update correction base values */
+		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_TS_COR_BASE_TX = 15;
 
 		/* Set the MAC address. */
 		pucMAC = ptNetworkDriver->tEthernetPortCfg.aucMac;
@@ -1232,6 +1235,9 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 		ulValue  =                  pucMAC[4];
 		ulValue |= ((unsigned long)(pucMAC[5])) << 8U;
 		ptEthStdMac->tETHMAC_CONFIG_AREA_BASE.ulETHMAC_INTERFACE_MAC_ADDRESS_HI = ulValue;
+
+		/* start XC port */
+		NX90_XC_Start(uiXcPort);
 	}
 
 	return iResult;

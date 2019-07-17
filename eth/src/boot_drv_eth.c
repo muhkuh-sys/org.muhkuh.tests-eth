@@ -107,7 +107,7 @@ static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
 	/* Get a shortcut to the handle. */
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
-	pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+	pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 	tState = ptHandle->tState;
 	switch( tState )
@@ -197,7 +197,7 @@ static void echo_client_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *
 	const char *pcName;
 
 
-	pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+	pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 	if( sizPacket>0 )
 	{
@@ -336,7 +336,7 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 	}
 	else
 	{
-		pcName = ptEthCfg->pcName;
+		pcName = ptEthCfg->acName;
 		if( pcName==NULL )
 		{
 			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
@@ -464,7 +464,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 	if( ptNetworkDriver->f_is_configured!=0 )
 	{
-		pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
 		uiLinkState = eth_get_link_status(ptNetworkDriver);
@@ -642,7 +642,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	}
 	else
 	{
-		pcName = ptNetworkDriver->tEthernetPortCfg.pcName;
+		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
 		uiLinkState = eth_get_link_status(ptNetworkDriver);

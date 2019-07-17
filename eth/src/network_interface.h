@@ -209,7 +209,7 @@ typedef struct NETWORK_DRIVER_DATA_STRUCT
 
 typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 {
-	const char *pcName;
+	char acName[16];
 	INTERFACE_T tInterface;
 	INTERFACE_FUNCTION_T tFunction;
 	unsigned long ulFlags;

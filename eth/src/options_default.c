@@ -29,7 +29,7 @@ const ROMLOADER_OPTIONS_T t_default_options =
 		{
 			/* Port 0 */
 			{
-				.pcName = "CH0",
+				.acName = "CH0",
 				.tInterface = INTERFACE_INTPHY0,
 				.tFunction = INTERFACE_FUNCTION_EchoClient,
 				.ulFlags = 0,
@@ -44,7 +44,7 @@ const ROMLOADER_OPTIONS_T t_default_options =
 			},
 			/* Port 1 */
 			{
-				.pcName = "CH1",
+				.acName = "CH1",
 				.tInterface = INTERFACE_INTPHY1,
 				.tFunction = INTERFACE_FUNCTION_EchoClient,
 				.ulFlags = 0,

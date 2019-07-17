@@ -53,7 +53,8 @@ function TestClassEth:run()
   local tAsicTyp = tPlugin:GetChiptyp()
   local strBinary = astrBinaryName[tAsicTyp]
   if strBinary==nil then
-    error('No binary for chip type %s.', tAsicTyp)
+    tLog.error('No binary for chip type %s.', tAsicTyp)
+    error('No matching binary found.')
   end
   local strNetxBinary = string.format('netx/eth_netx%s.bin', strBinary)
 

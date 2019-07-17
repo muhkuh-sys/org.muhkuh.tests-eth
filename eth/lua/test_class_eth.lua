@@ -4,6 +4,26 @@ local TestClassEth = class(TestClass)
 
 function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self:super(strTestName, uiTestCase, tLogWriter, strLogLevel)
+
+  self.atInterface = {
+    ['None']     = ${INTERFACE_None},
+    ['INTPHY0']  = ${INTERFACE_INTPHY0},
+    ['INTPHY1']  = ${INTERFACE_INTPHY1},
+    ['EXTPHY0']  = ${INTERFACE_EXTPHY0},
+    ['EXTPHY1']  = ${INTERFACE_EXTPHY1},
+    ['LVDS0']    = ${INTERFACE_LVDS0},
+    ['LVDS1']    = ${INTERFACE_LVDS1}
+  }
+
+  self.atInterfaceFunction = {
+    ['None']       = ${INTERFACE_FUNCTION_None},
+    ['EchoServer'] = ${INTERFACE_FUNCTION_EchoServer},
+    ['EchoClient'] = ${INTERFACE_FUNCTION_EchoClient}
+  }
+
+  self.atEthernetPortFlags = {
+    ['Permanent'] = ${ETHERNET_PORT_FLAG_Permanent}
+  }
 end
 
 

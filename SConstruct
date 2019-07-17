@@ -74,7 +74,9 @@ Import(
     'ETH_NETX90',
     'ETH_NETX90_MPW',
     'ETH_NETX500',
-    'ETH_NETX4000'
+    'ETH_NETX4000',
+
+    'LUA_TEST_CLASS_ETH'
 )
 
 """
@@ -135,7 +137,7 @@ tArcList0.AddFiles('netx/',
     ETH_NETX500,
     ETH_NETX4000)
 tArcList0.AddFiles('lua/',
-    'eth/lua/test_class_eth.lua')
+    LUA_TEST_CLASS_ETH)
 tArcList0.AddFiles('templates',
     'eth/lua/test.lua')
 #tArcList0.AddFiles('doc/',
@@ -159,7 +161,7 @@ tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s
 atFiles = {
     'targets/testbench/netx/eth_netx90_mpw.bin':  ETH_NETX90_MPW,
     'targets/testbench/netx/eth_netx90.bin':      ETH_NETX90,
-    'targets/testbench/netx/eth_netx500.bin':      ETH_NETX500,
+    'targets/testbench/netx/eth_netx500.bin':     ETH_NETX500,
     'targets/testbench/netx/eth_netx4000.bin':    ETH_NETX4000
 
     # Copy all LUA scripts.

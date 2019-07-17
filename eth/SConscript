@@ -172,8 +172,5 @@ Export('ETH_NETX90_MPW', 'ETH_NETX90', 'ETH_NETX500', 'ETH_NETX4000')
 # This extracts symbols and enumeration values from the ELF file and inserts
 # them into the LUA script.
 #
-#LUA_NETX_BASE = atEnv.NETX56.GccSymbolTemplate('targets/lua/io_matrix/netx_base.lua', elf_netx56_t, GCCSYMBOLTEMPLATE_TEMPLATE=File('templates/io_matrix/netx_base.lua'))
-#LUA_NETX90_MPW = atEnv.NETX56.GccSymbolTemplate('targets/lua/io_matrix/netx90_mpw.lua', elf_netx56_t, GCCSYMBOLTEMPLATE_TEMPLATE=File('templates/io_matrix/netx90_mpw.lua'))
-#Export('LUA_NETX_BASE', 'LUA_NETX90_MPW')
-
-
+LUA_TEST_CLASS_ETH = env_netx4000_t.GccSymbolTemplate('targets/lua/test_class_eth.lua', elf_netx4000_t, GCCSYMBOLTEMPLATE_TEMPLATE=File('lua/test_class_eth.lua'))
+Export('LUA_TEST_CLASS_ETH')

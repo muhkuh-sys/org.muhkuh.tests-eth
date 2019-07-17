@@ -14,6 +14,8 @@
 
 #if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
 #       include "driver/netx90/drv_eth_xc.h"
+#elif ASIC_TYP==ASIC_TYP_NETX500
+#       include "driver/netx500/interface.h"
 #elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
 #       include "driver/netx4000/drv_eth_xc.h"
 #endif

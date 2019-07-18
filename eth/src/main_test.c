@@ -27,6 +27,7 @@
 #include "netx_io_areas.h"
 #include "options.h"
 #include "rdy_run.h"
+#include "serial_vectors.h"
 #include "systime.h"
 #include "uprintf.h"
 #include "version.h"
@@ -56,6 +57,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	ETHERNET_TEST_RESULT_T tResult;
 	int iAllPortsFinished;
 	int iAllPortsOk;
+	unsigned long ulIp;
 
 
 	systime_init();
@@ -64,16 +66,50 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	cr7_global_timer_initialize();
 #endif
 
-	/* Set the verbose mode. */
-	s_ulVerbosity = ptTestParams->ulVerbose;
-	if( s_ulVerbosity!=0 )
+	ptTestParams = NULL;
+	if( ptTestParams==NULL )
 	{
-		uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
-		uprintf("V" VERSION_ALL "\n\n");
+		/* Clear the serial vectors to prevent all print messages. */
+		memset(tSerialVectors.aul, 0, sizeof(tSerialVectors.aul));
+	}
+	else
+	{
+		/* Copy the configuration to the option structure. */
+		memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
 
-		/* Get the test parameter. */
-		uprintf(". Parameters: 0x%08x\n", (unsigned long)ptTestParams);
-		uprintf(".   Verbose: 0x%08x\n", ptTestParams->ulVerbose);
+		/* Set the verbose mode. */
+		s_ulVerbosity = ptTestParams->ulVerbose;
+		if( s_ulVerbosity!=0 )
+		{
+			uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
+			uprintf("V" VERSION_ALL "\n\n");
+
+			/* Get the test parameter. */
+			uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);
+			uprintf("  Verbose: 0x%08x\n", ptTestParams->ulVerbose);
+
+			for(uiCnt=0; uiCnt<(sizeof(g_t_romloader_options.t_ethernet.atPorts)/sizeof(g_t_romloader_options.t_ethernet.atPorts[0])); uiCnt++)
+			{
+				ptEthCfg = &(g_t_romloader_options.t_ethernet.atPorts[uiCnt]);
+				uprintf("  Port %d\n", uiCnt);
+				uprintf("    name: '%s'\n", ptEthCfg->acName);
+				uprintf("    interface: %d\n", ptEthCfg->ulInterface);
+				uprintf("    function: %d\n", ptEthCfg->ulFunction);
+				uprintf("    flags: 0x%08x\n", ptEthCfg->ulFlags);
+				ulIp = ptEthCfg->ulIp;
+				uprintf("    IP: %d.%d.%d.%d\n", ulIp&0xffU, (ulIp>>8U)&0xffU, (ulIp>>16U)&0xffU, (ulIp>>24U)&0xffU);
+				ulIp = ptEthCfg->ulGatewayIp;
+				uprintf("    gateway IP: %d.%d.%d.%d\n", ulIp&0xffU, (ulIp>>8U)&0xffU, (ulIp>>16U)&0xffU, (ulIp>>24U)&0xffU);
+				ulIp = ptEthCfg->ulNetmask;
+				uprintf("    netmask: %d.%d.%d.%d\n", ulIp&0xffU, (ulIp>>8U)&0xffU, (ulIp>>16U)&0xffU, (ulIp>>24U)&0xffU);
+				ulIp = ptEthCfg->ulRemoteIp;
+				uprintf("    remote IP: %d.%d.%d.%d\n", ulIp&0xffU, (ulIp>>8U)&0xffU, (ulIp>>16U)&0xffU, (ulIp>>24U)&0xffU);
+				uprintf("    link up delay: %d\n", ptEthCfg->usLinkUpDelay);
+				uprintf("    local port: %d\n", ptEthCfg->usLocalPort);
+				uprintf("    remote port: %d\n", ptEthCfg->usRemotePort);
+				uprintf("    MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", ptEthCfg->aucMac[0], ptEthCfg->aucMac[1], ptEthCfg->aucMac[2], ptEthCfg->aucMac[3], ptEthCfg->aucMac[4], ptEthCfg->aucMac[5]);
+			}
+		}
 	}
 
 	/* Initialize the XC. */

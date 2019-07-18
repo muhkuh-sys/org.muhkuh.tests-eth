@@ -284,9 +284,9 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 	unsigned short usRemotePort;
 
 
-	usLocalPort = ptEthCfg->usLocalPort;
+	usLocalPort = MUS2NUS(ptEthCfg->usLocalPort);
 	ulRemoteIp = ptEthCfg->ulRemoteIp;
-	usRemotePort = ptEthCfg->usRemotePort;
+	usRemotePort = MUS2NUS(ptEthCfg->usRemotePort);
 
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
@@ -320,13 +320,14 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 	int iResult;
 	const char *pcName;
 	INTERFACE_T tInterface;
+	INTERFACE_FUNCTION_T tFunction;
 
 
 	iResult = -1;
 
 	uprintf("Processing interface %d.\n", uiInterfaceIndex);
 
-	tInterface = ptEthCfg->tInterface;
+	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
 	if( tInterface==INTERFACE_None )
 	{
 		/* This interface is not in use. */
@@ -400,7 +401,8 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 				systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
 				systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
 
-				switch( ptEthCfg->tFunction )
+				tFunction = (INTERFACE_FUNCTION_T)(ptEthCfg->ulFunction);
+				switch(tFunction)
 				{
 				case INTERFACE_FUNCTION_None:
 					break;
@@ -408,7 +410,7 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 				case INTERFACE_FUNCTION_EchoServer:
 					ptNetworkDriver->tFunctionHandle.tServer.ptUdpAssoc = udp_registerPort(
 						ptNetworkDriver,
-						MUS2NUS(53280),
+						MUS2NUS(ptEthCfg->usLocalPort),
 						IP_ADR(0, 0, 0, 0),
 						0,
 						echo_server_process_packet,
@@ -630,6 +632,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	unsigned int uiLinkState;
 	const char *pcName;
 	unsigned long ulFlags;
+	INTERFACE_FUNCTION_T tFunction;
 
 
 	/* Be pessimistic. */
@@ -673,7 +676,8 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			}
 			else
 			{
-				switch(ptNetworkDriver->tEthernetPortCfg.tFunction)
+				tFunction = (INTERFACE_FUNCTION_T)(ptNetworkDriver->tEthernetPortCfg.ulFunction);
+				switch(tFunction)
 				{
 				case INTERFACE_FUNCTION_None:
 					if( (ulFlags & ETHERNET_PORT_FLAG_Permanent)==0 )

@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "network_interface.h"
+
 
 #ifndef __MAIN_TEST_H__
 #define __MAIN_TEST_H__
@@ -26,6 +28,7 @@
 typedef struct ETH_PARAMETER_STRUCT
 {
 	unsigned long ulVerbose;
+	ETHERNET_PORT_CONFIGURATION_T atPortConfiguration[MAX_NETWORK_INTERFACES];
 } ETH_PARAMETER_T;
 
 

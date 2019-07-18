@@ -210,17 +210,17 @@ typedef struct NETWORK_DRIVER_DATA_STRUCT
 typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 {
 	char acName[16];
-	INTERFACE_T tInterface;
-	INTERFACE_FUNCTION_T tFunction;
+	unsigned long ulInterface;
+	unsigned long ulFunction;
 	unsigned long ulFlags;
-	unsigned char aucMac[6];
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;
+	unsigned long ulRemoteIp;
 	unsigned short usLinkUpDelay;
 	unsigned short usLocalPort;
-	unsigned long ulRemoteIp;
 	unsigned short usRemotePort;
+	unsigned char aucMac[6];
 } ETHERNET_PORT_CONFIGURATION_T;
 
 

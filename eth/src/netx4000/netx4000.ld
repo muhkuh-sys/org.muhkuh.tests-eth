@@ -56,10 +56,10 @@ SECTIONS
 	} >INTRAM
 
 
-	.parameter :
+	.parameter ALIGN(0x0100) :
 	{
 		parameter_start_address = . ;
-		KEEP(*(.parameter))
+		. = . + 0x4000;
 		parameter_end_address = . ;
 	} >INTRAM
 

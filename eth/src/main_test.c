@@ -67,15 +67,15 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	cr7_global_timer_initialize();
 #endif
 
-	/* Copy the configuration to the option structure. */
-	memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
-
 	uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
 	uprintf("V" VERSION_ALL "\n\n");
 
 	/* Get the test parameter. */
 	uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);
 	uprintf("  Verbose: 0x%08x\n", ptTestParams->ulVerbose);
+
+	/* Copy the configuration to the option structure. */
+	memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
 
 	/* Set the verbose mode. */
 	s_ulVerbosity = ptTestParams->ulVerbose;

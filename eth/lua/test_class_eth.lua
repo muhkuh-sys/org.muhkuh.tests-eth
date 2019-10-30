@@ -56,6 +56,9 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
 
   local P = self.P
   self:__parameter {
+    P:P('plugin', 'A pattern for the plugin to use.'):
+      required(false),
+
     P:P('port0_name', 'The name of port 0.'):
       default('CH0'):
       required(true),
@@ -241,6 +244,7 @@ function TestClassEth:run()
   --
   -- Parse the parameters and collect all options.
   --
+  local strPluginPattern = atParameter['plugin']:get()
 
   -- Parse the interface.
   local strInterface = atParameter['port0_interface']:get()
@@ -336,7 +340,7 @@ function TestClassEth:run()
   -- Open the connection to the netX.
   -- (or re-use an existing connection.)
   --
-  local tPlugin = tester.getCommonPlugin()
+  local tPlugin = tester:getCommonPlugin(strPluginPattern)
   if tPlugin==nil then
     error("No plug-in selected, nothing to do!")
   end
@@ -365,7 +369,7 @@ function TestClassEth:run()
   end
   local strNetxBinary = string.format('netx/eth_netx%s.bin', strBinary)
 
-  local ulResult = tester.mbin_simple_run(nil, tPlugin, strNetxBinary, strEthernetPortConfiguration)
+  local ulResult = tester:mbin_simple_run(tPlugin, strNetxBinary, strEthernetPortConfiguration)
   if ulResult~=0 then
     error('The test failed with return code:' .. ulResult)
   end

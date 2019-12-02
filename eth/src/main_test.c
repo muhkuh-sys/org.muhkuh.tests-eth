@@ -59,6 +59,9 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	int iAllPortsFinished;
 	int iAllPortsOk;
 	unsigned long ulIp;
+	unsigned long ulTimeout;
+	TIMER_HANDLE_T tTimeout;
+	int iElapsed;
 
 
 	systime_init();
@@ -81,6 +84,8 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	s_ulVerbosity = ptTestParams->ulVerbose;
 	if( s_ulVerbosity!=0 )
 	{
+		uprintf("Link up timeout: %d\n", ptTestParams->ulLinkUpTimeout);
+		uprintf("Maximum transfer time: %d\n", ptTestParams->ulMaximumTransferTime);
 		for(uiCnt=0; uiCnt<(sizeof(g_t_romloader_options.t_ethernet.atPorts)/sizeof(g_t_romloader_options.t_ethernet.atPorts[0])); uiCnt++)
 		{
 			ptEthCfg = &(g_t_romloader_options.t_ethernet.atPorts[uiCnt]);
@@ -130,6 +135,11 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		/* TODO: add this for the netX4000. */
 #endif
 
+		ulTimeout = ptTestParams->ulLinkUpTimeout;
+		if( ulTimeout!=0 )
+		{
+			systime_handle_start_ms(&tTimeout, ulTimeout);
+		}
 		do
 		{
 			/* Be optimistic. */
@@ -148,6 +158,16 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 					iAllInterfacesUp = 0;
 				}
 			}
+
+			if( ulTimeout!=0 )
+			{
+				iElapsed = systime_handle_is_elapsed(&tTimeout);
+				if( iElapsed!=0 )
+				{
+					uprintf("Timeout waiting for a link.\n");
+					iResult = -1;
+				}
+			}
 		} while( iAllInterfacesUp==0 && iResult==0 );
 	}
 
@@ -159,6 +179,11 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		/* Expect all ports to be OK. */
 		iAllPortsOk = 1;
 
+		ulTimeout = ptTestParams->ulMaximumTransferTime;
+		if( ulTimeout!=0 )
+		{
+			systime_handle_start_ms(&tTimeout, ulTimeout);
+		}
 		do
 		{
 			/* Expect all ports to be finished. */
@@ -178,6 +203,17 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 
 				case ETHERNET_TEST_RESULT_Error:
 					uprintf("Error on port %d\n", uiCnt);
+					iAllPortsOk = 0;
+					break;
+				}
+			}
+
+			if( ulTimeout!=0 )
+			{
+				iElapsed = systime_handle_is_elapsed(&tTimeout);
+				if( iElapsed!=0 )
+				{
+					uprintf("The maximum transfer time elapsed.\n");
 					iAllPortsOk = 0;
 					break;
 				}

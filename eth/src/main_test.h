@@ -28,6 +28,8 @@
 typedef struct ETH_PARAMETER_STRUCT
 {
 	unsigned long ulVerbose;
+	unsigned long ulLinkUpTimeout;
+	unsigned long ulMaximumTransferTime;
 	ETHERNET_PORT_CONFIGURATION_T atPortConfiguration[MAX_NETWORK_INTERFACES];
 } ETH_PARAMETER_T;
 

@@ -38,6 +38,8 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
 
   self.tStructure_EthernetPortConfiguration = self.vstruct.compile([[
     ulVerbose:u4
+    ulLinkUpTimeout:u4
+    ulMaximumTransferTime:u4
     2*{
       acName:s16
       ulInterface:u4
@@ -58,6 +60,14 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self:__parameter {
     P:P('plugin', 'A pattern for the plugin to use.'):
       required(false),
+
+    P:U32('link_up_timeout', 'The maximum time to wait for a link on all ports in ms.'):
+      default(4000):
+      required(true),
+
+    P:U32('maximum_transfer_time', 'The maximum time to wait for the transfer test to finish in ms.'):
+      default(6000):
+      required(true),
 
     P:P('port0_name', 'The name of port 0.'):
       default('CH0'):
@@ -301,6 +311,8 @@ function TestClassEth:run()
   -- Combine the parameters.
   local atConfig = {
     ['ulVerbose'] = 1,
+    ['ulLinkUpTimeout'] = atParameter['link_up_timeout']:get(),
+    ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),
 
     {
       ['acName'] = atParameter['port0_name']:get(),

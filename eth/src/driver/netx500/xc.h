@@ -7,6 +7,8 @@
 #define __XC_H__
 
 
+void xc_reset(unsigned int uiPortNr);
+
 void xc_init(unsigned int uiPortNr, const unsigned char *aucMAC, unsigned char *pucFrameBuffer, unsigned char *pucFrameBufferEnd);
 void xc_init_fifo_borders(void);
 void xc_init_empty_pointer_fifo(unsigned int uiPortNr, unsigned char *pucBufferStart, unsigned char *pucBufferEnd);

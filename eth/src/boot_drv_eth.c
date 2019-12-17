@@ -315,6 +315,170 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 
 
 
+int boot_drv_eth_prepare(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	int iResult;
+	const char *pcName;
+	INTERFACE_T tInterface;
+
+
+	iResult = -1;
+
+	uprintf("Preparing interface %d.\n", uiInterfaceIndex);
+
+	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
+	if( tInterface==INTERFACE_None )
+	{
+		/* This interface is not in use. */
+		uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
+		memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
+		iResult = 0;
+	}
+	else
+	{
+		pcName = ptEthCfg->acName;
+		if( pcName==NULL )
+		{
+			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
+		}
+		else
+		{
+			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
+
+			switch(tInterface)
+			{
+			case INTERFACE_None:
+				break;
+
+			case INTERFACE_INTPHY0:
+				/* INTPHY port 0 */
+				iResult = drv_eth_xc_prepare(ptNetworkDriver, 0);
+				break;
+
+			case INTERFACE_INTPHY1:
+				/* INTPHY port 1 */
+				iResult = drv_eth_xc_prepare(ptNetworkDriver, 1);
+				break;
+
+			case INTERFACE_EXTPHY0:
+				/* EXTPHY port 0 */
+				iResult = drv_eth_xc_prepare(ptNetworkDriver, 2);
+				break;
+
+			case INTERFACE_EXTPHY1:
+				/* EXTPHY port 1 */
+				iResult = drv_eth_xc_prepare(ptNetworkDriver, 3);
+				break;
+
+			case INTERFACE_LVDS0:
+				/* LVDS port 0 */
+				iResult = drv_eth_xc_prepare_lvds(ptNetworkDriver, 0);
+				break;
+
+			case INTERFACE_LVDS1:
+				/* LVDS port 1 */
+				iResult = drv_eth_xc_prepare_lvds(ptNetworkDriver, 1);
+				break;
+			}
+
+			if( iResult!=0 )
+			{
+				uprintf("%s: ERROR: failed to prepare the Ethernet port.\n", pcName);
+			}
+			else
+			{
+				uprintf("%s: Interface prepared.\n", pcName);
+			}
+		}
+	}
+
+	return iResult;
+}
+
+
+
+int boot_drv_eth_disable(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	int iResult;
+	const char *pcName;
+	INTERFACE_T tInterface;
+
+
+	iResult = -1;
+
+	uprintf("Disabling interface %d.\n", uiInterfaceIndex);
+
+	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
+	if( tInterface==INTERFACE_None )
+	{
+		/* This interface is not in use. */
+		uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
+		memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
+		iResult = 0;
+	}
+	else
+	{
+		pcName = ptEthCfg->acName;
+		if( pcName==NULL )
+		{
+			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
+		}
+		else
+		{
+			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
+
+			switch(tInterface)
+			{
+			case INTERFACE_None:
+				break;
+
+			case INTERFACE_INTPHY0:
+				/* INTPHY port 0 */
+				iResult = drv_eth_xc_disable(ptNetworkDriver, 0);
+				break;
+
+			case INTERFACE_INTPHY1:
+				/* INTPHY port 1 */
+				iResult = drv_eth_xc_disable(ptNetworkDriver, 1);
+				break;
+
+			case INTERFACE_EXTPHY0:
+				/* EXTPHY port 0 */
+				iResult = drv_eth_xc_disable(ptNetworkDriver, 2);
+				break;
+
+			case INTERFACE_EXTPHY1:
+				/* EXTPHY port 1 */
+				iResult = drv_eth_xc_disable(ptNetworkDriver, 3);
+				break;
+
+			case INTERFACE_LVDS0:
+				/* LVDS port 0 */
+				iResult = drv_eth_xc_disable_lvds(ptNetworkDriver, 0);
+				break;
+
+			case INTERFACE_LVDS1:
+				/* LVDS port 1 */
+				iResult = drv_eth_xc_disable_lvds(ptNetworkDriver, 1);
+				break;
+			}
+
+			if( iResult!=0 )
+			{
+				uprintf("%s: ERROR: failed to disable the Ethernet port.\n", pcName);
+			}
+			else
+			{
+				uprintf("%s: Interface disabled.\n", pcName);
+			}
+		}
+	}
+
+	return iResult;
+}
+
+
+
 int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;

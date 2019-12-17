@@ -186,7 +186,8 @@ static void xc_load_code(const unsigned long *pulCode)
 }
 
 
-static void xc_reset(unsigned int uiPortNr)
+
+void xc_reset(unsigned int uiPortNr)
 {
 	HOSTDEF(ptXpecIrqRegistersArea);
 	HOSTADEF(XMAC)* ptXmac;

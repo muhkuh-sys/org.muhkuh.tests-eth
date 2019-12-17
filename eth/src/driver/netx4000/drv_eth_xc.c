@@ -1101,11 +1101,10 @@ static int eth_initialize(unsigned int uiPortNo)
 
 
 
-int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+int drv_eth_xc_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
 	int iResult;
-	DRV_ETH_XC_HANDLE_T *ptHandle;
 	unsigned long ulMask;
 	unsigned long ulValue;
 
@@ -1116,14 +1115,6 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	/* Check the port number. */
 	if( uiPort<=3U )
 	{
-		/* Get a shortcut to the handle. */
-		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
-
-		/* Initialize the internal handle. */
-		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXcUnit = (uiPort >> 1U) & 1U;
-		ptHandle->uiXcPort = uiPort & 1U;
-
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable_mask_xc_misc);
 		switch(uiPort)
@@ -1164,12 +1155,7 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 			ptAsicCtrlArea->ulClock_enable = ulValue;
 
-			/* Initialize the XC. */
 			configure_mode();
-
-			eth_initialize(uiPort);
-
-			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
 
 			iResult = 0;
 		}
@@ -1180,13 +1166,65 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 
 
 
-int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+int drv_eth_xc_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
+{
+	int iResult;
+	unsigned int uXcInst;
+
+
+	/* Be pessimistic. */
+	iResult = -1;
+
+	/* Check the port number. */
+	if( uiPort<=3U )
+	{
+		uXcInst = (uiPort>>1)&1;
+
+		iResult = NX4000_XC_Reset(uXcInst, uiPort);
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+{
+	int iResult;
+	DRV_ETH_XC_HANDLE_T *ptHandle;
+
+
+	/* Be pessimistic. */
+	iResult = -1;
+
+	/* Check the port number. */
+	if( uiPort<=3U )
+	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+
+		/* Initialize the internal handle. */
+		ptHandle->uiEthPortNr = uiPort;
+		ptHandle->uiXcUnit = (uiPort >> 1U) & 1U;
+		ptHandle->uiXcPort = uiPort & 1U;
+
+		/* Initialize the XC. */
+		eth_initialize(uiPort);
+
+		memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
+
+		iResult = 0;
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_prepare_lvds(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
 	int iResult;
-	DRV_ETH_XC_HANDLE_T *ptHandle;
-	unsigned int uiXcUnit;
-	unsigned int uiXcPort;
 	unsigned long ulMask;
 	unsigned long ulValue;
 
@@ -1197,17 +1235,6 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 	/* Check the port number. */
 	if( uiPort<=1U )
 	{
-		/* Get a shortcut to the handle. */
-		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
-
-		/* Initialize the internal handle. */
-		uiXcUnit = (uiPort>>1U)&1;
-		uiXcPort = uiPort & 1;
-
-		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXcUnit = uiXcUnit;
-		ptHandle->uiXcPort = uiXcPort;
-
 		/* Check if all necessary clocks can be enabled. */
 		ulMask = HOSTMSK(clock_enable_mask_xc_misc);
 		switch(uiPort)
@@ -1236,15 +1263,70 @@ int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int u
 			ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
 			ptAsicCtrlArea->ulClock_enable = ulMask;
 
-			/* Initialize the XC. */
-			configure_mode_lvds(ptNetworkDriver);
-
-			eth_initialize(uiPort);
-
-			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXcLvds, sizeof(NETWORK_IF_T));
-
 			iResult = 0;
 		}
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_disable_lvds(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
+{
+	int iResult;
+	unsigned int uXcInst;
+
+
+	/* Be pessimistic. */
+	iResult = -1;
+
+	/* Check the port number. */
+	if( uiPort<=1U )
+	{
+		uXcInst = (uiPort>>1)&1;
+
+		iResult = NX4000_XC_Reset(uXcInst, uiPort);
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_initialize_lvds(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+{
+	int iResult;
+	DRV_ETH_XC_HANDLE_T *ptHandle;
+	unsigned int uiXcUnit;
+	unsigned int uiXcPort;
+
+
+	/* Be pessimistic. */
+	iResult = -1;
+
+	/* Check the port number. */
+	if( uiPort<=1U )
+	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+
+		/* Initialize the internal handle. */
+		uiXcUnit = (uiPort>>1U)&1;
+		uiXcPort = uiPort & 1;
+
+		ptHandle->uiEthPortNr = uiPort;
+		ptHandle->uiXcUnit = uiXcUnit;
+		ptHandle->uiXcPort = uiXcPort;
+
+		configure_mode_lvds(ptNetworkDriver);
+
+		/* Initialize the XC. */
+		eth_initialize(uiPort);
+
+		memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXcLvds, sizeof(NETWORK_IF_T));
+
+		iResult = 0;
 	}
 
 	return iResult;

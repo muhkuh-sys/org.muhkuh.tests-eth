@@ -109,66 +109,95 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		}
 	}
 
-	/* Initialize the XC. */
-	pfifo_reset();
-
-	/* Loop over all Ethernet ports and try to configure them. */
+	/* Loop over all Ethernet ports and prepare the system.
+	 * This does things like enabling all clocks.
+	 */
 	for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 	{
 		ptEthCfg = g_t_romloader_options.t_ethernet.atPorts + uiCnt;
 		ptNetworkDriver = atNetworkDriver + uiCnt;
-		iResult = boot_drv_eth_init(uiCnt, ptEthCfg, ptNetworkDriver);
+		iResult = boot_drv_eth_prepare(uiCnt, ptEthCfg, ptNetworkDriver);
 		if( iResult!=0 )
 		{
 			break;
 		}
 	}
-
 	if( iResult==0 )
 	{
-		/* Setup the PHYs.
-		 * FIXME: this is hard-coded for now, but it should depend on the configured interfaces.
-		 */
-#if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
-		setup_phy_internal();
-#elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
-		/* TODO: add this for the netX4000. */
-#endif
-
-		ulTimeout = ptTestParams->ulLinkUpTimeout;
-		if( ulTimeout!=0 )
+		/* Loop over all Ethernet ports and disable them. */
+		for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 		{
-			systime_handle_start_ms(&tTimeout, ulTimeout);
+			ptEthCfg = g_t_romloader_options.t_ethernet.atPorts + uiCnt;
+			ptNetworkDriver = atNetworkDriver + uiCnt;
+			iResult = boot_drv_eth_disable(uiCnt, ptEthCfg, ptNetworkDriver);
+			if( iResult!=0 )
+			{
+				break;
+			}
 		}
-		do
+		if( iResult==0 )
 		{
-			/* Be optimistic. */
-			iAllInterfacesUp = 1;
+			/* Initialize the XC. */
+			pfifo_reset();
 
+			/* Loop over all Ethernet ports and try to configure them. */
 			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 			{
-				iResult = ethernet_startup_process(atNetworkDriver + uiCnt);
+				ptEthCfg = g_t_romloader_options.t_ethernet.atPorts + uiCnt;
+				ptNetworkDriver = atNetworkDriver + uiCnt;
+				iResult = boot_drv_eth_init(uiCnt, ptEthCfg, ptNetworkDriver);
 				if( iResult!=0 )
 				{
-					uprintf("Error on port %d\n", uiCnt);
 					break;
 				}
-				else if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
-				{
-					iAllInterfacesUp = 0;
-				}
 			}
-
-			if( ulTimeout!=0 )
+			if( iResult==0 )
 			{
-				iElapsed = systime_handle_is_elapsed(&tTimeout);
-				if( iElapsed!=0 )
+				/* Setup the PHYs.
+				 * FIXME: this is hard-coded for now, but it should depend on the configured interfaces.
+				 */
+#if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
+				setup_phy_internal();
+#elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
+				/* TODO: add this for the netX4000. */
+#endif
+
+				ulTimeout = ptTestParams->ulLinkUpTimeout;
+				if( ulTimeout!=0 )
 				{
-					uprintf("Timeout waiting for a link.\n");
-					iResult = -1;
+					systime_handle_start_ms(&tTimeout, ulTimeout);
 				}
+				do
+				{
+					/* Be optimistic. */
+					iAllInterfacesUp = 1;
+
+					for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
+					{
+						iResult = ethernet_startup_process(atNetworkDriver + uiCnt);
+						if( iResult!=0 )
+						{
+							uprintf("Error on port %d\n", uiCnt);
+							break;
+						}
+						else if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
+						{
+							iAllInterfacesUp = 0;
+						}
+					}
+
+					if( ulTimeout!=0 )
+					{
+						iElapsed = systime_handle_is_elapsed(&tTimeout);
+						if( iElapsed!=0 )
+						{
+							uprintf("Timeout waiting for a link.\n");
+							iResult = -1;
+						}
+					}
+				} while( iAllInterfacesUp==0 && iResult==0 );
 			}
-		} while( iAllInterfacesUp==0 && iResult==0 );
+		}
 	}
 
 	iAllPortsOk = 0;

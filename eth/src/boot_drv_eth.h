@@ -50,6 +50,8 @@ typedef enum ETHERNET_TEST_RESULT_ENUM
 
 
 
+int boot_drv_eth_prepare(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
+int boot_drv_eth_disable(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
 int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver);
 int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver);
 ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver);

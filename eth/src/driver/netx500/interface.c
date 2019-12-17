@@ -218,11 +218,9 @@ static const NETWORK_IF_T tNetworkIfXc =
 
 
 
-int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+int drv_eth_xc_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute((unused)), unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
-	DRV_ETH_XC_HANDLE_T *ptHandle;
-	unsigned int uiXcPort;
 	unsigned long ulValue;
 	int iResult;
 
@@ -233,19 +231,6 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	/* Check the port number. */
 	if( uiPort<=3U )
 	{
-		/* Get a shortcut to the handle. */
-		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
-
-		uiXcPort = uiPort;
-
-		/* Initialize the internal handle. */
-		ptHandle->uiEthPortNr = uiPort;
-		ptHandle->uiXcPort = uiXcPort;
-		ptHandle->auiExtPhyCtrlInst[0] = 0;
-		ptHandle->auiExtPhyCtrlInst[1] = 0;
-		ptHandle->auiExtPhyAddress[0] = 0;
-		ptHandle->auiExtPhyAddress[1] = 0;
-
 		ulValue  = HOSTMSK(clock_enable_xpec0) | HOSTMSK(clock_enable_xmac0);
 		ulValue |= HOSTMSK(clock_enable_xpec1) | HOSTMSK(clock_enable_xmac1);
 		ulValue |= HOSTMSK(clock_enable_xpec2) | HOSTMSK(clock_enable_xmac2);
@@ -277,24 +262,94 @@ int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 			 */
 			ptAsicCtrlArea->ulClock_enable = ulValue;
 
-			/* Initialize the FIFO unit. */
-			/* Do not init it here. This routine will be called
-			 * once for each port, so the FIFO will be resettet
-			 * 2 times and all frames already inserted are lost.
-			 */
-/*			xc_init_fifo_borders(); */
-
-			IntDualPhy_Initialize();
-
-			interface_configure(ptNetworkDriver);
-
-			memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
-
 			iResult = 0;
 		}
 	}
 
 	return iResult;
+}
+
+
+
+int drv_eth_xc_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute((unused)), unsigned int uiPort)
+{
+	int iResult;
+
+
+	/* Expect failure. */
+	iResult = 1;
+
+	/* Check the port number. */
+	if( uiPort<=3U )
+	{
+		xc_reset(uiPort);
+		iResult = 0;
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort)
+{
+	DRV_ETH_XC_HANDLE_T *ptHandle;
+	unsigned int uiXcPort;
+	int iResult;
+
+
+	/* Expect failure. */
+	iResult = 1;
+
+	/* Check the port number. */
+	if( uiPort<=3U )
+	{
+		/* Get a shortcut to the handle. */
+		ptHandle = &(ptNetworkDriver->tNetworkDriverData.tDrvEthXcHandle);
+
+		uiXcPort = uiPort;
+
+		/* Initialize the internal handle. */
+		ptHandle->uiEthPortNr = uiPort;
+		ptHandle->uiXcPort = uiXcPort;
+		ptHandle->auiExtPhyCtrlInst[0] = 0;
+		ptHandle->auiExtPhyCtrlInst[1] = 0;
+		ptHandle->auiExtPhyAddress[0] = 0;
+		ptHandle->auiExtPhyAddress[1] = 0;
+
+		/* Initialize the FIFO unit. */
+		/* Do not initialize it here. This routine will be called
+		 * once for each port, so the FIFO will be reset
+		 * 2 times and all frames already inserted are lost.
+		 */
+/*		xc_init_fifo_borders(); */
+
+		IntDualPhy_Initialize();
+
+		interface_configure(ptNetworkDriver);
+
+		memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfXc, sizeof(NETWORK_IF_T));
+
+		iResult = 0;
+	}
+
+	return iResult;
+}
+
+
+
+int drv_eth_xc_prepare_lvds(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort __attribute__((unused)))
+{
+	/* netX500 has no LVDS. */
+	return -1;
+}
+
+
+
+int drv_eth_xc_disable_lvds(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort __attribute__((unused)))
+{
+	/* netX500 has no LVDS. */
+	return -1;
 }
 
 

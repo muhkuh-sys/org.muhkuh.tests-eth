@@ -89,7 +89,7 @@ typedef enum PHY_SETUP_COMMAND_ENUM
 
 
 #define PHY_SETUP_INTPHY_SetPhyCtrl(PHY_ADDRESS, PHY0_MODE, PHY0_FXMODE, PHY0_AUTOMDIX, PHY0_NP_MSG_CODE, PHY0_ENABLE, PHY1_MODE, PHY1_FXMODE, PHY1_AUTOMDIX, PHY1_NP_MSG_CODE, PHY1_ENABLE, PHY_RESET) \
-	PHY_SETUP_COMMAND_WriteIntPhyCfg, REL_Adr_NX90_int_phy_cfg_phy_ctrl/sizeof(unsigned long), \
+	PHY_SETUP_COMMAND_WriteIntPhyCfg, CONCAT3(REL_Adr,HOST,int_phy_cfg_phy_ctrl)/sizeof(unsigned long), \
 	PHY_SETUP_DW( \
 		(PHY_ADDRESS) << HOSTSRT(int_phy_cfg_phy_ctrl_phy_address) | \
 		(PHY0_MODE) << HOSTSRT(int_phy_cfg_phy_ctrl_phy0_mode) | \

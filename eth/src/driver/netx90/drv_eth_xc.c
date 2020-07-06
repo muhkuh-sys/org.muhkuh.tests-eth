@@ -57,57 +57,57 @@ typedef enum PHYCTRL_LED_MODE_Etag
 
 
 
-static NX90_PHY_CTRL_AREA_T * const aptPhyCtrl[2] =
+static HOSTADEF(PHY_CTRL) * const aptPhyCtrl[2] =
 {
-	(NX90_PHY_CTRL_AREA_T*) Addr_NX90_xc0_phy_ctrl0,
-	(NX90_PHY_CTRL_AREA_T*) Addr_NX90_xc0_phy_ctrl1,
+	(HOSTADEF(PHY_CTRL)*) HOSTADDR(xc0_phy_ctrl0),
+	(HOSTADEF(PHY_CTRL)*) HOSTADDR(xc0_phy_ctrl1),
 };
 
 
 
 static ETHMAC_XPEC_DPM * const aptXpecDramArea[2] =
 {
-	(ETHMAC_XPEC_DPM*) Adr_NX90_xc0_tpec0_dram_ram_start,
-	(ETHMAC_XPEC_DPM*) Adr_NX90_xc0_tpec1_dram_ram_start
+	(ETHMAC_XPEC_DPM*) HOSTADR(xc0_tpec0_dram_ram_start),
+	(ETHMAC_XPEC_DPM*) HOSTADR(xc0_tpec1_dram_ram_start)
 };
 
 
 
-static NX90_XMAC_AREA_T * const aptXmacArea[2] =
+static HOSTADEF(XMAC) * const aptXmacArea[2] =
 {
-	(NX90_XMAC_AREA_T*) Addr_NX90_xc0_xmac0_regs,
-	(NX90_XMAC_AREA_T*) Addr_NX90_xc0_xmac1_regs
+	(HOSTADEF(XMAC)*) HOSTADDR(xc0_xmac0_regs),
+	(HOSTADEF(XMAC)*) HOSTADDR(xc0_xmac1_regs)
 };
 
 
 
-static NX90_XPEC_AREA_T * const aptRpecRegArea[2] =
+static HOSTADEF(XPEC) * const aptRpecRegArea[2] =
 {
-	(NX90_XPEC_AREA_T*) Addr_NX90_xc0_rpec0_regs,
-	(NX90_XPEC_AREA_T*) Addr_NX90_xc0_rpec1_regs
+	(HOSTADEF(XPEC)*) HOSTADDR(xc0_rpec0_regs),
+	(HOSTADEF(XPEC)*) HOSTADDR(xc0_rpec1_regs)
 };
 
 
 
-static NX90_XPEC_AREA_T * const aptTpecRegArea[2] =
+static HOSTADEF(XPEC) * const aptTpecRegArea[2] =
 {
-	(NX90_XPEC_AREA_T*) Addr_NX90_xc0_tpec0_regs,
-	(NX90_XPEC_AREA_T*) Addr_NX90_xc0_tpec1_regs
+	(HOSTADEF(XPEC)*) HOSTADDR(xc0_tpec0_regs),
+	(HOSTADEF(XPEC)*) HOSTADDR(xc0_tpec1_regs)
 };
 
 
 static unsigned long * const apulRpecPramArea[2] =
 {
-	(unsigned long*) Adr_NX90_xc0_rpec0_pram_ram_start,
-	(unsigned long*) Adr_NX90_xc0_rpec1_pram_ram_start
+	(unsigned long*) HOSTADR(xc0_rpec0_pram_ram_start),
+	(unsigned long*) HOSTADR(xc0_rpec1_pram_ram_start)
 };
 
 
 
 static unsigned long * const apulTpecPramArea[2] =
 {
-	(unsigned long*) Adr_NX90_xc0_tpec0_pram_ram_start,
-	(unsigned long*) Adr_NX90_xc0_tpec1_pram_ram_start
+	(unsigned long*) HOSTADR(xc0_tpec0_pram_ram_start),
+	(unsigned long*) HOSTADR(xc0_tpec1_pram_ram_start)
 };
 
 
@@ -210,7 +210,7 @@ static const unsigned long* const paulxMacTpuCodes[2] =
 
 static int extphy_read(unsigned int uiPhyCtrlInst, unsigned int uiPhy, unsigned int uiReg, unsigned short *pusData)
 {
-	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
+	HOSTADEF(PHY_CTRL) *ptPhyCtrl;
 	int iResult;
 	unsigned long ulValue;
 	unsigned short usData;
@@ -317,9 +317,9 @@ static int NX90_XC_Reset(unsigned int uiPortNr)
 {
 	HOSTDEF(ptXcStartStopArea);
 	HOSTDEF(ptXpecIrqRegistersArea);
-	NX90_XMAC_AREA_T* ptXmac;
-	NX90_XPEC_AREA_T* ptRpec;
-	NX90_XPEC_AREA_T* ptTpec;
+	HOSTADEF(XMAC) *ptXmac;
+	HOSTADEF(XPEC) *ptRpec;
+	HOSTADEF(XPEC) *ptTpec;
 	volatile unsigned long* pulRpecPram;
 	volatile unsigned long* pulTpecPram;
 	unsigned int uIdx;
@@ -619,9 +619,9 @@ static int NX90_XC_Reset(unsigned int uiPortNr)
 static void NX90_XC_Start(unsigned int uiPortNr)
 {
 	HOSTDEF(ptXcStartStopArea);
-	NX90_XMAC_AREA_T* ptXmacArea;
-	NX90_XPEC_AREA_T* ptRpecArea;
-	NX90_XPEC_AREA_T* ptTpecArea;
+	HOSTADEF(XMAC) *ptXmacArea;
+	HOSTADEF(XPEC) *ptRpecArea;
+	HOSTADEF(XPEC) *ptTpecArea;
 	unsigned long ulValue;
 
 
@@ -685,11 +685,11 @@ static void *convert_fifo_value_to_packet_pointer(unsigned long ulFifoValue)
 
 /* Convert a frame address to a FIFO pointer. */
 static unsigned long convert_packet_pointer_to_fifo_value(void *pvPacket)
-{       
-        unsigned long ulFrameNr;
-        unsigned long ulValue;
+{
+	unsigned long ulFrameNr;
+	unsigned long ulValue;
 
-        
+
 	/* Extract the frame buffer number. */
 	ulFrameNr  = (unsigned long)pvPacket;
 	ulFrameNr &= 0xffffU;
@@ -697,7 +697,7 @@ static unsigned long convert_packet_pointer_to_fifo_value(void *pvPacket)
 
 	ulValue = ulFrameNr << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM;
 
-        return ulValue;
+	return ulValue;
 }
 
 
@@ -707,7 +707,7 @@ static unsigned long convert_packet_pointer_to_fifo_value(void *pvPacket)
 
 static unsigned int drv_eth_xc_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
+	HOSTADEF(PHY_CTRL) *ptPhyCtrl;
 	DRV_ETH_XC_HANDLE_T *ptHandle;
 	unsigned long ulValue;
 	int iResult;
@@ -1150,8 +1150,8 @@ static int eth_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort
 	HOSTDEF(ptXpecIrqRegistersArea);
 	HOSTDEF(ptSystimeComArea);
 	ETHMAC_XPEC_DPM *ptEthStdMac;
-	NX90_PHY_CTRL_AREA_T *ptPhyCtrl;
-	NX90_XMAC_AREA_T *ptXmac;
+	HOSTADEF(PHY_CTRL) *ptPhyCtrl;
+	HOSTADEF(XMAC) *ptXmac;
 	int iResult;
 	unsigned int uiCnt;
 	unsigned long ulValue;

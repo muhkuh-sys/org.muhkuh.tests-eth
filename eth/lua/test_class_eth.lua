@@ -8,9 +8,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   local pl = require'pl.import_into'()
   self.pl = pl
   self.bit = require 'bit'
-  if self.LUA_VER_NUM==501 then
-    self.vstruct = require 'vstruct'
-  end
+  self.vstruct = require 'vstruct'
 
   local atInterface = {
     ['None']     = ${INTERFACE_None},
@@ -38,29 +36,25 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self.atEthernetPortFlags = atEthernetPortFlags
   local strEthernetPortFlags = table.concat(pl.tablex.keys(atEthernetPortFlags), ',')
 
-  if self.LUA_VER_NUM==501 then
-    self.tStructure_EthernetPortConfiguration = self.vstruct.compile([[
-      ulVerbose:u4
-      ulLinkUpTimeout:u4
-      ulMaximumTransferTime:u4
-      2*{
-        acName:s16
-        ulInterface:u4
-        ulFunction:u4
-        ulFlags:u4
-        ulIp:u4
-        ulGatewayIp:u4
-        ulNetmask:u4
-        ulRemoteIp:u4
-        usLinkUpDelay:u2
-        usLocalPort:u2
-        usRemotePort:u2
-        aucMac: {6*u1}
-      }
-    ]])
-  else
-    self.strFormat_EthernetPortConfiguration = '< I4I4I4 c16I4I4I4I4I4I4I4I2I2I2BBBBBB c16I4I4I4I4I4I4I4I2I2I2BBBBBB'
-  end
+  self.tStructure_EthernetPortConfiguration = self.vstruct.compile([[
+    ulVerbose:u4
+    ulLinkUpTimeout:u4
+    ulMaximumTransferTime:u4
+    2*{
+      acName:s16
+      ulInterface:u4
+      ulFunction:u4
+      ulFlags:u4
+      ulIp:u4
+      ulGatewayIp:u4
+      ulNetmask:u4
+      ulRemoteIp:u4
+      usLinkUpDelay:u2
+      usLocalPort:u2
+      usRemotePort:u2
+      aucMac: {6*u1}
+    }
+  ]])
 
   local P = self.P
   self:__parameter {
@@ -317,91 +311,43 @@ function TestClassEth:run()
 
   -- Combine the parameters.
   local strEthernetPortConfiguration
-  if self.LUA_VER_NUM==501 then
-    local atConfig = {
-      ['ulVerbose'] = 1,
-      ['ulLinkUpTimeout'] = atParameter['link_up_timeout']:get(),
-      ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),
+  local atConfig = {
+    ['ulVerbose'] = 1,
+    ['ulLinkUpTimeout'] = atParameter['link_up_timeout']:get(),
+    ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),
 
-      {
-        ['acName'] = atParameter['port0_name']:get(),
-        ['ulInterface'] = ulPort0_Interface,
-        ['ulFunction'] = ulPort0_InterfaceFunction,
-        ['ulFlags'] = ulPort0_Flags,
-        ['ulIp'] = atParameter['port0_ip']:get(),
-        ['ulGatewayIp'] = atParameter['port0_gateway_ip']:get(),
-        ['ulNetmask'] = atParameter['port0_netmask']:get(),
-        ['ulRemoteIp'] = atParameter['port0_remote_ip']:get(),
-        ['usLinkUpDelay'] = atParameter['port0_link_up_delay']:get(),
-        ['usLocalPort'] = atParameter['port0_local_port']:get(),
-        ['usRemotePort'] = atParameter['port0_remote_port']:get(),
-        ['aucMac'] = atParameter['port0_mac']:get()
-      },
-      {
-        ['acName'] = atParameter['port1_name']:get(),
-        ['ulInterface'] = ulPort1_Interface,
-        ['ulFunction'] = ulPort1_InterfaceFunction,
-        ['ulFlags'] = ulPort1_Flags,
-        ['ulIp'] = atParameter['port1_ip']:get(),
-        ['ulGatewayIp'] = atParameter['port1_gateway_ip']:get(),
-        ['ulNetmask'] = atParameter['port1_netmask']:get(),
-        ['ulRemoteIp'] = atParameter['port1_remote_ip']:get(),
-        ['usLinkUpDelay'] = atParameter['port1_link_up_delay']:get(),
-        ['usLocalPort'] = atParameter['port1_local_port']:get(),
-        ['usRemotePort'] = atParameter['port1_remote_port']:get(),
-        ['aucMac'] = atParameter['port1_mac']:get()
-      }
+    {
+      ['acName'] = atParameter['port0_name']:get(),
+      ['ulInterface'] = ulPort0_Interface,
+      ['ulFunction'] = ulPort0_InterfaceFunction,
+      ['ulFlags'] = ulPort0_Flags,
+      ['ulIp'] = atParameter['port0_ip']:get(),
+      ['ulGatewayIp'] = atParameter['port0_gateway_ip']:get(),
+      ['ulNetmask'] = atParameter['port0_netmask']:get(),
+      ['ulRemoteIp'] = atParameter['port0_remote_ip']:get(),
+      ['usLinkUpDelay'] = atParameter['port0_link_up_delay']:get(),
+      ['usLocalPort'] = atParameter['port0_local_port']:get(),
+      ['usRemotePort'] = atParameter['port0_remote_port']:get(),
+      ['aucMac'] = atParameter['port0_mac']:get()
+    },
+    {
+      ['acName'] = atParameter['port1_name']:get(),
+      ['ulInterface'] = ulPort1_Interface,
+      ['ulFunction'] = ulPort1_InterfaceFunction,
+      ['ulFlags'] = ulPort1_Flags,
+      ['ulIp'] = atParameter['port1_ip']:get(),
+      ['ulGatewayIp'] = atParameter['port1_gateway_ip']:get(),
+      ['ulNetmask'] = atParameter['port1_netmask']:get(),
+      ['ulRemoteIp'] = atParameter['port1_remote_ip']:get(),
+      ['usLinkUpDelay'] = atParameter['port1_link_up_delay']:get(),
+      ['usLocalPort'] = atParameter['port1_local_port']:get(),
+      ['usRemotePort'] = atParameter['port1_remote_port']:get(),
+      ['aucMac'] = atParameter['port1_mac']:get()
     }
+  }
 
-    -- Convert the data to a struct.
-    strEthernetPortConfiguration = self.tStructure_EthernetPortConfiguration:write(atConfig)
-  else
-    local aucPort0Mac = atParameter['port0_mac']:get()
-    local aucPort1Mac = atParameter['port1_mac']:get()
-
-    strEthernetPortConfiguration = string.pack(
-      self.strFormat_EthernetPortConfiguration,
-      1,
-      atParameter['link_up_timeout']:get(),
-      atParameter['maximum_transfer_time']:get(),
-
-      atParameter['port0_name']:get(),
-      ulPort0_Interface,
-      ulPort0_InterfaceFunction,
-      ulPort0_Flags,
-      atParameter['port0_ip']:get(),
-      atParameter['port0_gateway_ip']:get(),
-      atParameter['port0_netmask']:get(),
-      atParameter['port0_remote_ip']:get(),
-      atParameter['port0_link_up_delay']:get(),
-      atParameter['port0_local_port']:get(),
-      atParameter['port0_remote_port']:get(),
-      aucPort0Mac[1],
-      aucPort0Mac[2],
-      aucPort0Mac[3],
-      aucPort0Mac[4],
-      aucPort0Mac[5],
-      aucPort0Mac[6],
-
-      atParameter['port1_name']:get(),
-      ulPort1_Interface,
-      ulPort1_InterfaceFunction,
-      ulPort1_Flags,
-      atParameter['port1_ip']:get(),
-      atParameter['port1_gateway_ip']:get(),
-      atParameter['port1_netmask']:get(),
-      atParameter['port1_remote_ip']:get(),
-      atParameter['port1_link_up_delay']:get(),
-      atParameter['port1_local_port']:get(),
-      atParameter['port1_remote_port']:get(),
-      aucPort1Mac[1],
-      aucPort1Mac[2],
-      aucPort1Mac[3],
-      aucPort1Mac[4],
-      aucPort1Mac[5],
-      aucPort1Mac[6]
-    )
-  end
+  -- Convert the data to a struct.
+  strEthernetPortConfiguration = self.tStructure_EthernetPortConfiguration:write(atConfig)
 
   ----------------------------------------------------------------------
   --

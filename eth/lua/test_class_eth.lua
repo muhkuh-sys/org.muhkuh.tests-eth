@@ -250,6 +250,7 @@ function TestClassEth:run()
   local atParameter = self.atParameter
   local tLog = self.tLog
   local bit = self.bit
+  local pl = self.pl
 
   ----------------------------------------------------------------------
   --
@@ -269,6 +270,36 @@ function TestClassEth:run()
   if ulPort1_Interface==nil then
     tLog.error('Unknown interface "%s" specified for port 1.', strInterface)
     error('Unknown interface for port 1.')
+  end
+
+  if ulPort0_Interface == ulPort1_Interface then
+	error('Identical interface of port 1 and port 2.')
+  end
+
+local port0_name,port1_name
+port0_name = atParameter['port0_name']:get()
+port1_name = atParameter['port1_name']:get()
+
+  if port0_name == port1_name then
+	error('Identical name of port 1 and port 2.')
+  end
+
+  local port0_ip,port1_ip
+  port0_ip = atParameter['port0_ip']:get()
+  port1_ip = atParameter['port1_ip']:get()
+
+  if port0_ip == port1_ip then
+	error('Identical ip address of port 1 and port 2.')
+  end
+
+  local port0_mac,port1_mac
+  port0_mac = atParameter['port0_mac']:get()
+  port1_mac = atParameter['port1_mac']:get()
+
+  print('TEST :',port0_mac,port1_mac)
+
+  if pl.tablex.compare(port0_mac, port1_mac,'==') then
+	error('Identical mac address of port 1 and port 2.')
   end
 
   local strInterfaceFunction = atParameter['port0_function']:get()
@@ -317,32 +348,32 @@ function TestClassEth:run()
     ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),
 
     {
-      ['acName'] = atParameter['port0_name']:get(),
+      ['acName'] = port0_name,
       ['ulInterface'] = ulPort0_Interface,
       ['ulFunction'] = ulPort0_InterfaceFunction,
       ['ulFlags'] = ulPort0_Flags,
-      ['ulIp'] = atParameter['port0_ip']:get(),
+      ['ulIp'] = port0_ip,
       ['ulGatewayIp'] = atParameter['port0_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port0_netmask']:get(),
       ['ulRemoteIp'] = atParameter['port0_remote_ip']:get(),
       ['usLinkUpDelay'] = atParameter['port0_link_up_delay']:get(),
       ['usLocalPort'] = atParameter['port0_local_port']:get(),
       ['usRemotePort'] = atParameter['port0_remote_port']:get(),
-      ['aucMac'] = atParameter['port0_mac']:get()
+      ['aucMac'] = port0_mac
     },
     {
-      ['acName'] = atParameter['port1_name']:get(),
+      ['acName'] = port1_name,
       ['ulInterface'] = ulPort1_Interface,
       ['ulFunction'] = ulPort1_InterfaceFunction,
       ['ulFlags'] = ulPort1_Flags,
-      ['ulIp'] = atParameter['port1_ip']:get(),
+      ['ulIp'] = port1_ip,
       ['ulGatewayIp'] = atParameter['port1_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port1_netmask']:get(),
       ['ulRemoteIp'] = atParameter['port1_remote_ip']:get(),
       ['usLinkUpDelay'] = atParameter['port1_link_up_delay']:get(),
       ['usLocalPort'] = atParameter['port1_local_port']:get(),
       ['usRemotePort'] = atParameter['port1_remote_port']:get(),
-      ['aucMac'] = atParameter['port1_mac']:get()
+      ['aucMac'] = port1_mac
     }
   }
 

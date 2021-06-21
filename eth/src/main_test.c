@@ -119,6 +119,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		iResult = boot_drv_eth_prepare(uiCnt, ptEthCfg, ptNetworkDriver);
 		if( iResult!=0 )
 		{
+			tTestResult = TEST_RESULT_ERROR_ETH_PREPARE;
 			break;
 		}
 	}
@@ -132,6 +133,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 			iResult = boot_drv_eth_disable(uiCnt, ptEthCfg, ptNetworkDriver);
 			if( iResult!=0 )
 			{
+				tTestResult = TEST_RESULT_ERROR_ETH_DISABLE;
 				break;
 			}
 		}
@@ -148,6 +150,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 				iResult = boot_drv_eth_init(uiCnt, ptEthCfg, ptNetworkDriver);
 				if( iResult!=0 )
 				{
+
 					break;
 				}
 			}
@@ -178,6 +181,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 						if( iResult!=0 )
 						{
 							uprintf("Error on port %d\n", uiCnt);
+							tTestResult = TEST_RESULT_ERROR_STARTUP_PROCESS;
 							break;
 						}
 						else if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
@@ -192,6 +196,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 						if( iElapsed!=0 )
 						{
 							uprintf("Timeout waiting for a link.\n");
+							tTestResult = TEST_RESULT_ERROR_TIMEOUT_LINK;
 							iResult = -1;
 						}
 					}
@@ -232,6 +237,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 
 				case ETHERNET_TEST_RESULT_Error:
 					uprintf("Error on port %d\n", uiCnt);
+					tTestResult = TEST_RESULT_ERROR_TEST_PROCESS;
 					iAllPortsOk = 0;
 					break;
 				}
@@ -243,6 +249,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 				if( iElapsed!=0 )
 				{
 					uprintf("The maximum transfer time elapsed.\n");
+					tTestResult = TEST_RESULT_ERROR_MAX_TRANSFER_TIME;
 					iAllPortsOk = 0;
 					break;
 				}
@@ -257,7 +264,7 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	}
 	else
 	{
-		tTestResult = TEST_RESULT_ERROR;
+		// tTestResult = TEST_RESULT_ERROR;
 		rdy_run_setLEDs(RDYRUN_YELLOW);
 	}
 

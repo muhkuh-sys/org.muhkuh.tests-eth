@@ -111,6 +111,7 @@ sources_common = """
 aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
 
 env_netx4000_t = atEnv.NETX4000.Clone()
+env_netx4000_t.CompileDb('targets/netx4000/compile_commands.json')
 env_netx4000_t.Replace(LDFILE = 'src/netx4000/netx4000.ld')
 env_netx4000_t.Append(CPPPATH = aCppPath)
 src_netx4000_t = env_netx4000_t.SetBuildPath('targets/netx4000', 'src', sources_common + sources_netx4000)
@@ -119,6 +120,7 @@ ETH_NETX4000 = env_netx4000_t.ObjCopy('targets/netx4000/eth_netx4000.bin', elf_n
 txt_netx4000_t = env_netx4000_t.ObjDump('targets/netx4000/eth_netx4000.txt', elf_netx4000_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 env_netx500_t = atEnv.NETX500.Clone()
+env_netx500_t.CompileDb('targets/netx500/compile_commands.json')
 env_netx500_t.Replace(LDFILE = 'src/netx500/netx500.ld')
 env_netx500_t.Append(CPPPATH = aCppPath)
 src_netx500_t = env_netx500_t.SetBuildPath('targets/netx500', 'src', sources_common + sources_netx500)
@@ -127,6 +129,7 @@ ETH_NETX500 = env_netx500_t.ObjCopy('targets/netx500/eth_netx500.bin', elf_netx5
 txt_netx500_t = env_netx500_t.ObjDump('targets/netx500/eth_netx500.txt', elf_netx500_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 env_netx90_mpw_t = atEnv.NETX90_MPW.Clone()
+env_netx90_mpw_t.CompileDb('targets/netx90_mpw/compile_commands.json')
 env_netx90_mpw_t.Replace(LDFILE = 'src/netx90_mpw/netx90.ld')
 env_netx90_mpw_t.Append(CPPPATH = aCppPath)
 src_netx90_mpw_t = env_netx90_mpw_t.SetBuildPath('targets/netx90_mpw', 'src', sources_common + sources_netx90)
@@ -135,6 +138,7 @@ ETH_NETX90_MPW = env_netx90_mpw_t.ObjCopy('targets/netx90_mpw/eth_netx90_mpw.bin
 txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.txt', elf_netx90_mpw_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 env_netx90_t = atEnv.NETX90.Clone()
+env_netx90_t.CompileDb('targets/netx90/compile_commands.json')
 env_netx90_t.Replace(LDFILE = 'src/netx90/netx90.ld')
 env_netx90_t.Append(CPPPATH = aCppPath)
 src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90', 'src', sources_common + sources_netx90)

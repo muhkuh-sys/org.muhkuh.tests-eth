@@ -11,11 +11,11 @@
 		<description>Test an ethernet connection by sending and receiving packets.</description>
 	</info>
 	<dependencies>
-		<dependency group="org.muhkuh.tools" module="muhkuh_base_cli" artifact="lua5.4-muhkuh_base_cli" version="2.4"/>
+		<dependency group="org.muhkuh.tools" module="muhkuh_base_cli" artifact="lua5.4-muhkuh_base_cli" version="2.5"/>
 		<dependency group="com.github.toxicfrog" module="vstruct" artifact="vstruct" version="2.1"/>
 	</dependencies>
 	<dependencies>
-		<dependency group="org.muhkuh.tools" module="muhkuh_base_cli" artifact="lua5.1-muhkuh_base_cli" version="2.4"/>
+		<dependency group="org.muhkuh.tools" module="muhkuh_base_cli" artifact="lua5.1-muhkuh_base_cli" version="2.5"/>
 		<dependency group="com.github.toxicfrog" module="vstruct" artifact="vstruct" version="2.1"/>
 	</dependencies>
 </jonchki-artifact>

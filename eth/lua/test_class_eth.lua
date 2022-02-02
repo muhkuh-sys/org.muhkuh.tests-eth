@@ -400,7 +400,9 @@ function TestClassEth:run()
   end
   local tPlugin = _G.tester:getCommonPlugin(strPluginPattern, atPluginOptions)
   if tPlugin==nil then
-    error("No plug-in selected, nothing to do!")
+    local strPluginOptions = pl.pretty.write(atPluginOptions)
+    local strError = string.format('Failed to establish a connection to the netX with pattern "%s" and options "%s".', strPluginPattern, strPluginOptions)
+    error(strError)
   end
 
   local astrBinaryName = {

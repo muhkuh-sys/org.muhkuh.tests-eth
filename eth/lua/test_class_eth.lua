@@ -61,6 +61,9 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     P:P('plugin', 'A pattern for the plugin to use.'):
       required(false),
 
+    P:P('plugin_options', 'Plugin options as a JSON object.'):
+      required(false),
+
     P:U32('link_up_timeout', 'The maximum time to wait for a link on all ports in ms.'):
       default(4000):
       required(true),
@@ -257,6 +260,7 @@ function TestClassEth:run()
   -- Parse the parameters and collect all options.
   --
   local strPluginPattern = atParameter['plugin']:get()
+  local strPluginOptions = atParameter['plugin_options']:get()
 
   -- Parse the interface.
   local strInterface = atParameter['port0_interface']:get()
@@ -385,7 +389,16 @@ function TestClassEth:run()
   -- Open the connection to the netX.
   -- (or re-use an existing connection.)
   --
-  local tPlugin = tester:getCommonPlugin(strPluginPattern)
+  local atPluginOptions = {}
+  if strPluginOptions~=nil then
+    local tJson, uiPos, strJsonErr = json.decode(strPluginOptions)
+    if tJson==nil then
+      tLog.warning('Ignoring invalid plugin options. Error parsing the JSON: %d %s', uiPos, strJsonErr)
+    else
+      atPluginOptions = tJson
+    end
+  end
+  local tPlugin = _G.tester:getCommonPlugin(strPluginPattern, atPluginOptions)
   if tPlugin==nil then
     error("No plug-in selected, nothing to do!")
   end

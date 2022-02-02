@@ -8,6 +8,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   local pl = require'pl.import_into'()
   self.pl = pl
   self.bit = require 'bit'
+  self.json = require 'dkjson'
   self.vstruct = require 'vstruct'
 
   local atInterface = {
@@ -253,6 +254,7 @@ function TestClassEth:run()
   local atParameter = self.atParameter
   local tLog = self.tLog
   local bit = self.bit
+  local json = self.json
   local pl = self.pl
 
   ----------------------------------------------------------------------

@@ -273,15 +273,15 @@ function TestClassEth:run()
   end
 
   if ulPort0_Interface == ulPort1_Interface then
-	error('Identical interface of port 1 and port 2.')
+    error('Identical interface of port 1 and port 2.')
   end
 
-local port0_name,port1_name
-port0_name = atParameter['port0_name']:get()
-port1_name = atParameter['port1_name']:get()
+  local port0_name,port1_name
+  port0_name = atParameter['port0_name']:get()
+  port1_name = atParameter['port1_name']:get()
 
   if port0_name == port1_name then
-	error('Identical name of port 1 and port 2.')
+    error('Identical name of port 1 and port 2.')
   end
 
   local port0_ip,port1_ip
@@ -289,7 +289,7 @@ port1_name = atParameter['port1_name']:get()
   port1_ip = atParameter['port1_ip']:get()
 
   if port0_ip == port1_ip then
-	error('Identical ip address of port 1 and port 2.')
+    error('Identical ip address of port 1 and port 2.')
   end
 
   local port0_mac,port1_mac
@@ -299,7 +299,7 @@ port1_name = atParameter['port1_name']:get()
   print('TEST :',port0_mac,port1_mac)
 
   if pl.tablex.compare(port0_mac, port1_mac,'==') then
-	error('Identical mac address of port 1 and port 2.')
+    error('Identical mac address of port 1 and port 2.')
   end
 
   local strInterfaceFunction = atParameter['port0_function']:get()

@@ -72,9 +72,9 @@ atEnv.DEFAULT.Version('targets/version/version.h', 'templates/version.h')
 SConscript('eth/SConscript')
 Import(
     'ETH_NETX90',
-    'ETH_NETX90_MPW',
-    'ETH_NETX500',
-    'ETH_NETX4000',
+#    'ETH_NETX90_MPW',
+#    'ETH_NETX500',
+#    'ETH_NETX4000',
 
     'LUA_TEST_CLASS_ETH'
 )
@@ -132,10 +132,11 @@ strArtifact0 = 'eth'
 
 tArcList0 = atEnv.DEFAULT.ArchiveList('zip')
 tArcList0.AddFiles('netx/',
-    ETH_NETX90_MPW,
+#    ETH_NETX90_MPW,
     ETH_NETX90,
-    ETH_NETX500,
-    ETH_NETX4000)
+#    ETH_NETX500,
+#    ETH_NETX4000
+)
 tArcList0.AddFiles('lua/',
     LUA_TEST_CLASS_ETH)
 tArcList0.AddFiles('templates',
@@ -159,10 +160,10 @@ tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s
 #
 # Copy all binary binaries.
 atFiles = {
-    'targets/testbench/netx/eth_netx90_mpw.bin':  ETH_NETX90_MPW,
+#    'targets/testbench/netx/eth_netx90_mpw.bin':  ETH_NETX90_MPW,
     'targets/testbench/netx/eth_netx90.bin':      ETH_NETX90,
-    'targets/testbench/netx/eth_netx500.bin':     ETH_NETX500,
-    'targets/testbench/netx/eth_netx4000.bin':    ETH_NETX4000
+#    'targets/testbench/netx/eth_netx500.bin':     ETH_NETX500,
+#    'targets/testbench/netx/eth_netx4000.bin':    ETH_NETX4000
 
     # Copy all LUA scripts.
 #    'targets/testbench/lua/io_matrix.lua':             'iomatrix/templates/io_matrix.lua',

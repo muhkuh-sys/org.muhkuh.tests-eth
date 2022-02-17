@@ -23,8 +23,8 @@ ENTRY(start)
 MEMORY
 {
 	ASSERT_EMPTY(rwx): ORIGIN = 0x00000000, LENGTH = 0
-	ETHBUF(rw):        ORIGIN = 0x00020000, LENGTH = 0x00040000
-	INTRAM(rwx):       ORIGIN = 0x000600c0, LENGTH = 0x0001ff40
+	INTRAM(rwx):       ORIGIN = 0x00024000, LENGTH = 0x0001c000
+	INTRAM3_S(rwx):    ORIGIN = 0x20080000, LENGTH = 0x00010000
 }
 
 
@@ -68,7 +68,7 @@ SECTIONS
 
 
 	/* INTRAM3 is used for the INTRAM image and the ethernet buffer. */
-	.INTRAM_IMAGE_ETH_BUFFER ORIGIN(ETHBUF) :
+	.INTRAM_IMAGE_ETH_BUFFER ORIGIN(INTRAM3_S) :
 	{
 		aucEthernetBuffer_start = .;
 
@@ -79,7 +79,7 @@ SECTIONS
 		aucEthernetBuffer1_start = .;
 		. = . + 0x5550 ;
 		aucEthernetBuffer1_end = .;
-	} >ETHBUF
+	} >INTRAM3_S
 
 
 	/* Stabs debugging sections.  */

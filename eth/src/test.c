@@ -60,6 +60,7 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	TIMER_HANDLE_T tTimeout;
 	int iElapsed;
 	unsigned long ulVerbosity;
+	unsigned long ulFlags;
 
 
 	/* Be optimistic. */
@@ -168,9 +169,18 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 							tTestResult = TEST_RESULT_ERROR_STARTUP_PROCESS;
 							break;
 						}
-						else if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
+						else
 						{
-							iAllInterfacesUp = 0;
+							/* Only check the link state if it must be up all the time. */
+							ulFlags  = ptTestParams->atPortConfiguration[uiCnt].ulFlags;
+							ulFlags &= ETHERNET_PORT_FLAG_LinkDownAllowed;
+							if( ulFlags==0 )
+							{
+								if( atNetworkDriver[uiCnt].f_is_configured!=0 && atNetworkDriver[uiCnt].tState!=NETWORK_STATE_Ready )
+								{
+									iAllInterfacesUp = 0;
+								}
+							}
 						}
 					}
 

@@ -796,6 +796,10 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	unsigned int uiLinkState;
 	const char *pcName;
 	unsigned long ulFlags;
+	unsigned long ulFlagLinkDownAllowed;
+	unsigned long ulDelay;
+	unsigned long ulIp;
+	DHCP_STATE_T tDhcpState;
 	INTERFACE_FUNCTION_T tFunction;
 
 
@@ -817,17 +821,168 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		ethernet_cyclic_process(ptNetworkDriver);
 
 		ulFlags = ptNetworkDriver->tEthernetPortCfg.ulFlags;
+		ulFlagLinkDownAllowed = ulFlags & ETHERNET_PORT_FLAG_LinkDownAllowed;
 
 		tState = ptNetworkDriver->tState;
 		switch(tState)
 		{
 		case NETWORK_STATE_NoLink:
+			if( ulFlagLinkDownAllowed==0 )
+			{
+				/* During the test process the interface should never end up here. */
+				uprintf("%s: invalid state during test process: %d\n", pcName, tState);
+				tState = NETWORK_STATE_Error;
+			}
+			else
+			{
+				/* In this state there is no link.
+				* If a link was detected, move to...
+				*   LinkUp_Ready if the usLinkUpDelay is 0,
+				*   LinkUp_Delay otherwise.
+				*/
+				if( uiLinkState!=0U )
+				{
+					uprintf("%s: link up\n", pcName);
+
+					ulDelay = ptNetworkDriver->tEthernetPortCfg.usLinkUpDelay;
+					if( ulDelay==0 )
+					{
+						tState = NETWORK_STATE_LinkUp_Ready;
+					}
+					else
+					{
+						uprintf("%s: link up delay of %dms.\n", pcName, ulDelay);
+						systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), ulDelay);
+						tState = NETWORK_STATE_LinkUp_Delay;
+					}
+				}
+				tResult = ETHERNET_TEST_RESULT_InProgress;
+			}
+			break;
+
+
 		case NETWORK_STATE_LinkUp_Delay:
+			if( ulFlagLinkDownAllowed==0 )
+			{
+				/* During the test process the interface should never end up here. */
+				uprintf("%s: invalid state during test process: %d\n", pcName, tState);
+				tState = NETWORK_STATE_Error;
+			}
+			else
+			{
+				/* Delay for the time specified in usLinkUpDelay.
+				* Move to LinkUp_Ready after the delay.
+				*/
+				if( uiLinkState==0U )
+				{
+					uprintf("%s: link down\n", pcName);
+					tState = NETWORK_STATE_NoLink;
+				}
+				else
+				{
+					/* Link is up. Delay a while. */
+					if( systime_handle_is_elapsed(&(ptNetworkDriver->tLinkUpTimer))!=0 )
+					{
+						uprintf("%s: link up delay finished.\n", pcName);
+						tState = NETWORK_STATE_LinkUp_Ready;
+					}
+				}
+				tResult = ETHERNET_TEST_RESULT_InProgress;
+			}
+			break;
+
+
 		case NETWORK_STATE_LinkUp_Ready:
+			if( ulFlagLinkDownAllowed==0 )
+			{
+				/* During the test process the interface should never end up here. */
+				uprintf("%s: invalid state during test process: %d\n", pcName, tState);
+				tState = NETWORK_STATE_Error;
+			}
+			else
+			{
+				/* Check if we need DHCP here.
+				* Move to CONSOLE_ETH_STATE_Dhcp if not all parameters are present and DHCP is necessary.
+				* Move to CONSOLE_ETH_STATE_Ready if all parameters are there and no DHCP is needed.
+				*/
+				if( uiLinkState==0U )
+				{
+					uprintf("%s: link down\n", pcName);
+					tState = NETWORK_STATE_NoLink;
+				}
+				else
+				{
+					/* Skip DHCP if the IP layer is already configured.
+					* In general only the IP must be set.
+					* NOTE: the net mask and gateway can be 0.
+					*/
+					ulIp = ptNetworkDriver->tEthernetPortCfg.ulIp;
+					if( ulIp!=0U )
+					{
+						/* IP layer is already configured, skip DHCP. */
+						uprintf("%s: the interface is ready, using IP %d.%d.%d.%d\n", pcName, ulIp&0xff, (ulIp>>8U)&0xff, (ulIp>>16U)&0xff, (ulIp>>24U)&0xff);
+						tState = NETWORK_STATE_Ready;
+					}
+					else
+					{
+						/* start DHCP request */
+						uprintf("%s: starting DHCP.\n", pcName);
+						dhcp_request(ptNetworkDriver);
+						tState = NETWORK_STATE_Dhcp;
+					}
+				}
+				tResult = ETHERNET_TEST_RESULT_InProgress;
+			}
+			break;
+
+
 		case NETWORK_STATE_Dhcp:
-			/* During the test process the interface should never end up here. */
-			uprintf("%s: invalid state during test process: %d\n", pcName, tState);
-			tState = NETWORK_STATE_Error;
+			if( ulFlagLinkDownAllowed==0 )
+			{
+				/* During the test process the interface should never end up here. */
+				uprintf("%s: invalid state during test process: %d\n", pcName, tState);
+				tState = NETWORK_STATE_Error;
+			}
+			else
+			{
+				/* Wait until the DHCP request is finished. */
+				if( uiLinkState==0U )
+				{
+					uprintf("%s: link down\n", pcName);
+					tState = NETWORK_STATE_NoLink;
+				}
+				else
+				{
+					/* get state */
+					tDhcpState = dhcp_getState(ptNetworkDriver);
+					switch(tDhcpState)
+					{
+					case DHCP_STATE_Idle:
+						/* the DHCP state must not be idle */
+						uprintf("%s: DHCP is in strange state -> ERROR\n", pcName);
+						tState = NETWORK_STATE_Error;
+						break;
+
+					case DHCP_STATE_Discover:
+					case DHCP_STATE_Request:
+						/* the DHCP request is still in progress */
+						break;
+
+					case DHCP_STATE_Error:
+						/* the DHCP request failed */
+						uprintf("%s: DHCP failed -> ERROR\n", pcName);
+						tState = NETWORK_STATE_Error;
+						break;
+
+					case DHCP_STATE_Ok:
+						ulIp = ptNetworkDriver->tEthernetPortCfg.ulIp;
+						uprintf("%s: DHCP finished with IP %d.%d.%d.%d. The interface is ready.\n", pcName, ulIp&0xff, (ulIp>>8U)&0xff, (ulIp>>16U)&0xff, (ulIp>>24U)&0xff);
+						tState = NETWORK_STATE_Ready;
+						break;
+					}
+				}
+				tResult = ETHERNET_TEST_RESULT_InProgress;
+			}
 			break;
 
 
@@ -835,8 +990,17 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			/* The link should never go down during a test. */
 			if( uiLinkState==0U )
 			{
-				uprintf("%s: link went down during test.\n", pcName);
-				tState = NETWORK_STATE_Error;
+				if( ulFlagLinkDownAllowed==0 )
+				{
+					uprintf("%s: link went down during test.\n", pcName);
+					tState = NETWORK_STATE_Error;
+				}
+				else
+				{
+					uprintf("%s: link down\n", pcName);
+					tState = NETWORK_STATE_NoLink;
+					tResult = ETHERNET_TEST_RESULT_InProgress;
+				}
 			}
 			else
 			{

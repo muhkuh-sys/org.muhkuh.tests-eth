@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2018 by Christoph Thelen                                *
+ *   Copyright (C) 2013 by Christoph Thelen                                *
  *   doc_bacardi@users.sourceforge.net                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,37 +18,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "network_interface.h"
+
+#ifndef __HEADER_H__
+#define __HEADER_H__
 
 
-#ifndef __MAIN_TEST_H__
-#define __MAIN_TEST_H__
-
-
-typedef struct ETH_PARAMETER_STRUCT
+typedef struct VERSION_HEADER_STRUCT
 {
-	unsigned long ulVerbose;
-	unsigned long ulLinkUpTimeout;
-	unsigned long ulMaximumTransferTime;
-	ETHERNET_PORT_CONFIGURATION_T atPortConfiguration[MAX_NETWORK_INTERFACES];
-} ETH_PARAMETER_T;
+	unsigned long ulVersionMajor;
+	unsigned long ulVersionMinor;
+	unsigned long ulVersionMicro;
+	const char    acVersionVcs[16];
+} VERSION_HEADER_T;
+
+extern const VERSION_HEADER_T tVersionHeader __attribute__ ((section (".header")));
 
 
-typedef enum TEST_RESULT_ENUM
-{
-	TEST_RESULT_OK = 0,
-	// TEST_RESULT_ERROR = 1,
-	TEST_RESULT_ERROR_MAX_TRANSFER_TIME = 1,
-	TEST_RESULT_ERROR_TEST_PROCESS = 2,
-	TEST_RESULT_ERROR_TIMEOUT_LINK = 3,
-	TEST_RESULT_ERROR_STARTUP_PROCESS = 4,
-	TEST_RESULT_ERROR_ETH_DISABLE = 5,
-	TEST_RESULT_ERROR_ETH_PREPARE = 6
-} TEST_RESULT_T;
-
-
-TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams);
-
-
-#endif  /* __MAIN_TEST_H__ */
-
+#endif  /* __HEADER_H__ */

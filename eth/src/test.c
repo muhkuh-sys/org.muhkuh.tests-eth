@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2018 by Christoph Thelen                                *
+ *   Copyright (C) 2022 by Christoph Thelen                                *
  *   doc_bacardi@users.sourceforge.net                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 
-#include "main_test.h"
+#include "test.h"
 
 #include <string.h>
 
@@ -41,12 +41,10 @@
 #endif
 
 
-static unsigned long s_ulVerbosity;
-
 /*-------------------------------------------------------------------------*/
 
 
-TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
+TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 {
 	TEST_RESULT_T tTestResult;
 	int iResult;
@@ -57,32 +55,18 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 	int iAllInterfacesUp;
 	ETHERNET_TEST_RESULT_T tResult;
 	int iAllPortsFinished;
-	int iAllPortsOk;
 	unsigned long ulIp;
 	unsigned long ulTimeout;
 	TIMER_HANDLE_T tTimeout;
 	int iElapsed;
+	unsigned long ulVerbosity;
 
 
-	systime_init();
-	options_initialize();
-#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
-	cr7_global_timer_initialize();
-#endif
+	/* Be optimistic. */
+	tTestResult = TEST_RESULT_OK;
 
-	uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
-	uprintf("V" VERSION_ALL "\n\n");
-
-	/* Get the test parameter. */
-	uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);
-	uprintf("  Verbose: 0x%08x\n", ptTestParams->ulVerbose);
-
-	/* Copy the configuration to the option structure. */
-	memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
-
-	/* Set the verbose mode. */
-	s_ulVerbosity = ptTestParams->ulVerbose;
-	if( s_ulVerbosity!=0 )
+	ulVerbosity = ptTestParams->ulVerbose;
+	if( ulVerbosity!=0 )
 	{
 		uprintf("Link up timeout: %d\n", ptTestParams->ulLinkUpTimeout);
 		uprintf("Maximum transfer time: %d\n", ptTestParams->ulMaximumTransferTime);
@@ -205,14 +189,11 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 		}
 	}
 
-	iAllPortsOk = 0;
 	if( iResult==0 )
 	{
 		uprintf("--- All interfaces are up. ---\n");
 
 		/* Expect all ports to be OK. */
-		iAllPortsOk = 1;
-
 		ulTimeout = ptTestParams->ulMaximumTransferTime;
 		if( ulTimeout!=0 )
 		{
@@ -238,7 +219,6 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 				case ETHERNET_TEST_RESULT_Error:
 					uprintf("Error on port %d\n", uiCnt);
 					tTestResult = TEST_RESULT_ERROR_TEST_PROCESS;
-					iAllPortsOk = 0;
 					break;
 				}
 			}
@@ -250,26 +230,11 @@ TEST_RESULT_T test(ETH_PARAMETER_T *ptTestParams)
 				{
 					uprintf("The maximum transfer time elapsed.\n");
 					tTestResult = TEST_RESULT_ERROR_MAX_TRANSFER_TIME;
-					iAllPortsOk = 0;
 					break;
 				}
 			}
 		} while( iAllPortsFinished==0 );
 	}
 
-	if( iAllPortsOk!=0 )
-	{
-		tTestResult = TEST_RESULT_OK;
-		rdy_run_setLEDs(RDYRUN_GREEN);
-	}
-	else
-	{
-		// tTestResult = TEST_RESULT_ERROR;
-		rdy_run_setLEDs(RDYRUN_YELLOW);
-	}
-
 	return tTestResult;
 }
-
-/*-----------------------------------*/
-

@@ -79,9 +79,7 @@ sources_netx90 = """
 """
 
 sources_common = """
-	src/header.c
-	src/init_muhkuh.S
-	src/main_test.c
+	src/test.c
 
 	src/boot_drv_eth.c
 	src/options.c
@@ -95,6 +93,18 @@ sources_common = """
 	src/stack/icmp.c
 	src/stack/ipv4.c
 	src/stack/udp.c
+"""
+
+sources_muhkuh = """
+	src/header_muhkuh.c
+	src/init_muhkuh.S
+	src/main_muhkuh.c
+"""
+
+sources_standalone = """
+	src/header_standalone.c
+	src/init_standalone.S
+	src/main_standalone.c
 """
 
 #----------------------------------------------------------------------------
@@ -134,37 +144,25 @@ aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
 #Export('ETH_NETX90_MPW')
 
 env_netx90_t = atEnv.NETX90.Clone()
-env_netx90_t.CompileDb('targets/netx90/compile_commands.json')
-env_netx90_t.Replace(LDFILE = 'src/netx90/netx90.ld')
+env_netx90_t.CompileDb('targets/netx90/muhkuh/compile_commands.json')
+env_netx90_t.Replace(LDFILE = 'src/netx90/netx90_muhkuh.ld')
 env_netx90_t.Append(CPPPATH = aCppPath)
-src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90', 'src', sources_common + sources_netx90)
-elf_netx90_t = env_netx90_t.Elf('targets/netx90/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'])
-ETH_NETX90 = env_netx90_t.ObjCopy('targets/netx90/eth_netx90.bin', elf_netx90_t)
-txt_netx90_t = env_netx90_t.ObjDump('targets/netx90/eth_netx90.txt', elf_netx90_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90/muhkuh', 'src', sources_muhkuh + sources_common + sources_netx90)
+elf_netx90_t = env_netx90_t.Elf('targets/netx90/muhkuh/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'])
+ETH_NETX90 = env_netx90_t.ObjCopy('targets/netx90/muhkuh/eth_netx90.bin', elf_netx90_t)
+txt_netx90_t = env_netx90_t.ObjDump('targets/netx90/muhkuh/eth_netx90.txt', elf_netx90_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+Export('ETH_NETX90')
 
-#env_netx56_t = atEnv.NETX56.Clone()
-#env_netx56_t.Replace(LDFILE = 'src/netx56/netx56.ld')
-#env_netx56_t.Append(CPPPATH = aCppPath)
-#src_netx56_t = env_netx56_t.SetBuildPath('targets/netx56', 'src', sources_common + sources_netx56)
-#elf_netx56_t = env_netx56_t.Elf('targets/netx56/iomatrix_netx56.elf', src_netx56_t + env_netx56_t['PLATFORM_LIBRARY'])
-#IOMATRIX_NETX56 = env_netx56_t.ObjCopy('targets/netx56/iomatrix_netx56.bin', elf_netx56_t)
+env_netx90_s = atEnv.NETX90.Clone()
+env_netx90_s.CompileDb('targets/netx90/standalone/compile_commands.json')
+env_netx90_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
+env_netx90_s.Append(CPPPATH = aCppPath)
+src_netx90_s = env_netx90_s.SetBuildPath('targets/netx90/standalone', 'src', sources_standalone + sources_common + sources_netx90)
+elf_netx90_s = env_netx90_s.Elf('targets/netx90/standalone/eth_netx90.elf', src_netx90_s + env_netx90_s['PLATFORM_LIBRARY'])
+bb0_netx90_s = env_netx90_s.HBootImage('targets/netx90/standalone/eth_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_s}))
 
-#env_netx50_t = atEnv.NETX50.Clone()
-#env_netx50_t.Replace(LDFILE = 'src/netx50/netx50.ld')
-#env_netx50_t.Append(CPPPATH = aCppPath)
-#src_netx50_t = env_netx50_t.SetBuildPath('targets/netx50', 'src', sources_common)
-#elf_netx50_t = env_netx50_t.Elf('targets/netx50/crctest.elf', src_netx50_t + env_netx50_t['PLATFORM_LIBRARY'])
-#crctest_netx50 = env_netx50_t.ObjCopy('targets/netx50/crctest.bin', elf_netx50_t)
-
-#env_netx10_t = atEnv.NETX10.Clone()
-#env_netx10_t.Replace(LDFILE = 'src/netx10/netx10.ld')
-#env_netx10_t.Append(CPPPATH = aCppPath)
-#src_netx10_t = env_netx10_t.SetBuildPath('targets/netx10', 'src', sources_common + sources_netx10)
-#elf_netx10_t = env_netx10_t.Elf('targets/netx10/iomatrix_netx10.elf', src_netx10_t + env_netx10_t['PLATFORM_LIBRARY'])
-#IOMATRIX_NETX10 = env_netx10_t.ObjCopy('targets/netx10/iomatrix_netx10.bin', elf_netx10_t)
-
-Export('ETH_NETX90_MPW', 'ETH_NETX90', 'ETH_NETX500', 'ETH_NETX4000')
-
+#eth_netx90_s = env_netx90_s.ObjCopy('targets/netx90/standalone/eth_netx90.bin', elf_netx90_s)
+txt_netx90_s = env_netx90_s.ObjDump('targets/netx90/standalone/eth_netx90.txt', elf_netx90_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 #----------------------------------------------------------------------------
 #

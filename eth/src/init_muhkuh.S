@@ -1,6 +1,6 @@
 	.section .init_code, "ax"
 
-	.extern test
+	.extern main_muhkuh
 	.extern stack_top
 
 	.global start
@@ -77,7 +77,7 @@ parameter_valid:
 	ldr     r0, [r0, #4]
 
 	@ Call the main routine. It requires the pointer to the parameter block in r0.
-	bl      test
+	bl      main_muhkuh
 
 	@ now the return value is in r0.
 

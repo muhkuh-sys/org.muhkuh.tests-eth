@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2018 by Christoph Thelen                                *
+ *   Copyright (C) 202 by Christoph Thelen                                *
  *   doc_bacardi@users.sourceforge.net                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,29 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
-#include "header.h"
-#include "version.h"
+#include "test_interface.h"
 
 
-extern unsigned long load_address[];
-unsigned long start(unsigned long ulParameter);
-extern unsigned long parameter_start_address[];
-extern unsigned long parameter_end_address[];
+#ifndef __MAIN_STANDALONE_H__
+#define __MAIN_STANDALONE_H__
 
 
-const VERSION_HEADER_T tVersionHeader =
-{
-	.acMagic = { 'm', 'o', 'o', 'h' },
-	.ulVersion = 0x00010001,
+void main_standalone(void) __attribute__ ((noreturn));
 
-	.pulLoadAddress = load_address,
-	.pfnExecutionAddress = start,
-	.pulParameterStart = parameter_start_address,
-	.pulParameterEnd = parameter_end_address,
 
-	.ulVersionMajor = VERSION_MAJOR,
-	.ulVersionMinor = VERSION_MINOR,
-	.ulVersionMicro = VERSION_MICRO,
-	.acVersionVcs = VERSION_VCS
-};
+#endif  /* __MAIN_STANDALONE_H__ */
+

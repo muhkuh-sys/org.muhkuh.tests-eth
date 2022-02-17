@@ -51,14 +51,14 @@ static const ETH_PARAMETER_T tEthernetParameter =
 {
 	.ulVerbose = 1,
 	.ulLinkUpTimeout = 4000,
-	.ulMaximumTransferTime = 10000,
+	.ulMaximumTransferTime = 0,
 	.atPortConfiguration =
 	{
 		{
 			.acName = "CH0",
 			.ulInterface = INTERFACE_INTPHY0,
 			.ulFunction = INTERFACE_FUNCTION_EchoServer,
-			.ulFlags = ETHERNET_PORT_FLAG_Permanent,
+			.ulFlags = ETHERNET_PORT_FLAG_Permanent | ETHERNET_PORT_FLAG_LinkDownAllowed,
 			.ulIp = IPV4(192,168,64,20),
 			.ulGatewayIp = IPV4(0,0,0,0),
 			.ulNetmask = IPV4(255,255,255,0),
@@ -72,7 +72,7 @@ static const ETH_PARAMETER_T tEthernetParameter =
 			.acName = "CH1",
 			.ulInterface = INTERFACE_None,
 			.ulFunction = INTERFACE_FUNCTION_None,
-			.ulFlags = ETHERNET_PORT_FLAG_Permanent,
+			.ulFlags = ETHERNET_PORT_FLAG_Permanent | ETHERNET_PORT_FLAG_LinkDownAllowed,
 			.ulIp = IPV4(192,168,64,21),
 			.ulGatewayIp = IPV4(0,0,0,0),
 			.ulNetmask = IPV4(255,255,255,0),

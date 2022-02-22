@@ -260,14 +260,14 @@ typedef int(*PFN_XC_START)( unsigned int uXcNo, unsigned int uXcPortNo, void* pv
 typedef int(*PFN_XC_START_UNITS)( unsigned int uXcNo, unsigned int uPortNo, unsigned int uUnitVec, void* pvUser );
 
 #ifdef DISABLE_XC_RESET
-#define __USE_XC_LOADER_FUNC_RESET        static PFN_XC_RESET       pfnXcReset      = XC_ResetDummy;
+#define __USE_XC_LOADER_FUNC_RESET        static const PFN_XC_RESET       pfnXcReset      = XC_ResetDummy;
 #else
-#define __USE_XC_LOADER_FUNC_RESET        static PFN_XC_RESET       pfnXcReset      = XC_Reset;
+#define __USE_XC_LOADER_FUNC_RESET        static const PFN_XC_RESET       pfnXcReset      = XC_Reset;
 #endif
-#define __USE_XC_LOADER_FUNC_LOAD         static PFN_XC_LOAD        pfnXcLoad       = XC_Load;
-#define __USE_XC_LOADER_FUNC_START        static PFN_XC_START       pfnXcStart      = XC_Start;
-#define __USE_XC_LOADER_FUNC_START_UNITS  static PFN_XC_START_UNITS pfnXcStartUnits = XC_StartUnits;
-#define __USE_XC_LOADER_FUNC_START_UNITS2 static PFN_XC_START_UNITS pfnXcStartUnits = XC_StartUnits2;
+#define __USE_XC_LOADER_FUNC_LOAD         static const PFN_XC_LOAD        pfnXcLoad       = XC_Load;
+#define __USE_XC_LOADER_FUNC_START        static const PFN_XC_START       pfnXcStart      = XC_Start;
+#define __USE_XC_LOADER_FUNC_START_UNITS  static const PFN_XC_START_UNITS pfnXcStartUnits = XC_StartUnits;
+#define __USE_XC_LOADER_FUNC_START_UNITS2 static const PFN_XC_START_UNITS pfnXcStartUnits = XC_StartUnits2;
 
 /*** xPIC loader ***/
 typedef void(*PFN_XPIC_RESET)(unsigned int uInstNo, void* pvUser);

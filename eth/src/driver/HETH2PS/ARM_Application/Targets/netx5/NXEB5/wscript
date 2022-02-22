@@ -1,0 +1,43 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    # NXHX Application
+    
+    bld.program(
+        target          = APPNAME + "_nxeb5",
+        name            = APPNAME + "_nxeb5_elf",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application - NXEB5 + NXHX50-ETM",
+        source_arm      = ["../../Init/init_netx50.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        defines         = ["NX5_PARALLEL_DPM"],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx5",
+                           "targetlib_nxeb5",
+                          ],
+        linkerscript    = "../../Linker/netx50.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxeb5",
+        use              = APPNAME + "_nxeb5_elf",
+        description      = "ETH2PS Demo MMC Image NXEB5 + NXHX50-ETM",
+        BOOTBLOCKERFLAGS = ["-ct netx50",
+                            "-s", "MMC",
+                            "-d", "SD_MT48LC2M32B2",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    
+    

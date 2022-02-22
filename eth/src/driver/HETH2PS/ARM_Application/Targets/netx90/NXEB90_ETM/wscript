@@ -1,0 +1,31 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    # NXHX Application
+    
+    bld.program(
+        target          = APPNAME + "_nxeb90_etm",
+        name            = APPNAME + "_nxeb90_etm",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application NXEB90_ETM",
+        includes        = ["../Includes"],
+        source_arm      = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx90",
+                           "targetlib_nxeb90etm",
+                          ],
+        linkerscript    = "../../Linker/netx90.ld",
+        stlib           = ["m","c"],
+        displaygroup    = APPNAME,
+    )
+    

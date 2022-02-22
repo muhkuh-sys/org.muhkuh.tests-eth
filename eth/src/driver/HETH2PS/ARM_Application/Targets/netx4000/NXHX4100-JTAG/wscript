@@ -1,0 +1,40 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # NXHX Application
+
+    target = APPNAME + "_nxhx4100_jtag"
+
+    bld.program(
+        target          = target,
+        name            = target + "_elf",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application NXHX4100-JTAG",
+        source_arm      = ["../../Init/init_netx4000.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        defines         = ["TARGET_HW=_NXHX4100_JTAG_"],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx4000",
+                           "targetlib_nxhx4100jtag",
+                          ],
+        linkerscript    = "../../Linker/netx4000.ld",
+        stlib           = ["m","c"],
+        displaygroup    = APPNAME,
+    )
+
+    bld.generate_hboot_image(
+        target     = "netx.rom",         # output file name
+        name       = target + "_image",  # name of this task generator
+        netx_type  = 'NETX4000',         # netx type to generate the firmware for
+        hboot_xml  = '../../hboot.xml',  # hboot xml describing the firmware
+        use        = [target + "_elf"],
+    )

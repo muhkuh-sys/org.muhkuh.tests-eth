@@ -1,0 +1,41 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    # NXHX Application
+    
+    bld.program(
+        target          = APPNAME + "_nxhx500_etm",
+        name            = APPNAME + "_nxhx500_etm_elf",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application NXHX500-ETM",
+        source_arm      = ["../../Init/init_netx100.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx100",
+                           "targetlib_nxhx500etm",
+                          ],
+        linkerscript    = "../../Linker/netx100.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxhx500_etm",
+        use              = APPNAME + "_nxhx500_etm_elf",
+        description      = "ETH2PS Demo MMC Image NXHX500-ETM",
+        BOOTBLOCKERFLAGS = ["-ct netx500",
+                            "-s", "MMC",
+                            "-d", "SD_MT48LC2M32B2",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

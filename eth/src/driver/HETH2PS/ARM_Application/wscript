@@ -1,0 +1,15 @@
+top = "."
+out = "build"
+
+REQUIRED_TOOLCHAINS = ["gccarmemb"]
+
+def options(ctx):
+    ctx.load("hilscher_netx hilscher_firmware hilscher_extras", tooldir="Waf")
+    ctx.autorecurse(mandatory = False)
+
+def configure(conf):
+    conf.load("hilscher_netx hilscher_firmware hilscher_extras", tooldir="Waf")
+    conf.autorecurse(mandatory = False)
+
+def build(bld):
+    bld.autorecurse(excl=["dist", "build"])

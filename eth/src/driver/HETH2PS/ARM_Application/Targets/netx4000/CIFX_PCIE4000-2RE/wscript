@@ -1,0 +1,58 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # CIFX_PCIE4000-2RE Application
+    
+    # XC0
+    target = APPNAME + "_cifx_pcie4000_2re_xc0"
+
+    bld.program(
+        target          = target,
+        name            = target + "_elf",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application CIFX_PCIE4000-2RE",
+        source_arm      = ["../../Init/init_netx4000.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        defines         = ["TARGET_HW=_CIFX_PCIE4000_2RE_"],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx4000",
+                           "targetlib_cifx_pcie4000_2re",
+                          ],
+        linkerscript    = "../../Linker/netx4000.ld",
+        stlib           = ["m","c"],
+        displaygroup    = APPNAME,
+    )
+
+    # XC1
+    target = APPNAME + "_cifx_pcie4000_2re_xc1"
+    bld.program(
+        target          = target,
+        name            = target + "_elf",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application CIFX_PCIE4000-2RE",
+        source_arm      = ["../../Init/init_netx4000.S",
+                           "../Sources/main.c",
+                           "../Sources/irq.c",
+                          ],
+        defines         = ["TARGET_HW=_CIFX_PCIE4000_2RE_",
+                           "EXT_MII=1"
+                          ],
+        use             = ["eth2ps",
+                           "hal_eth2ps_netx4000_xc1",
+                           "hal_phyled_xpic_netx4000",
+                           "targetlib_cifx_pcie4000_2re",
+                          ],
+        linkerscript    = "../../Linker/netx4000.ld",
+        stlib           = ["m","c"],
+        displaygroup    = APPNAME,
+    )

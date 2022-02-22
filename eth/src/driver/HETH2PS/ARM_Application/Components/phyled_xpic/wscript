@@ -1,0 +1,25 @@
+top = "."
+out = "build"
+APPNAME = "hal_phyled_xpic"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # PHY LED xPIC
+
+    bld.stlib(
+        target          = "hal_phyled_xpic_netx4000",
+        name            = "hal_phyled_xpic_netx4000",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "PHY LED xPIC HAL Library",
+        source          = ["Soft/Sources/hal_phyled_xpic.c",
+                           "Soft/Sources/phyled_xpic2.c",
+                          ],
+        includes        = ["Soft/Includes"],
+        export_includes = ["Soft/Includes"],
+        use             = ["hal_common_netx4000"],
+        displaygroup    = APPNAME,
+    )

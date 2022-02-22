@@ -1,0 +1,26 @@
+top = "."
+out = "build"
+APPNAME = "printf"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # target independent library in thumb mode
+
+    # netX
+    bld.stlib(
+        target          = "printf",
+        name            = "printf",
+        platform        = "netx",
+        toolchain       = use_toolchain,
+        description     = "printf Library",
+        source          = ["Soft/Sources/sniprintf.c",
+                           "Soft/Sources/uprintf.c",
+                          ],
+        includes        = ["Soft/Includes"],
+        export_includes = ["Soft/Includes"],
+        use             = ["hal_common_sdk"],
+        displaygroup    = APPNAME,
+    )

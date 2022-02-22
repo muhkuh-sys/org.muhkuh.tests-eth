@@ -33,6 +33,7 @@
 #include "version.h"
 
 #include "driver/HETHMAC/ARM_Application/Components/hal_ethmac/Includes/eth_mac_version.h"
+#include "driver/HETH2PS/ARM_Application/Components/hal_eth2ps/Includes/eth2ps_version.h"
 
 
 /*-------------------------------------------------------------------------*/
@@ -99,7 +100,9 @@ void main_standalone(void)
 
 	uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
 	uprintf("V" VERSION_ALL "\n\n");
-	uprintf("Using HAL ETM MAC V%d.%d.%d.%d\n", ETHMAC_VERSION_MAJOR, ETHMAC_VERSION_MINOR, ETHMAC_VERSION_BUILD, ETHMAC_VERSION_REVISION);
+	uprintf("This test includes the following software components:\n");
+	uprintf(" * HAL ETH MAC V%d.%d.%d.%d\n", ETHMAC_VERSION_MAJOR, ETHMAC_VERSION_MINOR, ETHMAC_VERSION_BUILD, ETHMAC_VERSION_REVISION);
+	uprintf(" * HAL ETH 2PS V%d.%d.%d.%d\n", ETH2PS_VERSION_MAJOR, ETH2PS_VERSION_MINOR, ETH2PS_VERSION_BUILD, ETH2PS_VERSION_REVISION);
 
 	/* Get the test parameter. */
 	uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);

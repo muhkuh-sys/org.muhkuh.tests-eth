@@ -1,0 +1,42 @@
+top = "."
+out = "build"
+APPNAME = "eth2ps"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    # NXHX Application
+    
+    bld.program(
+        target          = APPNAME + "_nxhx6",
+        name            = APPNAME + "_nxhx6_elf",
+        platform        = "netx51",
+        toolchain       = use_toolchain,
+        description     = "ETH2PS Demo Application NXHX6 + NETX51-ETM",
+        source_arm      = ["../../Init/init_netx51.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_netx6.c",
+                          ],
+        defines         = ["HAL_TARGET_NX6"],
+        use             = ["eth2ps",
+                           "targetlib_nxhx6",
+                           "hal_eth2ps_netx6",
+                          ],
+        linkerscript    = "../../Linker/netx51.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxhx6",
+        use              = APPNAME + "_nxhx6_elf",
+        description      = "ETH2PS Demo MMC Image NXHX6 + NETX51-ETM",
+        BOOTBLOCKERFLAGS = ["-ct netx51_52",
+                            "-s", "MMC",
+                            "-d", "INTRAM",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

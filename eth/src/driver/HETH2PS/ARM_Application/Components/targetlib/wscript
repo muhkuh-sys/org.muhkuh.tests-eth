@@ -1,0 +1,439 @@
+top = "."
+out = "build"
+APPNAME = "targetlib"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # Target Libraries SDK
+
+    bld.sdkcomponent(
+        name            = "targetlib_sdk",
+        export_includes = ["Soft/Includes"],
+        public_includes = ["Soft/Includes"],
+        displaygroup    = APPNAME,
+    )
+
+    # netX
+    bld.stlib(
+        target          = "targetlib_iostub",
+        name            = "targetlib_iostub",
+        platform        = "netx",
+        toolchain       = use_toolchain,
+        description     = "Target Library with dummy I/O functions",
+        source          = ["Soft/Sources/io_stub.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        use             = ["targetlib_sdk"],
+        displaygroup    = APPNAME,
+    )
+
+    # netX500/100
+    bld.stlib(
+        target          = "targetlib_netx100",
+        name            = "targetlib_netx100",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX500/100",
+        source          = ["Soft/netx100/Sources/io_netx100.c",
+                           "Soft/netx100/Sources/led_netx100.c",
+                           "Soft/netx100/Sources/asic_netx100.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX100"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx100",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX500-ETM
+    bld.stlib(
+        target          = "targetlib_nxhx500etm",
+        name            = "targetlib_nxhx500etm",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX500-ETM",
+        source          = ["Soft/netx100/Sources/io_nxhx500etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX100"],
+        use             = ["targetlib_netx100",
+                           "usb_cdc_netx100",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXIO100-RE
+    bld.stlib(
+        target          = "targetlib_nxio100re",
+        name            = "targetlib_nxio100re",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXIO100-RE",
+        source          = ["Soft/netx100/Sources/io_nxio100re.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX100"],
+        use             = ["targetlib_netx100",
+                           "usb_cdc_netx100",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NSS3-1NRT
+    bld.stlib(
+        target          = "targetlib_nss3_1nrt",
+        name            = "targetlib_nss3_1nrt",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netSWITCH SERCOS3-1NRT",
+        source          = ["Soft/netx100/Sources/io_nss3_1nrt.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX100"],
+        use             = ["targetlib_netx100",
+                           "usb_cdc_netx100",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # netX50
+    bld.stlib(
+        target          = "targetlib_netx50",
+        name            = "targetlib_netx50",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX50",
+        source          = ["Soft/netx50/Sources/asic_netx50.c",
+                           "Soft/netx50/Sources/io_netx50.c",
+                           "Soft/netx50/Sources/led_netx50.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX50"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx50",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX50-ETM
+    bld.stlib(
+        target          = "targetlib_nxhx50etm",
+        name            = "targetlib_nxhx50etm",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX50-ETM",
+        source          = ["Soft/netx50/Sources/io_nxhx50etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX50"],
+        use             = ["targetlib_netx50",
+                           "usb_cdc_netx50",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXIO50-RE
+    bld.stlib(
+        target          = "targetlib_nxio50re",
+        name            = "targetlib_nxio50re",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXIO50-RE",
+        source          = ["Soft/netx50/Sources/io_nxio50re.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX50"],
+        use             = ["targetlib_netx50",
+                           "usb_cdc_netx50",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXEB5
+    bld.stlib(
+        target          = "targetlib_nxeb5",
+        name            = "targetlib_nxeb5",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXEB5",
+        source          = ["Soft/netx5/Sources/asic_netx5.c",
+                           "Soft/netx50/Sources/io_nxhx50etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        includes        = ["Soft/netx5/Includes"],
+        export_includes = ["Soft/netx5/Includes"],
+        defines         = ["__NETX50",
+                           "NX5_PARALLEL_DPM",
+                          ],
+        use             = ["targetlib_netx50",
+                           "hal_common_netx50",
+                           "usb_cdc_netx50",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # netX10
+    bld.stlib(
+        target          = "targetlib_netx10",
+        name            = "targetlib_netx10",
+        platform        = "netx10",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX10",
+        source          = ["Soft/netx10/Sources/asic_netx10.c",
+                           "Soft/netx10/Sources/led_netx10.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX10"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx10",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX10-ETM
+    bld.stlib(
+        target          = "targetlib_nxhx10etm",
+        name            = "targetlib_nxhx10etm",
+        platform        = "netx10",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX10-ETM",
+        source          = ["Soft/netx10/Sources/io_nxhx10etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX10"],
+        use             = ["targetlib_netx10"],
+        displaygroup    = APPNAME,
+    )
+
+    # netX51
+    bld.stlib(
+        target          = "targetlib_netx51",
+        name            = "targetlib_netx51",
+        platform        = "netx51",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX51",
+        source          = ["Soft/netx51/Sources/asic_netx51.c",
+                           "Soft/netx51/Sources/io_netx51.c",
+                           "Soft/Sources/led_rdyrun.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX51"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx51",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX51-ETM
+    bld.stlib(
+        target          = "targetlib_nxhx51etm",
+        name            = "targetlib_nxhx51etm",
+        platform        = "netx51",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX51-ETM",
+        source          = ["Soft/netx51/Sources/led_netx51.c",
+                           "Soft/netx51/Sources/io_nxhx51etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX51"],
+        use             = ["targetlib_netx51"],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX6
+    bld.stlib(
+        target          = "targetlib_nxhx6",
+        name            = "targetlib_nxhx6",
+        platform        = "netx51",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX6",
+        source          = ["Soft/netx6/Sources/asic_netx6.c",
+                           "Soft/netx6/Sources/led_netx6.c",
+                           "Soft/netx51/Sources/io_nxhx51etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        includes        = ["Soft/netx6/Includes"],
+        export_includes = ["Soft/netx6/Includes"],
+        defines         = ["__NETX51"],
+        use             = ["targetlib_netx51",
+                           "hal_common_netx6",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # netX4000
+    bld.stlib(
+        target          = "targetlib_netx4000",
+        name            = "targetlib_netx4000",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX4000",
+        source          = ["Soft/netx4000/Sources/asic_netx4000.c",
+                           "Soft/netx4000/Sources/io_netx4000.c",
+                           "Soft/netx4000/Sources/led_netx4000.c",
+                           "Soft/Sources/led_rdyrun.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX4000"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx4000",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX4000-JTAG+
+    bld.stlib(
+        target          = "targetlib_nxhx4000jtag",
+        name            = "targetlib_nxhx4000jtag",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX4000-JTAG+",
+        source          = ["Soft/netx4000/Sources/io_nxhx4000jtag.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX4000"],
+        use             = ["targetlib_netx4000"],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX4000-SWITCH
+    bld.stlib(
+        target          = "targetlib_nxhx4000switch",
+        name            = "targetlib_nxhx4000switch",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX4000-SWITCH",
+        source          = ["Soft/netx4000/Sources/io_nxhx4000switch.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX4000"],
+        use             = ["targetlib_netx4000"],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX4100-JTAG
+    bld.stlib(
+        target          = "targetlib_nxhx4100jtag",
+        name            = "targetlib_nxhx4100jtag",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX4100-JTAG",
+        source          = ["Soft/netx4000/Sources/io_nxhx4100jtag.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX4000"],
+        use             = ["targetlib_netx4000"],
+        displaygroup    = APPNAME,
+    )
+
+    # CIFX PCIE4000-2RE
+    bld.stlib(
+        target          = "targetlib_cifx_pcie4000_2re",
+        name            = "targetlib_cifx_pcie4000_2re",
+        platform        = "netx4000",
+        toolchain       = use_toolchain,
+        description     = "Target Library for CIFX PCIE4000-2RE",
+        source          = ["Soft/netx4000/Sources/io_cifx_pcie4000_2re.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX4000"],
+        use             = ["targetlib_netx4000"],
+        displaygroup    = APPNAME,
+    )
+
+    # netX90
+    bld.stlib(
+        target          = "targetlib_netx90",
+        name            = "targetlib_netx90",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Target Library for netX90",
+        source          = ["Soft/netx90/Sources/asic_netx90.c",
+                           "Soft/netx90/Sources/io_netx90.c",
+                           "Soft/netx90/Sources/led_netx90.c",
+                           "Soft/Sources/led_rdyrun.c",
+                           "Soft/Sources/phy.c",
+                           "Soft/Sources/serial.c",
+                           "Soft/Sources/crc.c",
+                          ],
+        defines         = ["__NETX90"],
+        use             = ["targetlib_sdk",
+                           "hal_common_netx90",
+                          ],
+        displaygroup    = APPNAME,
+    )
+
+    # NXHX90-JTAG
+    bld.stlib(
+        target          = "targetlib_nxhx90jtag",
+        name            = "targetlib_nxhx90jtag",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXHX90-JTAG",
+        source          = ["Soft/netx90/Sources/io_nxhx90jtag.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX90"],
+        use             = ["targetlib_netx90"],
+        displaygroup    = APPNAME,
+    )
+
+    # NXEB90-ETM
+    bld.stlib(
+        target          = "targetlib_nxeb90etm",
+        name            = "targetlib_nxeb90etm",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXEB90-ETM",
+        source          = ["Soft/netx90/Sources/io_nxeb90etm.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX90"],
+        use             = ["targetlib_netx90"],
+        displaygroup    = APPNAME,
+    )
+
+    # NXEB90-SPE 1port SPE
+    bld.stlib(
+        target          = "targetlib_nxeb90spe_1port_spe",
+        name            = "targetlib_nxeb90spe_1port_spe",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXEB90-SPE with one external SPE PHY",
+        source          = ["Soft/netx90/Sources/io_nxeb90spe_1port_spe.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX90"],
+        use             = ["targetlib_netx90"],
+        displaygroup    = APPNAME,
+    )
+    
+    
+    # NXEB90-SPE 2port SPE
+    bld.stlib(
+        target          = "targetlib_nxeb90spe_2port_spe",
+        name            = "targetlib_nxeb90spe_2port_spe",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Target Library for NXEB90-SPE with two external SPE PHYs",
+        source          = ["Soft/netx90/Sources/io_nxeb90spe_2port_spe.c",
+                           "Soft/Sources/led_check.c",
+                          ],
+        defines         = ["__NETX90"],
+        use             = ["targetlib_netx90"],
+        displaygroup    = APPNAME,
+    )

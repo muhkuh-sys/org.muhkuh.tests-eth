@@ -1,0 +1,56 @@
+top = "."
+out = "build"
+APPNAME = "usb_cdc"
+
+def build(bld):
+
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+    # usb_cdc
+
+    # header component, target independent
+    bld.sdkcomponent(
+        name            = "usb_cdc_sdk",
+        export_includes = ["Soft/Includes"],
+        public_includes = ["Soft/Includes"],
+        displaygroup    = APPNAME,
+    )
+
+    bld.stlib(
+        target          = "usb_cdc_netx100",
+        name            = "usb_cdc_netx100",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "USB_CDC Library netX100",
+        source          = ["Soft/Sources/usb_descriptors.c",
+                           "Soft/Sources/usb_globals.c",
+                           "Soft/Sources/usb_io.c",
+                           "Soft/Sources/usb_requests_cdc.c",
+                           "Soft/Sources/usb_requests_common.c",
+                           "Soft/Sources/usb_requests_std.c",
+                           "Soft/Sources/usb_requests_top.c",
+                          ],
+        includes        = ["Soft/netx100/Includes"],
+        use             = ["usb_cdc_sdk"],
+        displaygroup    = APPNAME,
+    )
+
+    bld.stlib(
+        target          = "usb_cdc_netx50",
+        name            = "usb_cdc_netx50",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "USB_CDC Library netX50",
+        source          = ["Soft/Sources/usb_descriptors.c",
+                           "Soft/Sources/usb_globals.c",
+                           "Soft/Sources/usb_io.c",
+                           "Soft/Sources/usb_requests_cdc.c",
+                           "Soft/Sources/usb_requests_common.c",
+                           "Soft/Sources/usb_requests_std.c",
+                           "Soft/Sources/usb_requests_top.c",
+                          ],
+        includes        = ["Soft/netx50/Includes"],
+        use             = ["usb_cdc_sdk"],
+        displaygroup    = APPNAME,
+    )

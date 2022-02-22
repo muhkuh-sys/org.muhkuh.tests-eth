@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Ethernet MAC</name>
+	<comment></comment>
+	<projects>
+		<project>ARM_Application</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>com.hilscher.solutionmanager.SolutionNature</nature>
+	</natures>
+</projectDescription>

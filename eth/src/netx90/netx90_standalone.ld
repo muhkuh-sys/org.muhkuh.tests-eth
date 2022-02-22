@@ -32,7 +32,7 @@ MEMORY
 SECTIONS
 {
 	/* NOTE: include all sections here which should be empty. */
-	.assert_empty (NOLOAD) :
+	.assert_empty (NOLOAD):
 	{
 		*(.data*)
 		*(.glue*)

@@ -7,13 +7,21 @@
 #define MAX_NETWORK_INTERFACES 2
 
 
+typedef enum LINK_STATE_ENUM
+{
+	LINK_STATE_Unknown = 0,
+	LINK_STATE_Down = 1,
+	LINK_STATE_Up = 2
+} LINK_STATE_T;
+
+
 struct NETWORK_DRIVER_STRUCT;
 
-typedef unsigned int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
-typedef void *(*PFN_NETWORK_FN_GET_EMPTY_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
-typedef void (*PFN_NETWORK_FN_RELEASE_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket);
-typedef void (*PFN_NETWORK_FN_SEND_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, unsigned int sizPacket);
-typedef void *(*PFN_NETWORK_FN_GET_RECEIVED_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, unsigned int *psizPacket);
+typedef int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, LINK_STATE_T *ptLinkState);
+typedef int (*PFN_NETWORK_FN_GET_EMPTY_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void **ppvPacket, void **pphPacket);
+typedef void (*PFN_NETWORK_FN_RELEASE_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket);
+typedef void (*PFN_NETWORK_FN_SEND_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
+typedef int (*PFN_NETWORK_FN_GET_RECEIVED_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void **ppvPacket, void **pphPacket, unsigned int *psizPacket);
 typedef void (*PFN_NETWORK_FN_DEACTIVATE)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
 #if CFG_DEBUGMSG==1
 typedef void (*PFN_NETWORK_FN_STATISTICS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
@@ -41,9 +49,7 @@ typedef enum INTERFACE_ENUM
 	INTERFACE_INTPHY0  = 1,
 	INTERFACE_INTPHY1  = 2,
 	INTERFACE_EXTPHY0  = 3,
-	INTERFACE_EXTPHY1  = 4,
-	INTERFACE_LVDS0    = 5,
-	INTERFACE_LVDS1    = 6
+	INTERFACE_EXTPHY1  = 4
 } INTERFACE_T;
 
 
@@ -148,6 +154,7 @@ typedef struct
 	unsigned int sizPacket;                 /* this is the size of the packet in bytes and the "valid" flag, a size of 0 means "invalid" */
 	unsigned long ulIp;                     /* the destination IP for this packet */
 	void *ptPkt;                            /* pointer to the packet */
+	void *phPkt;                            /* Packet handle. */
 } PACKET_QUEUE_ENTRY_T;
 
 

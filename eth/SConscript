@@ -28,6 +28,46 @@ Import('atEnv')
 
 
 #----------------------------------------------------------------------------
+# Build the ETHMAC HAL as a library.
+sources_ethmac = """
+    src/driver/hal_ethmac_wrapper.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_pfifo.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_xc.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_armtimer.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/hal_ethmac.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_miimu.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpu_ethmac0.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpu_ethmac1.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/tpu_ethmac0.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/tpu_ethmac1.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpec_ethmac_rpec0.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpec_ethmac_rpec1.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/tpec_ethmac_tpec0.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/tpec_ethmac_tpec1.c
+    src/driver/HETHMAC/ARM_Application/Components/ip_stack/Sources/phy.c
+"""
+
+aCppPathLibEthMac = [
+    'src/driver/HETHMAC/ARM_Application/Components/Includes',
+    'src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Includes',
+    'src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/Includes',
+    'src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Includes',
+    'src/driver/HETHMAC/ARM_Application/Components/hal_common/Includes',
+    'src/driver/HETHMAC/ARM_Application/Components/ip_stack/Includes',
+]
+
+env_netx90_l = atEnv.NETX90.Clone()
+env_netx90_l.CompileDb('targets/netx90/libethmac/compile_commands.json')
+env_netx90_l.Append(CPPPATH = aCppPathLibEthMac)
+env_netx90_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETHMAC_TARGET_NX90', '1']])
+src_netx90_l = env_netx90_l.SetBuildPath('targets/netx90/libethmac', 'src', sources_ethmac)
+lib_netx90_l = env_netx90_l.StaticLibrary('targets/netx90/libethmac/libethmac_netx90.a', src_netx90_l)
+
+#----------------------------------------------------------------------------
+
+
+
+#----------------------------------------------------------------------------
 # This is the list of sources. The elements must be separated with whitespace
 # (i.e. spaces, tabs, newlines). The amount of whitespace does not matter.
 #sources_netx4000 = """
@@ -66,16 +106,8 @@ Import('atEnv')
 #"""
 
 sources_netx90 = """
-	src/driver/netx90/drv_eth_xc.c
-	src/driver/netx90/phy.c
-	src/driver/netx90/rpec_ethmac_rpec0.c
-	src/driver/netx90/rpec_ethmac_rpec1.c
-	src/driver/netx90/rpu_ethmac0.c
-	src/driver/netx90/rpu_ethmac1.c
-	src/driver/netx90/tpec_ethmac_tpec0.c
-	src/driver/netx90/tpec_ethmac_tpec1.c
-	src/driver/netx90/tpu_ethmac0.c
-	src/driver/netx90/tpu_ethmac1.c
+    src/driver/hal_muhkuh.c
+    src/driver/netx90/phy.c
 """
 
 sources_common = """
@@ -111,7 +143,12 @@ sources_standalone = """
 #
 # Build the crc test.
 #
-aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
+aCppPath = [
+    'src',
+    '#platform/src',
+    '#platform/src/lib',
+    '#targets/version'
+]
 
 #env_netx4000_t = atEnv.NETX4000.Clone()
 #env_netx4000_t.CompileDb('targets/netx4000/compile_commands.json')
@@ -148,7 +185,7 @@ env_netx90_t.CompileDb('targets/netx90/muhkuh/compile_commands.json')
 env_netx90_t.Replace(LDFILE = 'src/netx90/netx90_muhkuh.ld')
 env_netx90_t.Append(CPPPATH = aCppPath)
 src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90/muhkuh', 'src', sources_muhkuh + sources_common + sources_netx90)
-elf_netx90_t = env_netx90_t.Elf('targets/netx90/muhkuh/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'])
+elf_netx90_t = env_netx90_t.Elf('targets/netx90/muhkuh/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'] + lib_netx90_l)
 ETH_NETX90 = env_netx90_t.ObjCopy('targets/netx90/muhkuh/eth_netx90.bin', elf_netx90_t)
 txt_netx90_t = env_netx90_t.ObjDump('targets/netx90/muhkuh/eth_netx90.txt', elf_netx90_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 Export('ETH_NETX90')
@@ -158,7 +195,7 @@ env_netx90_s.CompileDb('targets/netx90/standalone/compile_commands.json')
 env_netx90_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
 env_netx90_s.Append(CPPPATH = aCppPath)
 src_netx90_s = env_netx90_s.SetBuildPath('targets/netx90/standalone', 'src', sources_standalone + sources_common + sources_netx90)
-elf_netx90_s = env_netx90_s.Elf('targets/netx90/standalone/eth_netx90.elf', src_netx90_s + env_netx90_s['PLATFORM_LIBRARY'])
+elf_netx90_s = env_netx90_s.Elf('targets/netx90/standalone/eth_netx90.elf', src_netx90_s + env_netx90_s['PLATFORM_LIBRARY'] + lib_netx90_l)
 bb0_netx90_s = env_netx90_s.HBootImage('targets/netx90/standalone/eth_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_s}))
 
 #eth_netx90_s = env_netx90_s.ObjCopy('targets/netx90/standalone/eth_netx90.bin', elf_netx90_s)

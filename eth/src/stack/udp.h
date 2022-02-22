@@ -19,7 +19,7 @@ void udp_init(NETWORK_DRIVER_T *ptNetworkDriver);
 
 void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
-void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc);
+void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc);
 
 UDP_ASSOCIATION_T *udp_registerPort(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiLocalPort, unsigned long ulRemoteIp, unsigned int uiRemotePort, PFN_UDP_RECEIVE_HANDLER pfn_recHandler, void *pvUser);
 void udp_unregisterPort(NETWORK_DRIVER_T *ptNetworkDriver, UDP_ASSOCIATION_T *ptAssoc);

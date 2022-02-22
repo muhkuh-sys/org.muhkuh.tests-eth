@@ -23,7 +23,7 @@ void arp_init(NETWORK_DRIVER_T *ptNetworkDriver);
 
 void arp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket);
 
-void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp);
+void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned int sizPacket, unsigned long ulDstIp);
 
 void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver);
 

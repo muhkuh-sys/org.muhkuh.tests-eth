@@ -121,7 +121,7 @@ void udp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt,
 
 
 
-void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc)
+void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned int sizUdpUserData, UDP_ASSOCIATION_T *ptAssoc)
 {
 	unsigned int sizPacketSize;
 	UDP_ASSOCIATION_T *atUdpPortAssoc;
@@ -149,7 +149,7 @@ void udp_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, un
 		ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usLength = MUS2NUS(sizPacketSize);
 		ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usChecksum = udp_buildChecksum(ptPkt, sizPacketSize);
 
-		ipv4_send_packet(ptNetworkDriver, ptPkt, ptAssoc->ulRemoteIp, IP_PROTOCOL_UDP, sizPacketSize);
+		ipv4_send_packet(ptNetworkDriver, ptPkt, phPkt, ptAssoc->ulRemoteIp, IP_PROTOCOL_UDP, sizPacketSize);
 	}
 }
 

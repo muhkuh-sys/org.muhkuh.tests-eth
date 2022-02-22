@@ -1,0 +1,29 @@
+top = "."
+out = "build"
+APPNAME = "application"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.stlib(
+        target          = APPNAME,
+        name            = APPNAME,
+        platform        = "netx",
+        toolchain       = use_toolchain,
+        description     = "Application Library",
+        source          = ["Sources/main_task.c",
+                           "Sources/eth_mac.c"
+                          ],
+        includes        = ["Includes"],
+        export_includes = ["Includes"],
+        use             = ["hal_ethmac_sdk",
+                           "hal_common_sdk",
+                           "printf",
+                           "ip_stack",
+                          ],
+        displaygroup    = APPNAME,
+    )
+    

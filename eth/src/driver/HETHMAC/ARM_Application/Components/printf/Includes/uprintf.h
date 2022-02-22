@@ -1,0 +1,48 @@
+/***************************************************************************
+ *   Copyright (C) 2012 by Christoph Thelen                                *
+ *   doc_bacardi@users.sourceforge.net                                     *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#ifndef __UPRINTF_H__
+#define __UPRINTF_H__
+
+
+#include <stdarg.h>
+#include <stddef.h>
+
+typedef int(*uprint_putc_fn)(int iChar, void* pvStream);
+typedef int(*uprint_flush_fn)(void* pvStream);
+
+typedef enum
+{
+  CONSOLE_LINEFEED_LF,    /* for Unix, Linux, Amiga, BeOS and MacOS X */
+  CONSOLE_LINEFEED_CR,    /* for Apple II, old MacOS, OS-9 and C64 */
+  CONSOLE_LINEFEED_CRLF   /* for Dos, Windows, CP/M, OS/2, and Symbian */
+} CONSOLE_LINEFEED_T;
+
+void uprint_init(uprint_putc_fn put, uprint_flush_fn flush, void* pvStream);
+void uprint_lfmode(CONSOLE_LINEFEED_T tMode);
+
+int  uprint(const char *pszStr);
+void uprintf(const char *pcFmt, ...);
+void uprintln(const char *pcFmt, ...);
+void vuprintf(const char *pcFmt, va_list argp);
+void vuprintln(const char *pcFmt, va_list argp);
+void hexdump(const unsigned char *pcData, size_t sizData);
+
+#endif  /* __UPRINTF_H__ */

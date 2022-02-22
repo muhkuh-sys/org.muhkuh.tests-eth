@@ -168,13 +168,13 @@ extern const MAC_ADR_T g_tEmptyMac;
 
 void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver);
 
-void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp);
+void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, void *phPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp);
 
-ETH2_PACKET_T *eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver);
+int eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T **pptPacket, void **pphPacket);
 
-void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket);
+void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, void *phPacket);
 
-unsigned int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver);
+int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState);
 
 void eth_deactivate(NETWORK_DRIVER_T *ptNetworkDriver);
 

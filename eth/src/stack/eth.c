@@ -59,15 +59,20 @@ const MAC_ADR_T g_tEmptyMac =
 
 void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 {
+	int iResult;
 	unsigned int sizPacket;
+	void *pvPacket;
 	ETH2_PACKET_T *ptPacket;
+	void *phPacket;
 	unsigned int uiEth2Typ;
 
 
 	/* Process incoming frames. */
-	ptPacket = ptNetworkDriver->tNetworkIf.pfnGetReceivedPacket(ptNetworkDriver, &sizPacket);
-	if( ptPacket!=NULL )
+	iResult = ptNetworkDriver->tNetworkIf.pfnGetReceivedPacket(ptNetworkDriver, &pvPacket, &phPacket, &sizPacket);
+	if( iResult==0 )
 	{
+		ptPacket = (ETH2_PACKET_T *)pvPacket;
+
 //		uprintf("%s: rec\n", ptNetworkDriver->tEthernetPortCfg.pcName);
 		/* Check the size of the received packet. */
 		if( sizPacket<sizeof(ETH2_HEADER_T) )
@@ -95,7 +100,7 @@ void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 			}
 		}
 
-		ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket);
+		ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket, phPacket);
 	}
 #if 0
 	else
@@ -107,7 +112,7 @@ void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 
-void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp)
+void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, void *phPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp)
 {
 	unsigned int sizPacket;
 
@@ -124,44 +129,50 @@ void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket,
 	/* Get the packet length. */
 	sizPacket = sizeof(ETH2_HEADER_T) + sizEthUserData;
 
-	ptNetworkDriver->tNetworkIf.pfnSendPacket(ptNetworkDriver, ptPacket, sizPacket);
+	ptNetworkDriver->tNetworkIf.pfnSendPacket(ptNetworkDriver, ptPacket, phPacket, sizPacket);
 
 	DEBUGMSG(ZONE_VERBOSE, "[ETH] sent frame\n");
 }
 
 
 
-ETH2_PACKET_T *eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver)
+int eth_get_empty_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T **pptPacket, void **pphPacket)
 {
+	int iResult;
+	void *pvEmptyPacket;
 	ETH2_PACKET_T *ptEmptyPacket;
+	void *phEmptyPacket;
 
 
 	/* Get a free frame for sending. */
-	ptEmptyPacket = ptNetworkDriver->tNetworkIf.pfnGetEmptyPacket(ptNetworkDriver);
-	if( ptEmptyPacket==NULL )
+	iResult = ptNetworkDriver->tNetworkIf.pfnGetEmptyPacket(ptNetworkDriver, &pvEmptyPacket, &phEmptyPacket);
+	if( iResult!=0 )
 	{
 		DEBUGMSG(ZONE_ERROR, "[ETH] failed to get empty frame!\n");
 	}
+	else
+	{
+		ptEmptyPacket = (ETH2_PACKET_T *)pvEmptyPacket;
 
-	return ptEmptyPacket;
+		*pptPacket = ptEmptyPacket;
+		*pphPacket = phEmptyPacket;
+	}
+
+	return iResult;
 }
 
 
 
-void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket)
+void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, void *phPacket)
 {
-	ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket);
+	ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket, phPacket);
 }
 
 
 
-unsigned int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver)
+int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState)
 {
-	unsigned int uiLinkStatus;
-
-
-	uiLinkStatus = ptNetworkDriver->tNetworkIf.pfnGetLinkStatus(ptNetworkDriver);
-	return uiLinkStatus;
+	return ptNetworkDriver->tNetworkIf.pfnGetLinkStatus(ptNetworkDriver, ptLinkState);
 }
 
 

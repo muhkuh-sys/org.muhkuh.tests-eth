@@ -89,7 +89,7 @@ void ipv4_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEth
 
 
 
-void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData)
+void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned long ulDstIp, unsigned int uiProtocol, unsigned int sizIpUserData)
 {
 	unsigned int sizIpPacket;
 	unsigned long ulFirstDstIp;
@@ -128,6 +128,6 @@ void ipv4_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, u
 	ulFirstDstIp = ipv4_get_destination_ip(ptNetworkDriver, ulDstIp);
 
 	/* Send the packet. */
-	arp_send_ipv4_packet(ptNetworkDriver, ptPkt, sizIpPacket, ulFirstDstIp);
+	arp_send_ipv4_packet(ptNetworkDriver, ptPkt, phPkt, sizIpPacket, ulFirstDstIp);
 }
 

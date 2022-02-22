@@ -1,0 +1,46 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nxeb5",
+        name            = APPNAME + "_nxeb5_elf",
+        platform        = "netx50",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXEB5",
+        source_arm      = ["../../Init/init_netx50.S",
+                           "../Sources/init_netx5.c",
+                           "../Sources/irq_handler.c",
+                           "../Sources/main.c",
+                          ],
+        includes        = ["../Includes"],
+        defines         = ["__NETX50",
+                           "TARGET_NETX5",
+                           "NX5_PARALLEL_DPM",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx5",
+                           "usb_cdc_netx50",
+                          ],
+        linkerscript    = "../../Linker/netx50.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxeb5",
+        use              = APPNAME + "_nxeb5_elf",
+        description      = "Ethernet MAC Demo MMC Image NXEB5",
+        BOOTBLOCKERFLAGS = ["-ct netx50",
+                            "-s", "MMC",
+                            "-d", "SD_MT48LC2M32B2",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

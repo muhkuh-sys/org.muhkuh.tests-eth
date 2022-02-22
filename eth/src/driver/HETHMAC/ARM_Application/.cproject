@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2112204193">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2112204193" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx500_etm_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2112204193" name="eth_mac_nxhx500_etm_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2112204193." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1786003630" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1786003630.1573634392" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.759852644" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1526377356" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1316290229" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2077391959" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.737406496" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1650996487" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1549271223" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.388115453" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.152292043">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.152292043" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nss3_1nrt_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.152292043" name="eth_mac_nss3_1nrt_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.152292043." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.2022405700" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.2022405700.1090328094" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1198105327" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1854965261" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.587819073" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1818927137" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.94731130" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.495790462" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2030253641" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.131354405" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1545914504">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1545914504" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx50_etm_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1545914504" name="eth_mac_nxhx50_etm_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1545914504." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.331075562" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.331075562.624128965" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.919439145" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.993091809" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.355945550" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.195177908" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.41014983" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.388341861" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1046877113" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1187066708" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1130015742">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1130015742" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxeb5_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1130015742" name="eth_mac_nxeb5_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1130015742." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1478846789" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1478846789.1267906742" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.631275103" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.791814051" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1997525299" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1512809500" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.125944470" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.455073724" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1344647186" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1520834991" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1996024487">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1996024487" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx10_etm_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1996024487" name="eth_mac_nxhx10_etm_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1996024487." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.352712646" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.352712646.915710707" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1416555217" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.104116881" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1427936416" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1721824656" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2025614622" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.137575716" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.317461352" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.4152094" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.191235536">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.191235536" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx6_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.191235536" name="eth_mac_nxhx6_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.191235536." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1690285998" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1690285998.978490737" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1919299174" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.853595720" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2069350239" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1160711198" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.46166227" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1731086864" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1106919754" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.267231737" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.113269807">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.113269807" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx51_etm_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.113269807" name="eth_mac_nxhx51_etm_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.113269807." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1271223394" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1271223394.1989194054" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1353147915" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.814732720" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.54131246" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.366386959" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.796488049" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.101554200" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.941951137" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.371167311" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.513335057">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.513335057" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nrp_h90_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.513335057" name="eth_mac_nrp_h90_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.513335057." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1812684151" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1812684151.351435854" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.173309764" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1694644434" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.2121503065" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.83723660" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.375037450" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.70037940" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.75027126" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1365912536" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1692348173">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1692348173" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx4000_switch_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1692348173" name="eth_mac_nxhx4000_switch_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1692348173." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.864556991" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.864556991.11952386" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1812338670" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1153186233" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.524259898" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.633978853" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1177245096" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.969614566" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1026976394" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.582191459" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.60916751">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.60916751" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx4000jtag_plus_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.60916751" name="eth_mac_nxhx4000jtag_plus_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.60916751." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1778104170" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1778104170.2131535081" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.741310023" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.207304219" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.372505837" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.943500566" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1348337848" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1966195138" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.119767702" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1342437398" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.164026998">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.164026998" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxeb90_etm_intphy_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.164026998" name="eth_mac_nxeb90_etm_intphy_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.164026998." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.613284414" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.613284414.1853995612" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1707219721" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1945961077" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.855332513" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1228606013" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.770059199" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.94786914" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.978432325" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.115466385" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1358529638">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1358529638" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxeb90_etm_extphy_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1358529638" name="eth_mac_nxeb90_etm_extphy_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1358529638." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.429603610" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.429603610.829277797" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1492286412" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.554536995" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.622303552" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.492112881" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.563269626" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.897981941" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.908768842" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1180208693" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2124313969">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2124313969" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxeb90_etm_fx_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2124313969" name="eth_mac_nxeb90_etm_fx_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2124313969." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1516024752" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1516024752.578872762" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1842827307" incrementalBuildTarget="configure build --conditions=${build_type}" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1746458925" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.152919662" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1709251829" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.615795870" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.899251451" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.443131011" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1381962092" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.278502373">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.278502373" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_cifx_pcie4000_2re_elf">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.278502373" name="eth_mac_cifx_pcie4000_2re_elf" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.278502373." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1396623086" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.1396623086.1900530850" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.689531978" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.1860899395" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1555141803" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1303088543" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.424107081" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1559219928" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.245787955" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.631019704" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1955129420">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1955129420" moduleId="org.eclipse.cdt.core.settings" name="eth_mac_nxhx90_jtag">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1955129420" name="eth_mac_nxhx90_jtag" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1955129420." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.84337300" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.build.core.prefbase.toolchain.84337300.833174804" name=""/>
+							<builder id="com.hilscher.netx.cdt.core.builder.waf.1760998779" keepEnvironmentInBuildfile="false" name="WAF Builder" superClass="com.hilscher.netx.cdt.core.builder.waf"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.513975601" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.942601898" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.627635571" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1207271637" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1592732329" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1234653453" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.329992817" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Components/hal_common/Sources/hal_blink.c|Components/hal_common/Sources/hal_canctrl.c|Components/hal_common/Sources/hal_hif_ioctrl.c|Components/hal_common/Sources/hal_i2c.c|Components/hal_common/Sources/hal_mcp.c|Components/hal_common/Sources/hal_sr.c|Components/hal_common/Sources/hal_xpic.c|Components/hal_common/netx4000/Sources/hal_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_ecc.c|Components/hal_common/netx4000/Sources/hal_rap_portctrl.c|Components/hal_common/netx51/Sources/common_func_netx51.c|Components/hal_common/netx51/Sources/netx51_bufman.c|Components/hal_common/netx51/Sources/netx51_dmac.c|Components/hal_common/netx51/Sources/netx51_fmmusm.c|Components/hal_common/netx51/Sources/netx51_nfifo.c|Components/hal_common/netx51/Sources/netx51_sr.c|Components/hal_common/netx51/Sources/netx51_usbdev.c|Components/hal_common/netx51/Sources/netx51_xpecirq.c|Components/hal_common/netx51/Sources/netx51_xpic.c|Components/hal_common/netx6/Sources/common_func_netx6.c|Components/hal_common/netx90/Sources/hal_dpm.c|Components/hal_common/netx90/Sources/hal_ecc.c|Components/hal_common/netx90/Sources/hal_iflash.c|Components/hal_common/netx90/Sources/hal_systime_lt.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl.c|Components/hal_common/netx90mpw/Sources/hal_asicctrl_com.c|Components/hal_common/netx90mpw/Sources/hal_miimu.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="ARM_Application.com.hilscher.netx.cdt.core.netxproject.1804217733" name="netX Project" projectType="com.hilscher.netx.cdt.core.netxproject"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2073984931">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="eth_mac_nxhx90_jtag"/>
+		<configuration configurationName="eth_mac_nss3_1nrt_elf"/>
+		<configuration configurationName="eth_std_mac_nxeb5_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_nxhx51_etm_elf"/>
+		<configuration configurationName="eth_mac_nxhx90_jtag_elf"/>
+		<configuration configurationName="eth_mac_nxhx4000jtag_plus_elf"/>
+		<configuration configurationName="eth_mac_nxeb5_elf"/>
+		<configuration configurationName="eth_std_mac_nxhx51_etm_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_std_mac_nxhx50_etm_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_nxhx10_etm_elf"/>
+		<configuration configurationName="eth_std_mac_nxhx500_etm_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_nxhx4000_switch_elf"/>
+		<configuration configurationName="eth_mac_nxeb90_etm_intphy_elf"/>
+		<configuration configurationName="eth_std_mac_nxhx10_etm_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_nxhx6_elf"/>
+		<configuration configurationName="eth_mac_nxeb90_etm_extphy_elf"/>
+		<configuration configurationName="eth_mac_nxeb90_etm_fx_elf"/>
+		<configuration configurationName="eth_mac_nrp_h90_elf"/>
+		<configuration configurationName="eth_std_mac_nxhx6_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_cifx_pcie4000_2re_elf"/>
+		<configuration configurationName="eth_mac_nxhx500_etm_elf"/>
+		<configuration configurationName="eth_mac_nxhx50_etm_elf"/>
+		<configuration configurationName="eth_std_mac_nxeb90_etm_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_std_mac_nxhx4000_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+		<configuration configurationName="eth_mac_nxeb90_etm_elf"/>
+		<configuration configurationName="eth_std_mac_nrp_h90_elf">
+			<resource resourceType="PROJECT" workspacePath="/ARM_Application"/>
+		</configuration>
+	</storageModule>
+</cproject>

@@ -1,0 +1,33 @@
+
+/* Include paths extracted from compiler */
+${INCPATHFLAGS}
+
+/* Defines extracted from compiler */
+${DEFINEFLAGS}
+
+/* Size of datatypes extracted from compiler */
+${SIZEFLAGS}
+
+/* We don't want errors from files outside of the target
+ * to be checked, therefore we declare all includes as 
+ * lib-headers by default and remove our target particular
+ * includes again */
+-save -e686
+-wlib(0)
+-restore
+
++libclass(all)
+${LIBPATHFLAGS}
+
+/* Flags to control the output formatting */
+${OUTPUTFORMATFLAGS}
+
+/* Flags controlling the checking rules */
+${RULEFLAGS}
+
+/* target, project and command line depend flags */
+${WARNINGLEVELFLAGS}
+${PASSESFLAGS}
+
+/* Source files to be checked */
+${SOURCEFILES}

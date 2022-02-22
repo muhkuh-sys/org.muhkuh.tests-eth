@@ -1,0 +1,20 @@
+// This file contains all additional rules, defined by Hilscher
+
+-e641     //allow casting enums to int
+-e830     //Suppress "cited in prior message", as they don't appear at the proper location in eclipse error parser
+-e831     //Suppress "Reference cited in prior message", as they don't appear at the proper location in eclipse error parser
+-summary  //print summary
+
+// GCC provides a __BASE_FILE__ define for the local filename (without PATH)
+// make sure PC-Lint accepts this macro definition
+++d"__BASE_FILE__=__FILE__"
+
+// GCC provides an offsetof intrinsic, which causes some false alarms on PC-Lint
+// http://www.gimpel.com/Discussion.cfm?ThreadID=3974
+++"doffsetof(type,member)=((size_t)&((type*)0)->member)"
+-emacro(413,offsetof)
+-emacro(545,offsetof)
+
+// GCC provides a __typeof__ (for ISO C programs) and a typeof define to refer to the type of an expression
+// an alternative to using _typeof_
+++d"typeof=__typeof__"

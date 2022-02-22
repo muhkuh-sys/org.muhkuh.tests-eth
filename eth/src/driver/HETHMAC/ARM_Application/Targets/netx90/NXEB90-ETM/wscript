@@ -1,0 +1,88 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+
+    # -----------------------------------------------------------------
+
+    # Note: we use this board to test external MII and FiberOptic
+    bld.program(
+        target          = APPNAME + "_nxeb90_etm_intphy",
+        name            = APPNAME + "_nxeb90_etm_intphy_elf",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXEB90-ETM internal PHY",
+        includes        = ["../Includes"],
+        source          = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_handler.c",
+                          ],
+        defines         = ["__NETX90",
+                           "TARGET_HW=_NXEB90_ETM_",
+                           "EXT_MII=0",
+                           "FX_MODE=0",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx90",
+                          ],
+        stlib           = ["c"],
+        asflags         = ["-mthumb"],
+        linkerscript    = "../../Linker/netx90.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    # Note: we use this board to test external MII and FiberOptic
+    bld.program(
+        target          = APPNAME + "_nxeb90_etm_extphy",
+        name            = APPNAME + "_nxeb90_etm_extphy_elf",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXEB90-ETM external PHY",
+        includes        = ["../Includes"],
+        source          = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_handler.c",
+                          ],
+        defines         = ["__NETX90",
+                           "TARGET_HW=_NXEB90_ETM_",
+                           "EXT_MII=1",
+                           "FX_MODE=0",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx90",
+                          ],
+        stlib           = ["c"],
+        asflags         = ["-mthumb"],
+        linkerscript    = "../../Linker/netx90.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    # Note: we use this board to test external MII and FiberOptic
+    bld.program(
+        target          = APPNAME + "_nxeb90_etm_fx",
+        name            = APPNAME + "_nxeb90_etm_fx_elf",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXEB90-ETM FiberOptic",
+        includes        = ["../Includes"],
+        source          = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_handler.c",
+                          ],
+        defines         = ["__NETX90",
+                           "TARGET_HW=_NXEB90_ETM_",
+                           "EXT_MII=0",
+                           "FX_MODE=1",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx90",
+                          ],
+        stlib           = ["c"],
+        asflags         = ["-mthumb"],
+        linkerscript    = "../../Linker/netx90.ld",
+        displaygroup    = APPNAME,
+    )
+   

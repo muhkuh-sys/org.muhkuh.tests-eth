@@ -1,0 +1,8 @@
+//  Gnu C/C++ (version 2.95.3 or later), -si4 -sp4, 
+//  Standard lint options
+
+//au-sm123.lnt au-ds.lnt au-misra3.lnt au-barr10.lnt
+co-gcc.lnt
+
+hilscher-options.lnt
+

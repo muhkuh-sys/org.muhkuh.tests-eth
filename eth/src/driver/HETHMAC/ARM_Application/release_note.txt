@@ -1,0 +1,100 @@
+Ethernet Standard MAC HAL
+
+Version  Name  Date       Revision History
+6.2.0.2  AO    22.11.2018 Added support of netX90, dropped support of netX90MPW
+                          Fixed: PC Lint warnings
+6.2.0.1  BI    14.03.2018 Fixed: Default MAC addresses should not match all zeros
+6.2.0.0  BI    02.03.2018 Added: supported counters OUT_FRAMES_OKAY, IN_FRAMES_OKAY for netX51/90/4000
+6.1.0.0  AO    12.05.2017 Added target NXHX90_JTAG
+                          Added targets NXHX4000JTAG+, NXHX4000_SWITCH
+                          Change: EthMac_SetLinkMode() sets MAC into 10HDX in case of link down
+                          Added: 2nd chassis address support
+                          Changed: Multicast filter set/clear mechanism changed to Add/Delete group address
+6.0.0.0  AO    07.02.2017 Merged projects "Ethernet Standard MAC" and "Ethernet Standard MAC for external PHY" to "Ethernet MAC", so "Ethernet Standard MAC for external PHY" is discontinued
+                          Change: speed and duplex mode for internal PHYs must be set by Ethernet MAC HAL User and is not determinded by MAC automatically
+                                  Ethernet MAC HAL is not transparent regarding internal or external PHY
+                                  HAL user must set speed and duplex at link change event or cyclically
+5.1.0.0  AO    01.12.2016 Change: SFD detection based on "0x5d" instead on "0xd" only (since netX10, not netX50/100/500)
+                          Change: no differentiation between untagged and VLAN-tagged frames, frame length incl. FCS always checked for =< 1522 bytes
+                          Bugfix: netX50/51/52 only: no detection of UTX underflow in FDX
+                          Change: EARLY_RCV interrupt triggered after reception of Ethernet Destination Address instead of Ethernet Source Address
+                          Added: since netX51/52/4000/...: high-precise timestamping in ingress and egress
+                          Change: since netX51/52/4000/...: SYSTIME resolution (systime_clock_count_value) should be 1 ns because high-precise timestamping requires 1 ns resolution
+                                                            else receive timestamp errors of up to 250 ns may occur
+                          Dropped: support of counters FRAMES_RECEIVED_OKAY and FRAMES_TRANSMITTED_OKAY
+                          Added: support of counters IN_OCTETS and OUT_OCTETS
+                          Some minor corrections within hal_eth_std_mac.c to solve warnings found by PC Lint
+5.0.0.0  AO    08.03.2016 Merging all netX derivates to netX Studio project (Hitex Hitop IDE support dropped)
+
+
+
+
+### Older release notes ###
+
+Hardware plattform:
+NXHX500-RE (Ethernet MAC on XC channel 0/1)
+
+Version  Name  Date       Revision History
+1.000    AO    01.03.2006 Created
+2.000    MT    08.12.2006 Fixed Multicast address enabling/checking
+                          Updated to XC Standard Ethernet MAC Microcode 1.005
+                          Removed IRQ locking. This needs to be done by user if used in a multithreading
+                          system by using mutexes/spinlocks etc. The example enters those functions with
+                          locked irq
+                          Changed GetCounters to NOT return a pointer to xpec memory to user. Instead it fetches
+                          all counters and places them in a used provided structure
+2.001    AJ    19.01.2007 Updated to XC Standard Ethernet MAC Microcode 1.006
+2.002    HPf   12.02.2007 Updated to XC Standard Ethernet MAC Microcode 1.007
+2.100    HPf              Added configurable PHY LED behaviour (static, blinking, single, off)
+                          BugFix: ARM exception vectors (netXvic.h)
+                          Frame buffer management is now handle-based
+                          Added support for external PHYs on ports 2 and 3
+                          Extracion of OS and MMU dependent defines and functions in separate header files
+                          Updated simpleloader.c for netx50 support and netx100 bugfix
+3.0.0.0  AO    05.06.2008 Initial release for SubVersion
+                          Blink frequency is adjustable
+                          Confirmation suppression included
+                          HiTOP project for NXHX500-RE
+3.0.1.0  HPf   27.07.2009 Bugfix: Fixed invalid access in address hashing
+3.1.0.0  AO    05.11.2009 added user specific parameter for Init() and Start()
+                          Bugfix: tx timestamp not transferred per DMA into frame buffer
+                          Updated simpleloader.c for netx50 support and netx100 bugfix
+3.2.0.0  AO    22.02.2010 Bugfix: XC loader
+                          some changes in project structure
+3.3.0.0  IO    28.06.2010 Changed: "hal_resource_defines.h" modified to avoid warnings during compilation
+         AO    09.08.2010 Deleted: disabling of fiber-optic mode during initializing
+3.3.1.0  AO    15.02.2012 Workaround: AutoMDIX function in 100 MBit forced mode
+
+Hardware platform:
+NXHX50-RE (Ethernet MAC on XC channel 0/1)
+
+Version  Name  Date       Revision History
+3.0.0.0  AO    10.07.2008 - Initial release for SubVersion
+                          - Blink frequency is adjustable
+                          - Confirmation suppression included
+                          - HiTOP project for NXHX50-RE
+3.1.0.0  AO    05.11.2009 added user specific parameter for Init() and Start()
+                          Bugfix: tx timestamp not transferred per DMA into frame buffer
+                          Updated simpleloader.c for netx50 support and netx100 bugfix
+3.2.0.0  AO    22.02.2010 Bugfix: XC loader
+                          some changes in project structure
+3.3.0.0  IO    28.06.2010 Changed: "hal_resource_defines.h" modified to avoid warnings during compilation
+         AO    09.08.2010 Deleted: disabling of fiber-optic mode during initializing
+3.3.1.0  AO    15.02.2012 Workaround: AutoMDIX function in 100 MBit forced mode
+
+Hardware platform:
+NXHX10-ETM (Ethernet MAC on XC channel 0)
+
+Version  Name  Date       Revision History
+3.3.0.0  AO    14.10.2010 Initial release
+3.3.1.0  AO    15.02.2012 Workaround: AutoMDIX function in 100 MBit forced mode
+
+Hardware platform:
+NXHX51-ETM (Ethernet MAC on XC channel 0/1)
+
+Version  Name  Date       Revision History
+3.3.0.0  AO    08.02.2012 Initial release
+4.0.0.0  AO               Added netX6 support
+4.0.1.0  IO    21.06.2012 Bugfix: unsigned long changed to uint32_t into irq_handler ..
+4.0.2.0  IO    30.08.2012 Bugfix: lost interrupts when using serial DPM
+                          Bugfix: Wrong type of frame size in function send_frame() in application_demo.c

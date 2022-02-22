@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "driver/hal_muhkuh.h"
 #include "stack/buckets.h"
 #include "stack/arp.h"
 #include "stack/dhcp.h"
@@ -12,16 +13,11 @@
 #include "uprintf.h"
 
 
-#if ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
-#       include "driver/netx90/drv_eth_xc.h"
-#elif ASIC_TYP==ASIC_TYP_NETX500
-#       include "driver/netx500/interface.h"
-#elif ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
-#       include "driver/netx4000/drv_eth_xc.h"
-#endif
-
 static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
 {
+	int iResult;
+	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 	ETH2_PACKET_T *ptPkt;
 	UDP_ASSOCIATION_T *ptAssoc;
 
@@ -34,12 +30,21 @@ static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *
 		/* Cast the data to a eth2 packet. */
 		ptPkt = (ETH2_PACKET_T*)pvData;
 
-		/* Maybe do something with the data, like an XOR? */
+		/* Allocate a new packet. */
+		iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+		if( iResult==0 )
+		{
+			/* Send the data back. */
+			ptAssoc->ulRemoteIp = ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp;
+			ptAssoc->uiRemotePort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usSrcPort;
 
-		/* Send the data back. */
-		ptAssoc->ulRemoteIp = ptPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp;
-		ptAssoc->uiRemotePort = ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.tUdpHdr.usSrcPort;
-		udp_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptAssoc);
+			/* Copy the packet data. */
+			memcpy((unsigned char*)(&(ptSendPacket->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData)), (unsigned char*)(&(ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData)), sizPacket);
+
+			/* Maybe do something with the data, like an XOR? */
+
+			udp_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, sizPacket, ptAssoc);
+		}
 	}
 }
 
@@ -95,13 +100,16 @@ static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	FUNCTION_ECHO_CLIENT_HANDLE_T *ptHandle;
 	ECHO_CLIENT_STATE_T tState;
+	void *pvPkt;
 	ETH2_PACKET_T *ptPkt;
+	void *phPkt;
 	unsigned int sizPacket;
 	unsigned char *pucDataCnt;
 	unsigned char *pucDataEnd;
 	unsigned long ulData;
 	int iIsElapsed;
 	const char *pcName;
+	int iResult;
 
 
 	/* Get a shortcut to the handle. */
@@ -123,14 +131,15 @@ static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
 		else
 		{
 			/* Create a new packet. */
-			ptPkt = ptNetworkDriver->tNetworkIf.pfnGetEmptyPacket(ptNetworkDriver);
-			if( ptPkt==NULL )
+			iResult = ptNetworkDriver->tNetworkIf.pfnGetEmptyPacket(ptNetworkDriver, &pvPkt, &phPkt);
+			if( iResult!=0 )
 			{
 				uprintf("%s: No free Ethernet packet available.\n", pcName);
 				tState = ECHO_CLIENT_STATE_Error;
 			}
 			else
 			{
+				ptPkt = (ETH2_PACKET_T *)pvPkt;
 				sizPacket = get_test_data_size(ptHandle);
 
 				/* Fill the packet with pseudo random data. */
@@ -147,7 +156,7 @@ static ECHO_CLIENT_STATE_T echo_client_action(NETWORK_DRIVER_T *ptNetworkDriver)
 				} while( pucDataCnt<pucDataEnd );
 
 				/* Send the packet. */
-				udp_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptHandle->ptUdpAssoc);
+				udp_send_packet(ptNetworkDriver, ptPkt, phPkt, sizPacket, ptHandle->ptUdpAssoc);
 
 				/* Start the timeout for the receive operation.
 				 * A value of 1000ms is much too high, but does not hurt on the other hand.
@@ -352,32 +361,22 @@ int boot_drv_eth_prepare(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURAT
 
 			case INTERFACE_INTPHY0:
 				/* INTPHY port 0 */
-				iResult = drv_eth_xc_prepare(ptNetworkDriver, 0);
+				iResult = hal_xc_prepare(ptNetworkDriver, 0);
 				break;
 
 			case INTERFACE_INTPHY1:
 				/* INTPHY port 1 */
-				iResult = drv_eth_xc_prepare(ptNetworkDriver, 1);
+				iResult = hal_xc_prepare(ptNetworkDriver, 1);
 				break;
 
 			case INTERFACE_EXTPHY0:
 				/* EXTPHY port 0 */
-				iResult = drv_eth_xc_prepare(ptNetworkDriver, 2);
+				iResult = hal_xc_prepare(ptNetworkDriver, 2);
 				break;
 
 			case INTERFACE_EXTPHY1:
 				/* EXTPHY port 1 */
-				iResult = drv_eth_xc_prepare(ptNetworkDriver, 3);
-				break;
-
-			case INTERFACE_LVDS0:
-				/* LVDS port 0 */
-				iResult = drv_eth_xc_prepare_lvds(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_LVDS1:
-				/* LVDS port 1 */
-				iResult = drv_eth_xc_prepare_lvds(ptNetworkDriver, 1);
+				iResult = hal_xc_prepare(ptNetworkDriver, 3);
 				break;
 			}
 
@@ -434,32 +433,22 @@ int boot_drv_eth_disable(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURAT
 
 			case INTERFACE_INTPHY0:
 				/* INTPHY port 0 */
-				iResult = drv_eth_xc_disable(ptNetworkDriver, 0);
+				iResult = hal_xc_disable(ptNetworkDriver, 0);
 				break;
 
 			case INTERFACE_INTPHY1:
 				/* INTPHY port 1 */
-				iResult = drv_eth_xc_disable(ptNetworkDriver, 1);
+				iResult = hal_xc_disable(ptNetworkDriver, 1);
 				break;
 
 			case INTERFACE_EXTPHY0:
 				/* EXTPHY port 0 */
-				iResult = drv_eth_xc_disable(ptNetworkDriver, 2);
+				iResult = hal_xc_disable(ptNetworkDriver, 2);
 				break;
 
 			case INTERFACE_EXTPHY1:
 				/* EXTPHY port 1 */
-				iResult = drv_eth_xc_disable(ptNetworkDriver, 3);
-				break;
-
-			case INTERFACE_LVDS0:
-				/* LVDS port 0 */
-				iResult = drv_eth_xc_disable_lvds(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_LVDS1:
-				/* LVDS port 1 */
-				iResult = drv_eth_xc_disable_lvds(ptNetworkDriver, 1);
+				iResult = hal_xc_disable(ptNetworkDriver, 3);
 				break;
 			}
 
@@ -519,32 +508,22 @@ int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION
 
 			case INTERFACE_INTPHY0:
 				/* INTPHY port 0 */
-				iResult = drv_eth_xc_initialize(ptNetworkDriver, 0);
+				iResult = hal_xc_initialize(ptNetworkDriver, 0);
 				break;
 
 			case INTERFACE_INTPHY1:
 				/* INTPHY port 1 */
-				iResult = drv_eth_xc_initialize(ptNetworkDriver, 1);
+				iResult = hal_xc_initialize(ptNetworkDriver, 1);
 				break;
 
 			case INTERFACE_EXTPHY0:
 				/* EXTPHY port 0 */
-				iResult = drv_eth_xc_initialize(ptNetworkDriver, 2);
+				iResult = hal_xc_initialize(ptNetworkDriver, 2);
 				break;
 
 			case INTERFACE_EXTPHY1:
 				/* EXTPHY port 1 */
-				iResult = drv_eth_xc_initialize(ptNetworkDriver, 3);
-				break;
-
-			case INTERFACE_LVDS0:
-				/* LVDS port 0 */
-				iResult = drv_eth_xc_initialize_lvds(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_LVDS1:
-				/* LVDS port 1 */
-				iResult = drv_eth_xc_initialize_lvds(ptNetworkDriver, 1);
+				iResult = hal_xc_initialize(ptNetworkDriver, 3);
 				break;
 			}
 
@@ -617,8 +596,9 @@ static void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
+	int iEthResult;
 	NETWORK_STATE_T tState;
-	unsigned int uiLinkState;
+	LINK_STATE_T tLinkState;
 	unsigned long ulDelay;
 	DHCP_STATE_T tDhcpState;
 	const char *pcName;
@@ -633,7 +613,12 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
-		uiLinkState = eth_get_link_status(ptNetworkDriver);
+		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState);
+		if( iEthResult!=0 )
+		{
+			/* Failed to get the link state. */
+			ptNetworkDriver->tState = NETWORK_STATE_Error;
+		}
 
 		ethernet_cyclic_process(ptNetworkDriver);
 
@@ -646,7 +631,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			 *   LinkUp_Ready if the usLinkUpDelay is 0,
 			 *   LinkUp_Delay otherwise.
 			 */
-			if( uiLinkState!=0U )
+			if( tLinkState==LINK_STATE_Up )
 			{
 				uprintf("%s: link up\n", pcName);
 
@@ -669,7 +654,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			/* Delay for the time specified in usLinkUpDelay.
 			 * Move to LinkUp_Ready after the delay.
 			 */
-			if( uiLinkState==0U )
+			if( tLinkState!=LINK_STATE_Up )
 			{
 				uprintf("%s: link down\n", pcName);
 				tState = NETWORK_STATE_NoLink;
@@ -691,7 +676,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			 * Move to CONSOLE_ETH_STATE_Dhcp if not all parameters are present and DHCP is necessary.
 			 * Move to CONSOLE_ETH_STATE_Ready if all parameters are there and no DHCP is needed.
 			 */
-			if( uiLinkState==0U )
+			if( tLinkState!=LINK_STATE_Up )
 			{
 				uprintf("%s: link down\n", pcName);
 				tState = NETWORK_STATE_NoLink;
@@ -722,7 +707,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 		case NETWORK_STATE_Dhcp:
 			/* Wait until the DHCP request is finished. */
-			if( uiLinkState==0U )
+			if( tLinkState!=LINK_STATE_Up )
 			{
 				uprintf("%s: link down\n", pcName);
 				tState = NETWORK_STATE_NoLink;
@@ -762,7 +747,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 		case NETWORK_STATE_Ready:
 			/* This interface is up. Now wait for all others. */
-			if( uiLinkState==0U )
+			if( tLinkState!=LINK_STATE_Up )
 			{
 				uprintf("%s: link down\n", pcName);
 				tState = NETWORK_STATE_NoLink;
@@ -790,10 +775,11 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
+	int iEthResult;
 	ETHERNET_TEST_RESULT_T tResult;
 	ECHO_CLIENT_STATE_T tActionResult;
 	NETWORK_STATE_T tState;
-	unsigned int uiLinkState;
+	LINK_STATE_T tLinkState;
 	const char *pcName;
 	unsigned long ulFlags;
 	unsigned long ulFlagLinkDownAllowed;
@@ -816,7 +802,12 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
-		uiLinkState = eth_get_link_status(ptNetworkDriver);
+		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState);
+		if( iEthResult!=0 )
+		{
+			/* Failed to get the link state. */
+			ptNetworkDriver->tState = NETWORK_STATE_Error;
+		}
 
 		ethernet_cyclic_process(ptNetworkDriver);
 
@@ -840,7 +831,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 				*   LinkUp_Ready if the usLinkUpDelay is 0,
 				*   LinkUp_Delay otherwise.
 				*/
-				if( uiLinkState!=0U )
+				if( tLinkState==LINK_STATE_Up )
 				{
 					uprintf("%s: link up\n", pcName);
 
@@ -873,7 +864,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 				/* Delay for the time specified in usLinkUpDelay.
 				* Move to LinkUp_Ready after the delay.
 				*/
-				if( uiLinkState==0U )
+				if( tLinkState!=LINK_STATE_Up )
 				{
 					uprintf("%s: link down\n", pcName);
 					tState = NETWORK_STATE_NoLink;
@@ -905,7 +896,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 				* Move to CONSOLE_ETH_STATE_Dhcp if not all parameters are present and DHCP is necessary.
 				* Move to CONSOLE_ETH_STATE_Ready if all parameters are there and no DHCP is needed.
 				*/
-				if( uiLinkState==0U )
+				if( tLinkState!=LINK_STATE_Up )
 				{
 					uprintf("%s: link down\n", pcName);
 					tState = NETWORK_STATE_NoLink;
@@ -946,7 +937,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			else
 			{
 				/* Wait until the DHCP request is finished. */
-				if( uiLinkState==0U )
+				if( tLinkState!=LINK_STATE_Up )
 				{
 					uprintf("%s: link down\n", pcName);
 					tState = NETWORK_STATE_NoLink;
@@ -988,7 +979,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 		case NETWORK_STATE_Ready:
 			/* The link should never go down during a test. */
-			if( uiLinkState==0U )
+			if( tLinkState!=LINK_STATE_Up )
 			{
 				if( ulFlagLinkDownAllowed==0 )
 				{

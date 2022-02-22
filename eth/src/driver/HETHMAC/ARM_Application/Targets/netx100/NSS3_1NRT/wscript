@@ -1,0 +1,45 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nss3_1nrt",
+        name            = APPNAME + "_nss3_1nrt_elf",
+        platform        = "netx100",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NS-S3-1NRT",
+        source_arm      = ["../../Init/init_netx100.S",
+                           "../Sources/irq_handler.c",
+                           "../Sources/main.c",
+                          ],
+        includes        = ["../Includes"],
+        defines         = ["__NETX100",
+                           "TARGET_HW=_NSS3_1NRT_",
+                           "PHY_MICREL_KSZ8041",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx100",
+                           "usb_cdc_netx100",
+                          ],
+        linkerscript    = "../../Linker/netx100.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nss3_1nrt",
+        use              = APPNAME + "_nss3_1nrt_elf",
+        description      = "Ethernet MAC Demo MMC Image NS-S3-1NRT",
+        BOOTBLOCKERFLAGS = ["-ct netx500",
+                            "-s", "MMC",
+                            "-d", "SD_MT48LC2M32B2",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

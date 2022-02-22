@@ -1,0 +1,67 @@
++no-lib
+-skip-ansi-headers
++showsummary
+
+-linelen 160
+-standard
+
+# Allow use of int variables in boolean expressions (e.g. if((int)i))
+-pred-bool-int
+
+# Allow use of non-bool variables in boolean expressions (e.g. if(i & 1))
+-boolops
+
+# Allow partially initialized variables (e.g. int a[2] = {{0}};)
+-initallelements
+-fullinitblock
+
+#Prevent warnings about only transitions (used in TAILQ, etc.)
+-onlytrans
+
+#Prevent warnings when returning void* to internal objects
+-unqualifiedtrans
+
+#Prevent warning about memory leaks when using TAILQ internally
+-mustfreeonly
+
+#Prevent warning about memory leaks when using TAILQ internally
+-compmempass
+
+#Prevent warning about memory leaks, when destroying handles which include self pointers for validation
+-compdestroy
+
+#Prevent warnings about inconsistent transfers when using TAILQ
+-immediatetrans
+
+#Prevent warning about different variable state when using TAILQ
+-branchstate
+
+#Prevent warning when returning global variables as handles
+-globstate
+
+#Prevent warning for Transferring temp storage to a non-temporary reference
+-temptrans
+
+#Prevent warning about possible NULL pointer retrieved from TAILQ
+-nullstate
+
+#Prevent warnings about inconsistent type definitions from e.g. types.h (toolchain)
+-incondefs
+
+#Prevent warnings about e.g. conversion from unsigned int to uint32_t
++matchanyintegral
+
+#Prevent warning when using shifts with highest bit set (e.g. 1 << x) -> maybe negative
+-shiftnegative
+
+#Allow unused exported public functions (which is required as we define public API's)
+-exportlocal
+
+# fix some issues with gcc
+-D__GNUC__
+-D__builtin_va_list=void*
+-Dbool=int
+
+${INCPATHFLAGS}
+
+${SYSDIRSFLAG}

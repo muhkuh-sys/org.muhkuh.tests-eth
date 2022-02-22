@@ -1,0 +1,41 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nxhx10_etm",
+        name            = APPNAME + "_nxhx10_etm_elf",
+        platform        = "netx10",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXHX10-ETM",
+        source_arm      = ["../../Init/init_netx10.S",
+                           "../Sources/irq_handler.c",
+                           "../Sources/main.c",
+                          ],
+        includes        = ["../Includes"],
+        defines         = ["__NETX10"],
+        use             = ["application",
+                           "hal_ethmac_netx10",
+                          ],
+        linkerscript    = "../../Linker/netx10.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxhx10_etm",
+        use              = APPNAME + "_nxhx10_etm_elf",
+        description      = "Ethernet MAC Demo MMC Image NXHX10-ETM",
+        BOOTBLOCKERFLAGS = ["-ct netx10",
+                            "-s", "MMC",
+                            "-d", "INTRAM",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

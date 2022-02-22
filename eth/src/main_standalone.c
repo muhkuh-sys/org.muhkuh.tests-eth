@@ -23,6 +23,7 @@
 
 #include <string.h>
 
+#include "asic_types.h"
 #include "options.h"
 #include "rdy_run.h"
 #include "systime.h"
@@ -31,14 +32,7 @@
 #include "uprintf.h"
 #include "version.h"
 
-#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
-#       include "netx4000/cr7_global_timer.h"
-#       include "driver/netx4000/drv_eth_xc.h"
-#elif ASIC_TYP==ASIC_TYP_NETX500
-#       include "driver/netx500/interface.h"
-#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
-#       include "driver/netx90/drv_eth_xc.h"
-#endif
+#include "driver/HETHMAC/ARM_Application/Components/hal_ethmac/Includes/eth_mac_version.h"
 
 
 /*-------------------------------------------------------------------------*/
@@ -76,10 +70,10 @@ static const ETH_PARAMETER_T tEthernetParameter =
 			.ulIp = IPV4(192,168,64,21),
 			.ulGatewayIp = IPV4(0,0,0,0),
 			.ulNetmask = IPV4(255,255,255,0),
-			.ulRemoteIp = 0,
+			.ulRemoteIp = IPV4(192,168,64,20),
 			.usLinkUpDelay = 1000,
 			.usLocalPort = 1025,
-			.usRemotePort = 0,
+			.usRemotePort = 1024,
 			.aucMac = { 0x00, 0x02, 0xa2, 0x20, 0x20, 0x01 }
 		}
 	}
@@ -105,6 +99,7 @@ void main_standalone(void)
 
 	uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
 	uprintf("V" VERSION_ALL "\n\n");
+	uprintf("Using HAL ETM MAC V%d.%d.%d.%d\n", ETHMAC_VERSION_MAJOR, ETHMAC_VERSION_MINOR, ETHMAC_VERSION_BUILD, ETHMAC_VERSION_REVISION);
 
 	/* Get the test parameter. */
 	uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);

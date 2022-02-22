@@ -1,0 +1,43 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nxhx51_etm",
+        name            = APPNAME + "_nxhx51_etm_elf",
+        platform        = "netx51",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXHX51-ETM",
+        source_arm      = ["../../Init/init_netx51.S",
+                           "../Sources/irq_handler.c",
+                           "../Sources/main.c",
+                          ],
+        includes        = ["../Includes"],
+        defines         = ["__NETX51",
+                           "HAL_ETHMAC_TARGET_NX51",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx51",
+                          ],
+        linkerscript    = "../../Linker/netx51.ld",
+        displaygroup    = APPNAME,
+    )
+    
+    bld.bootimage(
+        target           = "netx.rom",
+        name             = APPNAME + "_nxhx51_etm",
+        use              = APPNAME + "_nxhx51_etm_elf",
+        description      = "Ethernet MAC Demo MMC Image NXHX51-ETM",
+        BOOTBLOCKERFLAGS = ["-ct netx51_52",
+                            "-s", "MMC",
+                            "-d", "INTRAM",
+                           ],
+        displaygroup    = APPNAME,
+    )
+    

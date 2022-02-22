@@ -16,7 +16,6 @@
 #       include "driver/netx4000/drv_eth_xc.h"
 #       include "driver/netx4000/nec_cb12.h"
 #elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
-#       include "driver/netx90/drv_eth_xc.h"
 #       include "driver/netx90/phy.h"
 #endif
 

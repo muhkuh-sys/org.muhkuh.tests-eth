@@ -151,18 +151,15 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	int iResult;
 	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 	DHCP_PACKET_T *ptDhcpPacket;
 	unsigned char *pucOpts;
 	unsigned long ulOptsSize;
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
-	if( ptSendPacket==NULL )
-	{
-		iResult = -1;
-	}
-	else
+	iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+	if( iResult==0 )
 	{
 		ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
@@ -205,7 +202,7 @@ static int dhcp_send_discover_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
 
 		iResult = 0;
 	}
@@ -219,18 +216,15 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 	int iResult;
 	DHCP_HANDLE_DATA_T *ptDhcpHandle;
 	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 	DHCP_PACKET_T *ptDhcpPacket;
 	unsigned char *pucOpts;
 	unsigned long ulOptsSize;
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
-	if( ptSendPacket==NULL )
-	{
-		iResult = -1;
-	}
-	else
+	iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+	if( iResult==0 )
 	{
 		ptDhcpHandle = &(ptNetworkDriver->tNetworkDriverData.tDhcpData);
 
@@ -286,7 +280,7 @@ static int dhcp_send_request_packet(NETWORK_DRIVER_T *ptNetworkDriver)
 			ulOptsSize = 342;
 		}
 
-		udp_send_packet(ptNetworkDriver, ptSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
+		udp_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, sizeof(DHCP_PACKET_T)+ulOptsSize, ptDhcpHandle->ptAssoc);
 
 		iResult = 0;
 	}

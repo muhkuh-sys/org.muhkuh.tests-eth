@@ -20,7 +20,9 @@
 
 void icmp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt, unsigned int sizPacket)
 {
+	int iResult;
 	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 	unsigned char ucType;
 	unsigned int sizIcmpPacketSize;
 
@@ -31,8 +33,8 @@ void icmp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEth
 		if( ucType==ICMP_ECHO_REQUEST )
 		{
 			/* Get a free frame for sending. */
-			ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
-			if( ptSendPacket!=NULL )
+			iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+			if( iResult==0 )
 			{
 				/* Get the ICMP data size. */
 				sizIcmpPacketSize = NUS2MUS(ptEthPkt->uEth2Data.tIpPkt.tIpHdr.usLength) - sizeof(IPV4_HEADER_T);
@@ -47,7 +49,7 @@ void icmp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEth
 				/* Generate the checksum. */
 				ptSendPacket->uEth2Data.tIpPkt.uIpData.tIcmpPkt.usChecksum = MUS2NUS(checksum_add_complement(&ptSendPacket->uEth2Data.tIpPkt.uIpData.tIcmpPkt, sizIcmpPacketSize));
 
-				ipv4_send_packet(ptNetworkDriver, ptSendPacket, ptEthPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp, IP_PROTOCOL_ICMP, sizIcmpPacketSize);
+				ipv4_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, ptEthPkt->uEth2Data.tIpPkt.tIpHdr.ulSrcIp, IP_PROTOCOL_ICMP, sizIcmpPacketSize);
 			}
 		}
 	}

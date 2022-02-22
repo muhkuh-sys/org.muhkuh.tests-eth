@@ -110,7 +110,7 @@ static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsig
 		if( ptEntry!=NULL )
 		{
 			/* Found a waiting packet -> send it. */
-			eth_send_packet(ptNetworkDriver, ptEntry->ptPkt, ptEntry->sizPacket, ptMac, ETH2HEADER_TYP_IP);
+			eth_send_packet(ptNetworkDriver, ptEntry->ptPkt, ptEntry->phPkt, ptEntry->sizPacket, ptMac, ETH2HEADER_TYP_IP);
 			/* Mark the queue entry as "processed". */
 			ptEntry->sizPacket = 0;
 		}
@@ -119,7 +119,7 @@ static void arp_process_waiting_entries(NETWORK_DRIVER_T *ptNetworkDriver, unsig
 
 
 
-static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
+static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned int sizPacket, unsigned long ulDstIp)
 {
 	PACKET_QUEUE_ENTRY_T *ptCnt;
 	PACKET_QUEUE_ENTRY_T *ptEnd;
@@ -148,6 +148,7 @@ static PACKET_QUEUE_ENTRY_T *arp_add_waiting_packet(NETWORK_DRIVER_T *ptNetworkD
 		ptHit->sizPacket = sizPacket;
 		ptHit->ulIp = ulDstIp;
 		ptHit->ptPkt = ptPkt;
+		ptHit->phPkt = phPkt;
 	}
 
 	return ptHit;
@@ -203,12 +204,14 @@ static void arp_set_mac_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long
 
 static void arp_send_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ulIp)
 {
+	int iResult;
 	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 
 
 	/* get a free frame for sending */
-	ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
-	if( ptSendPacket!=NULL )
+	iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+	if( iResult==0 )
 	{
 		/* copy common ARP header */
 		memcpy(&ptSendPacket->uEth2Data.tArpPkt, aucArpFixedHdr, 6);
@@ -222,7 +225,7 @@ static void arp_send_request(NETWORK_DRIVER_T *ptNetworkDriver, unsigned long ul
 		ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ulIp;
 
 		/* send the packet */
-		eth_send_packet(ptNetworkDriver, ptSendPacket, sizeof(ARP_PACKET_T), &g_tBroadcastMac, ETH2HEADER_TYP_ARP);
+		eth_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, sizeof(ARP_PACKET_T), &g_tBroadcastMac, ETH2HEADER_TYP_ARP);
 	}
 }
 
@@ -258,7 +261,9 @@ void arp_init(NETWORK_DRIVER_T *ptNetworkDriver)
 
 static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthPkt)
 {
+	int iResult;
 	ETH2_PACKET_T *ptSendPacket;
+	void *phSendPacket;
 	unsigned long ulReqIp;
 	unsigned int uiMacOr;
 	int iCnt;
@@ -276,8 +281,8 @@ static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T
 		if( uiMacOr==0 )
 		{
 			/* get a free frame for sending */
-			ptSendPacket = eth_get_empty_packet(ptNetworkDriver);
-			if( ptSendPacket!=NULL )
+			iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
+			if( iResult==0 )
 			{
 				/* copy common ARP header */
 				memcpy(&ptSendPacket->uEth2Data.tArpPkt, aucArpFixedHdr, 6);
@@ -291,7 +296,7 @@ static void arp_process_request(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T
 				ptSendPacket->uEth2Data.tArpPkt.ulDstIpAdr = ptEthPkt->uEth2Data.tArpPkt.ulSrcIpAdr;
 
 				/* send the packet */
-				eth_send_packet(ptNetworkDriver, ptSendPacket, sizeof(ARP_PACKET_T), &ptEthPkt->tEth2Hdr.tSrcMac, ETH2HEADER_TYP_ARP);
+				eth_send_packet(ptNetworkDriver, ptSendPacket, phSendPacket, sizeof(ARP_PACKET_T), &ptEthPkt->tEth2Hdr.tSrcMac, ETH2HEADER_TYP_ARP);
 			}
 		}
 	}
@@ -365,7 +370,7 @@ void arp_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptEthP
 
 
 
-void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, unsigned int sizPacket, unsigned long ulDstIp)
+void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPkt, void *phPkt, unsigned int sizPacket, unsigned long ulDstIp)
 {
 	ARP_CACHE_ENTRY_T *ptCacheEntry;
 	PACKET_QUEUE_ENTRY_T *ptQueueEntry;
@@ -400,7 +405,7 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 		if( ptCacheEntry==NULL )
 		{
 			/* queue packet */
-			ptQueueEntry = arp_add_waiting_packet(ptNetworkDriver, ptPkt, sizPacket, ulDstIp);
+			ptQueueEntry = arp_add_waiting_packet(ptNetworkDriver, ptPkt, phPkt, sizPacket, ulDstIp);
 			if( ptQueueEntry!=NULL )
 			{
 				/* enter the request in the cache */
@@ -413,7 +418,7 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 		{
 			/* This IP is already in the request list.
 			 * Just add the packet to the queue. */
-			arp_add_waiting_packet(ptNetworkDriver, ptPkt, sizPacket, ulDstIp);
+			arp_add_waiting_packet(ptNetworkDriver, ptPkt, phPkt, sizPacket, ulDstIp);
 		}
 		else
 		{
@@ -424,7 +429,7 @@ void arp_send_ipv4_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPk
 
 	if( ptMac!=NULL )
 	{
-		eth_send_packet(ptNetworkDriver, ptPkt, sizPacket, ptMac, ETH2HEADER_TYP_IP);
+		eth_send_packet(ptNetworkDriver, ptPkt, phPkt, sizPacket, ptMac, ETH2HEADER_TYP_IP);
 	}
 }
 
@@ -477,7 +482,7 @@ void arp_timer(NETWORK_DRIVER_T *ptNetworkDriver)
 						if( ptEntry!=NULL )
 						{
 							/* Free the packet. */
-							eth_release_packet(ptNetworkDriver, ptEntry->ptPkt);
+							eth_release_packet(ptNetworkDriver, ptEntry->ptPkt, ptEntry->phPkt);
 							/* Mark the queue entry as "processed". */
 							ptEntry->sizPacket = 0;
 						}

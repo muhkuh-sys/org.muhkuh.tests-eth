@@ -31,14 +31,7 @@
 #include "uprintf.h"
 #include "version.h"
 
-#if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
-#       include "netx4000/cr7_global_timer.h"
-#       include "driver/netx4000/drv_eth_xc.h"
-#elif ASIC_TYP==ASIC_TYP_NETX500
-#       include "driver/netx500/interface.h"
-#elif ASIC_TYP==ASIC_TYP_NETX90_MPW || ASIC_TYP==ASIC_TYP_NETX90
-#       include "driver/netx90/drv_eth_xc.h"
-#endif
+#include "driver/hal_muhkuh.h"
 
 
 /*-------------------------------------------------------------------------*/
@@ -124,8 +117,10 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 		}
 		if( iResult==0 )
 		{
+			hal_phy_init();
+
 			/* Initialize the XC. */
-			pfifo_reset();
+			hal_pfifo_reset();
 
 			/* Loop over all Ethernet ports and try to configure them. */
 			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)

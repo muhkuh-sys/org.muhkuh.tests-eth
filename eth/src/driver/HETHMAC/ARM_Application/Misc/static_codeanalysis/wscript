@@ -1,0 +1,8 @@
+def options(opt):
+    opt.load('hilscher_lint', tooldir = [opt.path.abspath()])
+
+def configure(conf):
+    conf.load('hilscher_lint', tooldir = [conf.path.abspath()])
+
+def build(bld):
+    bld.load('hilscher_lint', tooldir = [bld.path.abspath()])

@@ -1,0 +1,40 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nxhx90_jtag",
+        name            = APPNAME + "_nxhx90_jtag",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NXHX90-JTAG",
+        includes        = ["../Includes"],
+        source          = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_handler.c",
+                          ],
+        defines         = ["__NETX90",
+                           "TARGET_HW=_NXHX90_JTAG_",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx90",
+                          ],
+        stlib           = ["c"],
+        asflags         = ["-mthumb"],
+        linkerscript    = "../../Linker/netx90.ld",
+        displaygroup    = APPNAME,
+    )
+   
+    bld.generate_hboot_image(
+        target     = "netx.bin",         # output file name
+        name       = APPNAME + "_image",  # name of this task generator
+        netx_type  = 'NETX90',           # netx type to generate the firmware for
+        hboot_xml  = '../../hboot.xml',  # hboot xml describing the firmware
+        use        = [APPNAME + "_nxhx90_jtag"],
+    )

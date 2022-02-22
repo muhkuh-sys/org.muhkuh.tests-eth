@@ -1,0 +1,33 @@
+top = "."
+out = "build"
+APPNAME = "eth_mac"
+
+def build(bld):
+    
+    use_toolchain = "gccarmemb"
+    
+    # -----------------------------------------------------------------
+    
+    bld.program(
+        target          = APPNAME + "_nrp_h90",
+        name            = APPNAME + "_nrp_h90_elf",
+        platform        = "netx90",
+        toolchain       = use_toolchain,
+        description     = "Ethernet MAC Demo Application NRP H90",
+        includes        = ["../Includes"],
+        source          = ["../../Init/init_netx90.S",
+                           "../Sources/main.c",
+                           "../Sources/irq_handler.c",
+                          ],
+        defines         = ["__NETX90",
+                           "TARGET_HW=_NRP_H90_",
+                          ],
+        use             = ["application",
+                           "hal_ethmac_netx90",
+                          ],
+        stlib           = ["c"],
+        asflags         = ["-mthumb"],
+        linkerscript    = "../../Linker/netx90.ld",
+        displaygroup    = APPNAME,
+    )
+   

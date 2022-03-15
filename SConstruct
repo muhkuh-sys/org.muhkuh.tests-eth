@@ -79,6 +79,10 @@ Import(
     'LUA_TEST_CLASS_ETH'
 )
 
+
+#SConscript('board_configs/SConscript')
+
+
 """
 # ----------------------------------------------------------------------------
 #

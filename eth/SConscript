@@ -59,12 +59,64 @@ aCppPathLibEthMac = [
     'src/driver/HETHMAC/ARM_Application/Components/ip_stack/Includes',
 ]
 
-env_netx90_l = atEnv.NETX90.Clone()
-env_netx90_l.CompileDb('targets/netx90/libethmac/compile_commands.json')
-env_netx90_l.Append(CPPPATH = aCppPathLibEthMac)
-env_netx90_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETHMAC_TARGET_NX90', '1']])
-src_netx90_l = env_netx90_l.SetBuildPath('targets/netx90/libethmac', 'src', sources_ethmac)
-lib_netx90_l = env_netx90_l.StaticLibrary('targets/netx90/libethmac/libethmac_netx90.a', src_netx90_l)
+env_netx90_ethmac_l = atEnv.NETX90.Clone()
+env_netx90_ethmac_l.CompileDb('targets/netx90/libethmac/compile_commands.json')
+env_netx90_ethmac_l.Append(CPPPATH = aCppPathLibEthMac)
+env_netx90_ethmac_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETHMAC_TARGET_NX90', '1']])
+src_netx90_ethmac_l = env_netx90_ethmac_l.SetBuildPath('targets/netx90/libethmac', 'src', sources_ethmac)
+lib_netx90_ethmac_l = env_netx90_ethmac_l.StaticLibrary('targets/netx90/libethmac/libethmac_netx90.a', src_netx90_ethmac_l)
+
+#----------------------------------------------------------------------------
+# Build the ETH2PS HAL as a library.
+
+sources_eth2ps = """
+    src/driver/hal_eth2ps_wrapper.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/Sources/hal_adinphy.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/Sources/hal_pfifo.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/Sources/hal_phyctrl.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/Sources/hal_xc.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_armirq.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_armtimer.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_asicctrl_com.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_asicctrl.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_intphy.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_miimu.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_mled_ctrl.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Sources/hal_padctrl.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/hal_eth2ps.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/rpu_eth2ps0.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/rpu_eth2ps1.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/tpu_eth2ps0.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/tpu_eth2ps1.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/rpec_eth2ps_rpec0.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/rpec_eth2ps_rpec1.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/tpec_eth2ps_tpec0.c
+    src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Sources/tpec_eth2ps_tpec1.c
+    src/driver/HETH2PS/ARM_Application/Components/targetlib/Soft/Sources/phy.c
+    src/driver/HETH2PS/ARM_Application/Targets/Sources/eth_2ps.c
+
+
+"""
+
+aCppPathLibEth2ps = [
+    'src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/Includes/',
+    'src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/adin1100_u2/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/netx90/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/hal_eth2ps/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/hal_common/netx90/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/hal_common/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/ip_stack/Includes',
+    'src/driver/HETH2PS/ARM_Application/Components/targetlib/Soft/Includes',
+    'src/driver/HETH2PS/ARM_Application/Targets/Includes'
+]
+
+env_netx90_eth2ps_l = atEnv.NETX90.Clone()
+env_netx90_eth2ps_l.CompileDb('targets/netx90/libeth2ps/compile_commands.json')
+env_netx90_eth2ps_l.Append(CPPPATH = aCppPathLibEth2ps)
+env_netx90_eth2ps_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETH2PS_TARGET_NX90', '1']])
+src_netx90_eth2ps_l = env_netx90_eth2ps_l.SetBuildPath('targets/netx90/libeth2ps', 'src', sources_eth2ps)
+lib_netx90_eth2ps_l = env_netx90_eth2ps_l.StaticLibrary('targets/netx90/libeth2ps/libeth2ps_netx90.a', src_netx90_eth2ps_l)
 
 #----------------------------------------------------------------------------
 
@@ -73,40 +125,6 @@ lib_netx90_l = env_netx90_l.StaticLibrary('targets/netx90/libethmac/libethmac_ne
 #----------------------------------------------------------------------------
 # This is the list of sources. The elements must be separated with whitespace
 # (i.e. spaces, tabs, newlines). The amount of whitespace does not matter.
-#sources_netx4000 = """
-#	src/driver/netx4000/drv_eth_xc.c
-#	src/driver/netx4000/rpu_eth0.c
-#	src/driver/netx4000/rpu_eth1.c
-#	src/driver/netx4000/rpu_eth2.c
-#	src/driver/netx4000/rpu_eth3.c
-#	src/driver/netx4000/tpu_eth0.c
-#	src/driver/netx4000/tpu_eth1.c
-#	src/driver/netx4000/tpu_eth2.c
-#	src/driver/netx4000/tpu_eth3.c
-#	src/driver/netx4000/xpec_clean_tpec0.c
-#	src/driver/netx4000/xpec_clean_tpec1.c
-#	src/driver/netx4000/xpec_clean_tpec2.c
-#	src/driver/netx4000/xpec_clean_tpec3.c
-#	src/driver/netx4000/xpec_eth_std_mac_rpec0.c
-#	src/driver/netx4000/xpec_eth_std_mac_rpec1.c
-#	src/driver/netx4000/xpec_eth_std_mac_rpec2.c
-#	src/driver/netx4000/xpec_eth_std_mac_rpec3.c
-#	src/netx4000/cr7_global_timer.c
-#"""
-
-#sources_netx500 = """
-#	src/driver/netx500/interface.c
-#	src/driver/netx500/miimu.c
-#	src/driver/netx500/nec_cb12.c
-#	src/driver/netx500/rpu_eth0.c
-#	src/driver/netx500/rpu_eth1.c
-#	src/driver/netx500/tpu_eth0.c
-#	src/driver/netx500/tpu_eth1.c
-#	src/driver/netx500/xc.c
-#	src/driver/netx500/xc_codes_reset.c
-#	src/driver/netx500/xpec_eth_std_mac0.c
-#	src/driver/netx500/xpec_eth_std_mac1.c
-#"""
 
 sources_netx90 = """
     src/driver/hal_muhkuh.c
@@ -152,56 +170,36 @@ aCppPath = [
     '#targets/version'
 ]
 
-#env_netx4000_t = atEnv.NETX4000.Clone()
-#env_netx4000_t.CompileDb('targets/netx4000/compile_commands.json')
-#env_netx4000_t.Replace(LDFILE = 'src/netx4000/netx4000.ld')
-#env_netx4000_t.Append(CPPPATH = aCppPath)
-#src_netx4000_t = env_netx4000_t.SetBuildPath('targets/netx4000', 'src', sources_common + sources_netx4000)
-#elf_netx4000_t = env_netx4000_t.Elf('targets/netx4000/eth_netx4000.elf', src_netx4000_t + env_netx4000_t['PLATFORM_LIBRARY'])
-#ETH_NETX4000 = env_netx4000_t.ObjCopy('targets/netx4000/eth_netx4000.bin', elf_netx4000_t)
-#txt_netx4000_t = env_netx4000_t.ObjDump('targets/netx4000/eth_netx4000.txt', elf_netx4000_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
-#Export('ETH_NETX4000')
-
-#env_netx500_t = atEnv.NETX500.Clone()
-#env_netx500_t.CompileDb('targets/netx500/compile_commands.json')
-#env_netx500_t.Replace(LDFILE = 'src/netx500/netx500.ld')
-#env_netx500_t.Append(CPPPATH = aCppPath)
-#src_netx500_t = env_netx500_t.SetBuildPath('targets/netx500', 'src', sources_common + sources_netx500)
-#elf_netx500_t = env_netx500_t.Elf('targets/netx500/eth_netx500.elf', src_netx500_t + env_netx500_t['PLATFORM_LIBRARY'])
-#ETH_NETX500 = env_netx500_t.ObjCopy('targets/netx500/eth_netx500.bin', elf_netx500_t)
-#txt_netx500_t = env_netx500_t.ObjDump('targets/netx500/eth_netx500.txt', elf_netx500_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
-#Export('ETH_NETX500')
-
-#env_netx90_mpw_t = atEnv.NETX90_MPW.Clone()
-#env_netx90_mpw_t.CompileDb('targets/netx90_mpw/compile_commands.json')
-#env_netx90_mpw_t.Replace(LDFILE = 'src/netx90_mpw/netx90.ld')
-#env_netx90_mpw_t.Append(CPPPATH = aCppPath)
-#src_netx90_mpw_t = env_netx90_mpw_t.SetBuildPath('targets/netx90_mpw', 'src', sources_common + sources_netx90)
-#elf_netx90_mpw_t = env_netx90_mpw_t.Elf('targets/netx90_mpw/eth_netx90_mpw.elf', src_netx90_mpw_t + env_netx90_mpw_t['PLATFORM_LIBRARY'])
-#ETH_NETX90_MPW = env_netx90_mpw_t.ObjCopy('targets/netx90_mpw/eth_netx90_mpw.bin', elf_netx90_mpw_t)
-#txt_netx90_mpw_t = env_netx90_mpw_t.ObjDump('targets/netx90_mpw/eth_netx90_mpw.txt', elf_netx90_mpw_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
-#Export('ETH_NETX90_MPW')
-
 env_netx90_t = atEnv.NETX90.Clone()
 env_netx90_t.CompileDb('targets/netx90/muhkuh/compile_commands.json')
 env_netx90_t.Replace(LDFILE = 'src/netx90/netx90_muhkuh.ld')
 env_netx90_t.Append(CPPPATH = aCppPath)
+env_netx90_t.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
 src_netx90_t = env_netx90_t.SetBuildPath('targets/netx90/muhkuh', 'src', sources_muhkuh + sources_common + sources_netx90)
-elf_netx90_t = env_netx90_t.Elf('targets/netx90/muhkuh/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'] + lib_netx90_l)
+elf_netx90_t = env_netx90_t.Elf('targets/netx90/muhkuh/eth_netx90.elf', src_netx90_t + env_netx90_t['PLATFORM_LIBRARY'] + lib_netx90_ethmac_l)
 ETH_NETX90 = env_netx90_t.ObjCopy('targets/netx90/muhkuh/eth_netx90.bin', elf_netx90_t)
 txt_netx90_t = env_netx90_t.ObjDump('targets/netx90/muhkuh/eth_netx90.txt', elf_netx90_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 Export('ETH_NETX90')
 
-env_netx90_s = atEnv.NETX90.Clone()
-env_netx90_s.CompileDb('targets/netx90/standalone/compile_commands.json')
-env_netx90_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
-env_netx90_s.Append(CPPPATH = aCppPath)
-src_netx90_s = env_netx90_s.SetBuildPath('targets/netx90/standalone', 'src', sources_standalone + sources_common + sources_netx90)
-elf_netx90_s = env_netx90_s.Elf('targets/netx90/standalone/eth_netx90.elf', src_netx90_s + env_netx90_s['PLATFORM_LIBRARY'] + lib_netx90_l)
-bb0_netx90_s = env_netx90_s.HBootImage('targets/netx90/standalone/eth_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_s}))
+env_netx90_ethmac_s = atEnv.NETX90.Clone()
+env_netx90_ethmac_s.CompileDb('targets/netx90/standalone_ethmac/compile_commands.json')
+env_netx90_ethmac_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
+env_netx90_ethmac_s.Append(CPPPATH = aCppPath)
+env_netx90_ethmac_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
+src_netx90_ethmac_s = env_netx90_ethmac_s.SetBuildPath('targets/netx90/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx90)
+elf_netx90_ethmac_s = env_netx90_ethmac_s.Elf('targets/netx90/standalone_ethmac/eth_netx90.elf', src_netx90_ethmac_s + env_netx90_ethmac_s['PLATFORM_LIBRARY'] + lib_netx90_ethmac_l)
+bb0_netx90_ethmac_s = env_netx90_ethmac_s.HBootImage('targets/netx90/standalone_ethmac/eth_ethmac_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_ethmac_s}))
+txt_netx90_ethmac_s = env_netx90_ethmac_s.ObjDump('targets/netx90/standalone_ethmac/eth_netx90.txt', elf_netx90_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
-#eth_netx90_s = env_netx90_s.ObjCopy('targets/netx90/standalone/eth_netx90.bin', elf_netx90_s)
-txt_netx90_s = env_netx90_s.ObjDump('targets/netx90/standalone/eth_netx90.txt', elf_netx90_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+env_netx90_eth2ps_s = atEnv.NETX90.Clone()
+env_netx90_eth2ps_s.CompileDb('targets/netx90/standalone_eth2ps/compile_commands.json')
+env_netx90_eth2ps_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
+env_netx90_eth2ps_s.Append(CPPPATH = aCppPath)
+env_netx90_eth2ps_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '0'], ['CFG_USE_ETH2PS', '1']])
+src_netx90_eth2ps_s = env_netx90_eth2ps_s.SetBuildPath('targets/netx90/standalone_eth2ps', 'src', sources_standalone + sources_common + sources_netx90)
+elf_netx90_eth2ps_s = env_netx90_eth2ps_s.Elf('targets/netx90/standalone_eth2ps/eth_netx90.elf', src_netx90_eth2ps_s + env_netx90_eth2ps_s['PLATFORM_LIBRARY'] + lib_netx90_eth2ps_l)
+bb0_netx90_eth2ps_s = env_netx90_eth2ps_s.HBootImage('targets/netx90/standalone_eth2ps/eth_eth2ps_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_eth2ps_s}))
+txt_netx90_eth2ps_s = env_netx90_eth2ps_s.ObjDump('targets/netx90/standalone_eth2ps/eth_netx90.txt', elf_netx90_eth2ps_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 #----------------------------------------------------------------------------
 #

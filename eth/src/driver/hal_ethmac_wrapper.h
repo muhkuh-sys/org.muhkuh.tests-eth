@@ -15,7 +15,7 @@ int hal_ethmac_xc_init(unsigned int uiPort, const uint8_t *pucMAC);
 
 int hal_ethmac_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, unsigned int *puiSpeed, unsigned int *puiIsFullDuplex);
 int hal_ethmac_get_empty_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket);
-int hal_ethmac_release_packet(unsigned int uiPort, void *pvPacket __attribute__ ((unused)), void *phPacket);
+int hal_ethmac_release_packet(unsigned int uiPort, void *pvPacket, void *phPacket);
 int hal_ethmac_send_packet(unsigned int uiPort, void *pvPacket, void *phPacket, unsigned int uiPacketSize);
 int hal_ethmac_get_received_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize);
 

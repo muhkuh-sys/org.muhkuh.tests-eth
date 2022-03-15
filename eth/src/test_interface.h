@@ -26,8 +26,13 @@
 
 #define IPV4(ip3,ip2,ip1,ip0) ((unsigned long)((ip0<<24)|(ip1<<16)|(ip2<<8)|ip3))
 
+#define ETHTEST_PARAMETER_BLOCK_MAGIC 0x41504152
+#define ETHTEST_PARAMETER_BLOCK_VERSION 0x00010000
+
 typedef struct ETH_PARAMETER_STRUCT
 {
+	unsigned long ulMagic;
+	unsigned long ulStructureVersion;
 	unsigned long ulVerbose;
 	unsigned long ulLinkUpTimeout;
 	unsigned long ulMaximumTransferTime;

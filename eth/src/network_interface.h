@@ -46,10 +46,13 @@ typedef struct STRUCT_NETWORK_IF
 typedef enum INTERFACE_ENUM
 {
 	INTERFACE_None     = 0,
-	INTERFACE_INTPHY0  = 1,
-	INTERFACE_INTPHY1  = 2,
-	INTERFACE_EXTPHY0  = 3,
-	INTERFACE_EXTPHY1  = 4
+	INTERFACE_ETHMAC_INTPHY0  = 1,
+	INTERFACE_ETHMAC_INTPHY1  = 2,
+	INTERFACE_ETHMAC_EXTPHY0  = 3,
+	INTERFACE_ETHMAC_EXTPHY1  = 4,
+	INTERFACE_ETH2PS_INTPHY0  = 5,
+	INTERFACE_ETH2PS_INTPHY1  = 6,
+	INTERFACE_ETH2PS_EXTSPE0  = 7
 } INTERFACE_T;
 
 
@@ -86,7 +89,7 @@ typedef enum ECHO_CLIENT_STATE_ENUM
 } ECHO_CLIENT_STATE_T;
 
 
-
+#if 0
 typedef struct DRV_ETH_XC_HANDLE_STRUCT
 {
 	unsigned int uiEthPortNr;       /* The Ethernet port 0-3. */
@@ -95,7 +98,7 @@ typedef struct DRV_ETH_XC_HANDLE_STRUCT
 	unsigned int auiExtPhyCtrlInst[2];
 	unsigned int auiExtPhyAddress[2];
 } DRV_ETH_XC_HANDLE_T;
-
+#endif
 
 
 typedef struct MAC_ADR_STRUCT
@@ -201,7 +204,7 @@ typedef struct UDP_HANDLE_DATA_STRUCT
 
 typedef struct NETWORK_DRIVER_DATA_STRUCT
 {
-	DRV_ETH_XC_HANDLE_T tDrvEthXcHandle;
+//	DRV_ETH_XC_HANDLE_T tDrvEthXcHandle;
 	PACKET_QUEUE_ENTRY_T atPacketQueue[ARP_PACKET_QUEUE_MAX_ENTRIES];
 	ARP_CACHE_ENTRY_T auiArpCache[ARP_CACHE_MAX_ENTRIES];
 	DHCP_HANDLE_DATA_T tDhcpData;
@@ -264,6 +267,7 @@ typedef union FUNCTION_HANDLE_ENUM
 typedef struct NETWORK_DRIVER_STRUCT
 {
 	int f_is_configured;
+	unsigned int uiPort;
 	NETWORK_STATE_T tState;
 	NETWORK_IF_T tNetworkIf;
 	ETHERNET_PORT_CONFIGURATION_T tEthernetPortCfg;

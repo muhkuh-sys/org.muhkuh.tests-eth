@@ -1,21 +1,32 @@
 #include "hal_ethmac_wrapper.h"
 
+#include <stdbool.h>
 #include <string.h>
 
+#include "HETHMAC/ARM_Application/Components/hal_common/netx90/Includes/hal_intphy.h"
+#include "HETHMAC/ARM_Application/Components/hal_common/netx90/Includes/hw_defines.h"
+#include "HETHMAC/ARM_Application/Components/hal_common/Includes/hal_armtimer.h"
+#include "HETHMAC/ARM_Application/Components/hal_common/Includes/hal_asicctrl.h"
 #include "HETHMAC/ARM_Application/Components/hal_common/Includes/hal_miimu.h"
 #include "HETHMAC/ARM_Application/Components/hal_common/Includes/hal_pfifo.h"
 #include "HETHMAC/ARM_Application/Components/hal_common/Includes/hal_xc.h"
 #include "HETHMAC/ARM_Application/Targets/Includes/eth_mac.h"
 #include "HETHMAC/ARM_Application/Components/ip_stack/Includes/phy.h"
 
-
 #define ETHERNET_MINIMUM_FRAMELENGTH 60
 
 /*-------------------------------------------------------------------------*/
 
+#define INTPHY_PORT_CNT 2
 
 #define MIIMU_READ(phy,reg,data)  MIIMU_ReadPhyReg(MIIMU_SEND_PREAMBLE, MIIMU_MDCFREQ_HIGH, MIIMU_RTA_1_BITS, phy, reg, data, NULL)
 #define MIIMU_WRITE(phy,reg,data) MIIMU_WritePhyReg(MIIMU_SEND_PREAMBLE, MIIMU_MDCFREQ_HIGH, MIIMU_RTA_1_BITS, phy, reg, data, NULL)
+
+
+static void sys_sleep(unsigned int uiTimeMs)
+{
+  ArmTimer_Sleep(0, uiTimeMs * 1000000);
+}
 
 
 /* read PHY register */

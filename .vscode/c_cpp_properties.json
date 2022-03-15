@@ -43,10 +43,16 @@
             "compileCommands": "${workspaceFolder}/eth/targets/netx90/muhkuh/compile_commands.json"
         },
         {
-            "name": "NETX90_STANDALONE",
+            "name": "NETX90_STANDALONE_ETHMAC",
             "cStandard": "c11",
             "cppStandard": "c++14",
-            "compileCommands": "${workspaceFolder}/eth/targets/netx90/standalone/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/eth/targets/netx90/standalone_ethmac/compile_commands.json"
+        },
+        {
+            "name": "NETX90_STANDALONE_ETH2PS",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "compileCommands": "${workspaceFolder}/eth/targets/netx90/standalone_eth2ps/compile_commands.json"
         },
         {
             "name": "NETIOL",

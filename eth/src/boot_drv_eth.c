@@ -3,6 +3,11 @@
 #include <string.h>
 
 #include "driver/hal_muhkuh.h"
+#if CFG_USE_ETHMAC==1
+#       include "driver/hal_ethmac_wrapper.h"
+#elif CFG_USE_ETH2PS==1
+#       include "driver/hal_eth2ps_wrapper.h"
+#endif
 #include "stack/buckets.h"
 #include "stack/arp.h"
 #include "stack/dhcp.h"
@@ -324,249 +329,192 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 
 
 
-int boot_drv_eth_prepare(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
+#if MAX_NETWORK_INTERFACES!=2
+#       error "The function ethernet_init is hard-coded for 2 network interfaces. This has changed. The code must be updated."
+#endif
+int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atNetworkDriver)
 {
 	int iResult;
-	const char *pcName;
-	INTERFACE_T tInterface;
-
-
-	iResult = -1;
-
-	uprintf("Preparing interface %d.\n", uiInterfaceIndex);
-
-	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
-	if( tInterface==INTERFACE_None )
-	{
-		/* This interface is not in use. */
-		uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
-		memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
-		iResult = 0;
-	}
-	else
-	{
-		pcName = ptEthCfg->acName;
-		if( pcName==NULL )
-		{
-			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
-		}
-		else
-		{
-			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
-
-			switch(tInterface)
-			{
-			case INTERFACE_None:
-				break;
-
-			case INTERFACE_INTPHY0:
-				/* INTPHY port 0 */
-				iResult = hal_xc_prepare(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_INTPHY1:
-				/* INTPHY port 1 */
-				iResult = hal_xc_prepare(ptNetworkDriver, 1);
-				break;
-
-			case INTERFACE_EXTPHY0:
-				/* EXTPHY port 0 */
-				iResult = hal_xc_prepare(ptNetworkDriver, 2);
-				break;
-
-			case INTERFACE_EXTPHY1:
-				/* EXTPHY port 1 */
-				iResult = hal_xc_prepare(ptNetworkDriver, 3);
-				break;
-			}
-
-			if( iResult!=0 )
-			{
-				uprintf("%s: ERROR: failed to prepare the Ethernet port.\n", pcName);
-			}
-			else
-			{
-				uprintf("%s: Interface prepared.\n", pcName);
-			}
-		}
-	}
-
-	return iResult;
-}
-
-
-
-int boot_drv_eth_disable(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
-{
-	int iResult;
-	const char *pcName;
-	INTERFACE_T tInterface;
-
-
-	iResult = -1;
-
-	uprintf("Disabling interface %d.\n", uiInterfaceIndex);
-
-	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
-	if( tInterface==INTERFACE_None )
-	{
-		/* This interface is not in use. */
-		uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
-		memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
-		iResult = 0;
-	}
-	else
-	{
-		pcName = ptEthCfg->acName;
-		if( pcName==NULL )
-		{
-			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
-		}
-		else
-		{
-			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
-
-			switch(tInterface)
-			{
-			case INTERFACE_None:
-				break;
-
-			case INTERFACE_INTPHY0:
-				/* INTPHY port 0 */
-				iResult = hal_xc_disable(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_INTPHY1:
-				/* INTPHY port 1 */
-				iResult = hal_xc_disable(ptNetworkDriver, 1);
-				break;
-
-			case INTERFACE_EXTPHY0:
-				/* EXTPHY port 0 */
-				iResult = hal_xc_disable(ptNetworkDriver, 2);
-				break;
-
-			case INTERFACE_EXTPHY1:
-				/* EXTPHY port 1 */
-				iResult = hal_xc_disable(ptNetworkDriver, 3);
-				break;
-			}
-
-			if( iResult!=0 )
-			{
-				uprintf("%s: ERROR: failed to disable the Ethernet port.\n", pcName);
-			}
-			else
-			{
-				uprintf("%s: Interface disabled.\n", pcName);
-			}
-		}
-	}
-
-	return iResult;
-}
-
-
-
-int boot_drv_eth_init(unsigned int uiInterfaceIndex, ETHERNET_PORT_CONFIGURATION_T *ptEthCfg, NETWORK_DRIVER_T *ptNetworkDriver)
-{
-	int iResult;
-	const char *pcName;
-	INTERFACE_T tInterface;
+	unsigned int uiInterfaceIndex;
+	ETHERNET_PORT_CONFIGURATION_T *ptEthCfg;
+	NETWORK_DRIVER_T *ptNetworkDriver;
+	NETWORK_DRIVER_T *ptNetworkDriver0;
+	NETWORK_DRIVER_T *ptNetworkDriver1;
+	INTERFACE_T tInterface0;
+	INTERFACE_T tInterface1;
 	INTERFACE_FUNCTION_T tFunction;
 
 
-	iResult = -1;
+	iResult = 0;
 
-	uprintf("Processing interface %d.\n", uiInterfaceIndex);
+	for(uiInterfaceIndex=0; uiInterfaceIndex<MAX_NETWORK_INTERFACES; ++uiInterfaceIndex)
+	{
+		ptEthCfg = &(atEthCfg[uiInterfaceIndex]);
+		ptNetworkDriver = &(atNetworkDriver[uiInterfaceIndex]);
 
-	tInterface = (INTERFACE_T)(ptEthCfg->ulInterface);
-	if( tInterface==INTERFACE_None )
-	{
-		/* This interface is not in use. */
-		uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
-		memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
-		iResult = 0;
-	}
-	else
-	{
-		pcName = ptEthCfg->acName;
-		if( pcName==NULL )
+		if( ptEthCfg->ulInterface==INTERFACE_None )
 		{
-			uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
+			/* This interface is not in use. */
+			uprintf("Interface %d is not in use.\n", uiInterfaceIndex);
+			memset(ptNetworkDriver, 0, sizeof(NETWORK_DRIVER_T));
 		}
 		else
 		{
-			uprintf("%s: Initializing interface...\n", pcName);
-
-			memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
-
-			switch(tInterface)
+			if( ptEthCfg->acName==NULL )
 			{
-			case INTERFACE_None:
-				break;
-
-			case INTERFACE_INTPHY0:
-				/* INTPHY port 0 */
-				iResult = hal_xc_initialize(ptNetworkDriver, 0);
-				break;
-
-			case INTERFACE_INTPHY1:
-				/* INTPHY port 1 */
-				iResult = hal_xc_initialize(ptNetworkDriver, 1);
-				break;
-
-			case INTERFACE_EXTPHY0:
-				/* EXTPHY port 0 */
-				iResult = hal_xc_initialize(ptNetworkDriver, 2);
-				break;
-
-			case INTERFACE_EXTPHY1:
-				/* EXTPHY port 1 */
-				iResult = hal_xc_initialize(ptNetworkDriver, 3);
-				break;
-			}
-
-			if( iResult!=0 )
-			{
-				uprintf("%s: ERROR: failed to initialize the Ethernet port.\n", pcName);
+				uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
+				iResult = -1;
 			}
 			else
 			{
-				buckets_init();
-				arp_init(ptNetworkDriver);
-				ipv4_init(ptNetworkDriver);
-				udp_init(ptNetworkDriver);
-				dhcp_init(ptNetworkDriver);
+				memcpy(&(ptNetworkDriver->tEthernetPortCfg), ptEthCfg, sizeof(ETHERNET_PORT_CONFIGURATION_T));
+			}
+		}
+	}
 
-				ptNetworkDriver->f_is_configured = 1;
-				ptNetworkDriver->tState = NETWORK_STATE_NoLink;
-				systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
-				systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
+	if( iResult==0 )
+	{
+		/* Get both interfaces. */
+		tInterface0 = (INTERFACE_T)(atEthCfg[0].ulInterface);
+		tInterface1 = (INTERFACE_T)(atEthCfg[1].ulInterface);
+		/* Get both network drivers. */
+		ptNetworkDriver0 = atNetworkDriver;
+		ptNetworkDriver1 = atNetworkDriver + 1U;
 
-				tFunction = (INTERFACE_FUNCTION_T)(ptEthCfg->ulFunction);
-				switch(tFunction)
+		/* Configuration 1: 1 single port on INTPHY */
+		if( tInterface0==INTERFACE_ETHMAC_INTPHY0 && tInterface1==INTERFACE_None )
+		{
+#if CFG_USE_ETHMAC==0
+			uprintf("ERROR: ETHMAC is not available in this build.\n");
+			iResult = -1;
+#else
+			/* Activate only one PHY port. */
+			hal_ethmac_phy_init(1);
+
+			hal_ethmac_pfifo_reset();
+
+			iResult = hal_muhkuh_ethmac_prepare(ptNetworkDriver0, 0);
+			if( iResult==0 )
+			{
+				iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver0, 0);
+				if( iResult==0 )
 				{
-				case INTERFACE_FUNCTION_None:
-					break;
-
-				case INTERFACE_FUNCTION_EchoServer:
-					ptNetworkDriver->tFunctionHandle.tServer.ptUdpAssoc = udp_registerPort(
-						ptNetworkDriver,
-						MUS2NUS(ptEthCfg->usLocalPort),
-						IP_ADR(0, 0, 0, 0),
-						0,
-						echo_server_process_packet,
-						NULL
-					);
-					break;
-
-				case INTERFACE_FUNCTION_EchoClient:
-					echo_client_initialize(ptNetworkDriver, ptEthCfg);
-					break;
+					iResult = hal_muhkuh_ethmac_initialize(ptNetworkDriver0, 0);
 				}
+			}
+#endif
+		}
+		/* Configuration 2: 2 separate ports on INTPHY */
+		else if( tInterface0==INTERFACE_ETHMAC_INTPHY0 && tInterface1==INTERFACE_ETHMAC_INTPHY1 )
+		{
+#if CFG_USE_ETHMAC==0
+			uprintf("ERROR: ETHMAC is not available in this build.\n");
+			iResult = -1;
+#else
+			/* Activate both PHY ports. */
+			hal_ethmac_phy_init(2);
 
-				uprintf("%s: Interface initialized.\n", pcName);
+			hal_ethmac_pfifo_reset();
+
+			iResult = hal_muhkuh_ethmac_prepare(ptNetworkDriver0, 0);
+			if( iResult==0 )
+			{
+				iResult = hal_muhkuh_ethmac_prepare(ptNetworkDriver1, 1);
+				if( iResult==0 )
+				{
+					iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver0, 0);
+					if( iResult==0 )
+					{
+						iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver1, 1);
+						if( iResult==0 )
+						{
+							iResult = hal_muhkuh_ethmac_initialize(ptNetworkDriver0, 0);
+							if( iResult==0 )
+							{
+								iResult = hal_muhkuh_ethmac_initialize(ptNetworkDriver1, 1);
+							}
+						}
+					}
+				}
+			}
+#endif
+		}
+		/* Configuration 3: 1 port on INTPHY and 1 port on SPE as a switch */
+		else if( tInterface0==INTERFACE_ETH2PS_INTPHY0 && tInterface1==INTERFACE_ETH2PS_EXTSPE0 )
+		{
+#if CFG_USE_ETH2PS==0
+			uprintf("ERROR: ETH2PS is not available in this build.\n");
+			iResult = -1;
+#else
+			iResult = hal_muhkuh_eth2ps_prepare(ptNetworkDriver0);
+			if( iResult==0 )
+			{
+				/* Activate the internal and external PHY. */
+				iResult = hal_eth2ps_phy_init(1);
+				if( iResult==0 )
+				{
+					hal_eth2ps_pfifo_reset();
+
+					iResult = hal_muhkuh_eth2ps_disable(ptNetworkDriver0);
+					if( iResult==0 )
+					{
+						iResult = hal_muhkuh_eth2ps_initialize(ptNetworkDriver0, ptNetworkDriver1);
+					}
+				}
+			}
+#endif
+		}
+		else
+		{
+			uprintf("ERROR: invalid combination of interface values.\n");
+			iResult = -1;
+		}
+
+		if( iResult==0 )
+		{
+			buckets_init();
+
+			for(uiInterfaceIndex=0; uiInterfaceIndex<MAX_NETWORK_INTERFACES; ++uiInterfaceIndex)
+			{
+				ptEthCfg = &(atEthCfg[uiInterfaceIndex]);
+				if( ptEthCfg->ulInterface!=INTERFACE_None )
+				{
+					ptNetworkDriver = &(atNetworkDriver[uiInterfaceIndex]);
+
+					arp_init(ptNetworkDriver);
+					ipv4_init(ptNetworkDriver);
+					udp_init(ptNetworkDriver);
+					dhcp_init(ptNetworkDriver);
+
+					ptNetworkDriver->f_is_configured = 1;
+					ptNetworkDriver->tState = NETWORK_STATE_NoLink;
+					systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), 0);
+					systime_handle_start_ms(&(ptNetworkDriver->tEthernetHandlerTimer), 1000);
+
+					tFunction = (INTERFACE_FUNCTION_T)(ptEthCfg->ulFunction);
+					switch(tFunction)
+					{
+					case INTERFACE_FUNCTION_None:
+						break;
+
+					case INTERFACE_FUNCTION_EchoServer:
+						ptNetworkDriver->tFunctionHandle.tServer.ptUdpAssoc = udp_registerPort(
+							ptNetworkDriver,
+							MUS2NUS(ptEthCfg->usLocalPort),
+							IP_ADR(0, 0, 0, 0),
+							0,
+							echo_server_process_packet,
+							NULL
+						);
+						break;
+
+					case INTERFACE_FUNCTION_EchoClient:
+						echo_client_initialize(ptNetworkDriver, ptEthCfg);
+						break;
+					}
+
+					uprintf("%s: Interface initialized.\n", ptEthCfg->acName);
+				}
 			}
 		}
 	}

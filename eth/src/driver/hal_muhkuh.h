@@ -5,15 +5,13 @@
 #define __HAL_MUHKUH_H__
 
 
-void setup_phy_internal(void);
-void setup_phy_external(void);
+int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
+int hal_muhkuh_ethmac_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
+int hal_muhkuh_ethmac_disable(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
 
-int hal_xc_prepare(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
-int hal_xc_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
-int hal_xc_disable(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int uiPort);
-
-void hal_phy_init(void);
-void hal_pfifo_reset(void);
+int hal_muhkuh_eth2ps_prepare(NETWORK_DRIVER_T *ptNetworkDriver);
+int hal_muhkuh_eth2ps_initialize(NETWORK_DRIVER_T *ptNetworkDriver0, NETWORK_DRIVER_T *ptNetworkDriver1);
+int hal_muhkuh_eth2ps_disable(NETWORK_DRIVER_T *ptNetworkDriver);
 
 
 #endif  /* __HAL_MUHKUH_H__ */

@@ -13,10 +13,12 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
 
   local atInterface = {
     ['None']     = ${INTERFACE_None},
-    ['INTPHY0']  = ${INTERFACE_INTPHY0},
-    ['INTPHY1']  = ${INTERFACE_INTPHY1},
-    ['EXTPHY0']  = ${INTERFACE_EXTPHY0},
-    ['EXTPHY1']  = ${INTERFACE_EXTPHY1}
+    ['ETHMAC_INTPHY0']  = ${INTERFACE_ETHMAC_INTPHY0},
+    ['ETHMAC_INTPHY1']  = ${INTERFACE_ETHMAC_INTPHY1},
+    ['ETHMAC_EXTPHY0']  = ${INTERFACE_ETHMAC_EXTPHY0},
+    ['ETHMAC_EXTPHY1']  = ${INTERFACE_ETHMAC_EXTPHY1},
+    ['ETH2PS_INTPHY0']  = ${INTERFACE_ETH2PS_INTPHY0},
+    ['ETH2PS_INTPHY1']  = ${INTERFACE_ETH2PS_INTPHY1}
   }
   self.atInterface = atInterface
   local strInterfaces = table.concat(pl.tablex.keys(atInterface), ',')

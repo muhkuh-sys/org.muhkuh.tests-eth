@@ -137,7 +137,7 @@ static const uint32_t XcCode_tpu_reset3[27] = {
 #define XcCode_xc1_tpu_reset0 XcCode_tpu_reset2
 #define XcCode_xc1_tpu_reset1 XcCode_tpu_reset3
 
-static const uint32_t* paulxMacRpuCodes[4]=
+static const uint32_t* const paulxMacRpuCodes[4]=
 {
   XcCode_xc0_rpu_reset0,
   XcCode_xc0_rpu_reset1,
@@ -145,7 +145,7 @@ static const uint32_t* paulxMacRpuCodes[4]=
   XcCode_xc1_rpu_reset1,
 };
 
-static const uint32_t* paulxMacTpuCodes[4]=
+static const uint32_t* const paulxMacTpuCodes[4]=
 {
   XcCode_xc0_tpu_reset0,
   XcCode_xc0_tpu_reset1,
@@ -200,13 +200,13 @@ static const uint32_t XcCode_tpu_reset1[27] = {
 #define XcCode_xc0_tpu_reset0 XcCode_tpu_reset0
 #define XcCode_xc0_tpu_reset1 XcCode_tpu_reset1
 
-static const uint32_t* paulxMacRpuCodes[4]=
+static const uint32_t* const paulxMacRpuCodes[4]=
 {
   XcCode_xc0_rpu_reset0,
   XcCode_xc0_rpu_reset1
 };
 
-static const uint32_t* paulxMacTpuCodes[4]=
+static const uint32_t* const paulxMacTpuCodes[4]=
 {
   XcCode_xc0_tpu_reset0,
   XcCode_xc0_tpu_reset1

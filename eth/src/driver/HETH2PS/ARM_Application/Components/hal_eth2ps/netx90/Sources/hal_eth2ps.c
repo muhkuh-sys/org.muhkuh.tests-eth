@@ -161,15 +161,15 @@ static ETH2PS_XPEC_DPM_T* s_aptXpecRam[ETH2PS_PORTS];
 
 /* Pointer to XC microcodes */
 #if XC_INST == 0
-static const uint32_t* paulRPecCodes[]    = { XcCode_rpec_eth2ps_rpec0, XcCode_rpec_eth2ps_rpec1 };
-static const uint32_t* paulTPecCodes[]    = { XcCode_tpec_eth2ps_tpec0, XcCode_tpec_eth2ps_tpec1 };
-static const uint32_t* paulxMacRpuCodes[] = { XcCode_rpu_eth2ps0,       XcCode_rpu_eth2ps1       };
-static const uint32_t* paulxMacTpuCodes[] = { XcCode_tpu_eth2ps0,       XcCode_tpu_eth2ps1       };
+static const uint32_t* const paulRPecCodes[]    = { XcCode_rpec_eth2ps_rpec0, XcCode_rpec_eth2ps_rpec1 };
+static const uint32_t* const paulTPecCodes[]    = { XcCode_tpec_eth2ps_tpec0, XcCode_tpec_eth2ps_tpec1 };
+static const uint32_t* const paulxMacRpuCodes[] = { XcCode_rpu_eth2ps0,       XcCode_rpu_eth2ps1       };
+static const uint32_t* const paulxMacTpuCodes[] = { XcCode_tpu_eth2ps0,       XcCode_tpu_eth2ps1       };
 #elif XC_INST == 1
-static const uint32_t* paulRPecCodes[]    = { XcCode_rpec_eth2ps_rpec2, XcCode_rpec_eth2ps_rpec3 };
-static const uint32_t* paulTPecCodes[]    = { XcCode_tpec_eth2ps_tpec2, XcCode_tpec_eth2ps_tpec3 };
-static const uint32_t* paulxMacRpuCodes[] = { XcCode_rpu_eth2ps2,       XcCode_rpu_eth2ps3       };
-static const uint32_t* paulxMacTpuCodes[] = { XcCode_tpu_eth2ps2,       XcCode_tpu_eth2ps3       };
+static const uint32_t* const paulRPecCodes[]    = { XcCode_rpec_eth2ps_rpec2, XcCode_rpec_eth2ps_rpec3 };
+static const uint32_t* const paulTPecCodes[]    = { XcCode_tpec_eth2ps_tpec2, XcCode_tpec_eth2ps_tpec3 };
+static const uint32_t* const paulxMacRpuCodes[] = { XcCode_rpu_eth2ps2,       XcCode_rpu_eth2ps3       };
+static const uint32_t* const paulxMacTpuCodes[] = { XcCode_tpu_eth2ps2,       XcCode_tpu_eth2ps3       };
 #endif
 
 static NXT(POINTER_FIFO_AREA_T)* s_ptPFifo;

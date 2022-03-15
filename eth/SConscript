@@ -29,13 +29,16 @@ Import('atEnv')
 
 #----------------------------------------------------------------------------
 # Build the ETHMAC HAL as a library.
+
 sources_ethmac = """
     src/driver/hal_ethmac_wrapper.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_pfifo.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_xc.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_armtimer.c
-    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/hal_ethmac.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_asicctrl.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_intphy.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/netx90/Sources/hal_miimu.c
+    src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/hal_ethmac.c
     src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpu_ethmac0.c
     src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/rpu_ethmac1.c
     src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Sources/tpu_ethmac0.c
@@ -107,7 +110,6 @@ lib_netx90_l = env_netx90_l.StaticLibrary('targets/netx90/libethmac/libethmac_ne
 
 sources_netx90 = """
     src/driver/hal_muhkuh.c
-    src/driver/netx90/phy.c
 """
 
 sources_common = """

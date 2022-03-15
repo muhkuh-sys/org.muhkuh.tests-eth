@@ -2,220 +2,44 @@
 
 #include <string.h>
 
-#include "hal_ethmac_wrapper.h"
 #include "netx_io_areas.h"
 #include "options.h"
 #include "uprintf.h"
-#include "netx90/phy.h"
-#include "netx90/phy_std_regs.h"
+
+#if CFG_USE_ETHMAC==1
+#       include "hal_ethmac_wrapper.h"
+#elif CFG_USE_ETH2PS==1
+#       include "hal_eth2ps_wrapper.h"
+#endif
 
 
+#if CFG_USE_ETHMAC==0
 
-void hal_phy_init(void)
+int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort __attribute__((unused)))
 {
-	hal_ethmac_phy_init();
+	uprintf("ERROR: ETHMAC is not available in this build.\n");
+	return -1;
 }
 
 
 
-static int intphy_reset(void)
+int hal_muhkuh_ethmac_initialize(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort __attribute__((unused)))
 {
-	int iResult;
-	const unsigned char *pucMacro;
-
-
-	/* Get a pointer to the macro data. */
-	pucMacro = g_t_romloader_options.t_ethernet.tPhyMacroIntern.aucMacro;
-
-	/* There is no default for the initialization of the internal PHY.
-	 * An empty macro is an error.
-	 */
-	if( *pucMacro==0x00U )
-	{
-		iResult = -1;
-	}
-	else
-	{
-		iResult = phy_setup_execute_sequence(pucMacro, sizeof(PHY_MACRO_T));
-	}
-
-	return iResult;
+	uprintf("ERROR: ETHMAC is not available in this build.\n");
+	return -1;
 }
 
 
 
-static int extphy_reset(void)
+int hal_muhkuh_ethmac_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort __attribute__((unused)))
 {
-	const unsigned char *pucMacro;
-	int iResult;
-
-
-	/* Get a pointer to the macro data. */
-	pucMacro = g_t_romloader_options.t_ethernet.tPhyMacroExtern.aucMacro;
-
-	/* Use the standard setup if the macro is empty.
-	 * A macro starting with a "0" is empty.
-	 */
-	if( *pucMacro==0x00U )
-	{
-		iResult = -1;
-	}
-	else
-	{
-		iResult = phy_setup_execute_sequence(pucMacro, sizeof(PHY_MACRO_T));
-	}
-
-	return iResult;
+	uprintf("ERROR: ETHMAC is not available in this build.\n");
+	return -1;
 }
 
+#else
 
-
-void hal_pfifo_reset(void)
-{
-	hal_ethmac_pfifo_reset();
-}
-
-
-
-void setup_phy_internal(void)
-{
-	HOSTDEF(ptAsicCtrlArea);
-	unsigned long ulValue;
-	unsigned long ulXmMiiCfg;
-	unsigned long ulXcMdioCfg;
-	unsigned long ulPhyCtrl;
-
-
-	/* Connect to internal PHY. */
-	ulXmMiiCfg = 8U;
-	ulXcMdioCfg = 2U;
-//	ulPhyCtrl = HOSTDFLT(phy_ctrl0);
-	ulPhyCtrl  = HOSTMSK(phy_ctrl0_phy0_led_invert);
-	ulPhyCtrl |= HOSTMSK(phy_ctrl0_phy1_led_invert);
-
-	ulValue  = 0U << HOSTSRT(io_config0_sel_xm0_tx);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_tx_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config0_sel_xm0_txoe);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_txoe_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config0_sel_xm0_eclk);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_eclk_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config0_sel_xm0_io);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_io_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config0_sel_fb0clk);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_fb0clk_wm);
-#endif
-	/* Disable LVDS connections. */
-	ulValue |= ulXmMiiCfg << HOSTSRT(io_config0_sel_xm0_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_mii_cfg_wm);
-#endif
-	ulValue |= ulXcMdioCfg << HOSTSRT(io_config0_sel_xc0_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xc0_mdio_wm);
-#endif
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->asIo_config[0].ulConfig = ulValue;
-
-	ulValue  = 0U << HOSTSRT(io_config1_sel_xm1_tx);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_tx_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config1_sel_xm1_txoe);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_txoe_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config1_sel_xm1_eclk);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_eclk_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config1_sel_xm1_io);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_io_wm);
-#endif
-	ulValue  = 0U << HOSTSRT(io_config1_sel_fb1clk);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_fb1clk_wm);
-#endif
-	ulValue |= ulXmMiiCfg << HOSTSRT(io_config1_sel_xm1_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_mii_cfg_wm);
-#endif
-	ulValue |= 0U << HOSTSRT(io_config1_sel_xc1_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xc1_mdio_wm);
-#endif
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->asIo_config[1].ulConfig = ulValue;
-
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->ulPhy_ctrl0 = ulPhyCtrl;
-
-	intphy_reset();
-}
-
-
-
-void setup_phy_external(void)
-{
-	HOSTDEF(ptAsicCtrlArea);
-	unsigned long ulValue;
-	unsigned long ulXmMiiCfg;
-	unsigned long ulXcMdioCfg;
-	unsigned long ulPhyCtrl;
-
-
-	/* Connect to external PHY. */
-	ulXmMiiCfg = 6U;
-	ulXcMdioCfg = 1U;
-	ulPhyCtrl  = 4U << HOSTSRT(phy_ctrl0_phy0_led_invert);
-	ulPhyCtrl |= 4U << HOSTSRT(phy_ctrl0_phy1_led_invert);
-
-	/* Disable LVDS connections. */
-	ulValue  = ulXmMiiCfg << HOSTSRT(io_config0_sel_xm0_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xm0_mii_cfg_wm);
-#endif
-	ulValue |= ulXcMdioCfg << HOSTSRT(io_config0_sel_xc0_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config0_sel_xc0_mdio_wm);
-#endif
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->asIo_config[0].ulConfig = ulValue;
-
-	ulValue  = ulXmMiiCfg << HOSTSRT(io_config1_sel_xm1_mii_cfg);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xm1_mii_cfg_wm);
-#endif
-	ulValue |= ulXcMdioCfg << HOSTSRT(io_config1_sel_xc1_mdio);
-#if ASIC_TYP==ASIC_TYP_NETX90
-	ulValue |= HOSTMSK(io_config1_sel_xc1_mdio_wm);
-#endif
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->asIo_config[1].ulConfig = ulValue;
-
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->ulPhy_ctrl0 = ulPhyCtrl;
-
-	ulValue  = ptAsicCtrlArea->asIo_config[2].ulConfig;
-	ulValue |= HOSTMSK(io_config2_clk25out_oe);
-	ptAsicCtrlArea->ulAsic_ctrl_access_key = ptAsicCtrlArea->ulAsic_ctrl_access_key;  /* @suppress("Assignment to itself") */
-	ptAsicCtrlArea->asIo_config[2].ulConfig = ulValue;
-
-	extphy_reset();
-}
-
-
-
-int hal_xc_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
+int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
 	HOSTDEF(ptSystimeComArea);

@@ -18,13 +18,6 @@
 
 
 
-typedef struct PHY_MACRO_STRUCT
-{
-	unsigned char  aucMacro[1024];
-} PHY_MACRO_T;
-
-
-
 typedef struct ETHERNET_CONFIGURATION_STRUCT
 {
 	ETHERNET_PORT_CONFIGURATION_T atPorts[MAX_NETWORK_INTERFACES];
@@ -33,10 +26,6 @@ typedef struct ETHERNET_CONFIGURATION_STRUCT
 	unsigned short usDhcpTimeout;
 	unsigned char ucArpRetries;
 	unsigned char ucDhcpRetries;
-
-	unsigned long ulPhyControl;
-	PHY_MACRO_T tPhyMacroIntern;
-	PHY_MACRO_T tPhyMacroExtern;
 } ETHERNET_CONFIGURATION_T;
 
 

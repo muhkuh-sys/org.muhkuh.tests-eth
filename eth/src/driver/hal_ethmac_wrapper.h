@@ -5,7 +5,7 @@
 #define __HAL_ETHMAC_WRAPPER_H__
 
 
-void hal_ethmac_phy_init(void);
+void hal_ethmac_phy_init(unsigned int uiEnabledPorts);
 
 void hal_ethmac_pfifo_reset(void);
 

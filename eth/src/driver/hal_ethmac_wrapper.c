@@ -42,10 +42,67 @@ static const PHY_OPS_T s_tPhyOps =
 };
 
 
-void hal_ethmac_phy_init(void)
+/* Reset internal Dual-PHY */
+static void int_phy_reset(unsigned int uiEnabledPorts, bool fFxMode)
 {
+  INTPHY_CTRL_T tPhyCtrl;
+  unsigned int uiPort;
+
+  INTPHY_Init();
+
+  tPhyCtrl.uiPhyMode = fFxMode ? INTPHY_MODE_100BASE_TXFX_FD_NOAUTONEG_CRSRX
+                               : INTPHY_MODE_ALL_CAPABLE_AUTONEG_AUTOMDIXEN;
+
+  tPhyCtrl.fPhySimBypass = false;
+  tPhyCtrl.fPhyReset = false;
+  for(uiPort = 0; uiPort < INTPHY_PORT_CNT; ++uiPort) {
+    if( uiPort<uiEnabledPorts)
+    {
+      tPhyCtrl.afPhyFxMode[uiPort]   = fFxMode;
+      tPhyCtrl.afPhyAutoMdix[uiPort] = !fFxMode;
+      tPhyCtrl.afPhyEnable[uiPort]   = true;
+    }
+    else
+    {
+      tPhyCtrl.afPhyFxMode[uiPort]   = false;
+      tPhyCtrl.afPhyAutoMdix[uiPort] = false;
+      tPhyCtrl.afPhyEnable[uiPort]   = false;
+    }
+  }
+  INTPHY_Reset(&tPhyCtrl);
+
+  /* Wait 1ms for PHY reset */
+  sys_sleep(1);
+}
+
+
+void hal_ethmac_phy_init(unsigned int uiEnabledPorts)
+{
+	uint32_t ulValue;
+
+
+	/* Connect XC to internal PHY */
+	AsicCtrl_SetIoConfig(1, 8U << SRT_NX90_io_config0_sel_xm0_mii_cfg
+	                      | 2U << SRT_NX90_io_config0_mask_sel_xc0_mdio);
+	if( uiEnabledPorts>1 )
+	{
+		AsicCtrl_SetIoConfig(2, 8U << SRT_NX90_io_config1_sel_xm1_mii_cfg);
+	}
+
+	/* PHY LEDs from internal PHY are all low-active */
+	ulValue = MSK_NX90_phy_ctrl0_phy0_led_invert;
+	if( uiEnabledPorts>1 )
+	{
+		ulValue |= MSK_NX90_phy_ctrl0_phy1_led_invert;
+	}
+	AsicCtrl_SetPhyCtrl0(ulValue);
+
+	int_phy_reset(uiEnabledPorts, 0);
 	phy_init(0,  0, PHYID_OMNIPHY, &s_tPhyOps);
-	phy_init(1,  1, PHYID_OMNIPHY, &s_tPhyOps);
+	if( uiEnabledPorts>1 )
+	{
+		phy_init(1,  1, PHYID_OMNIPHY, &s_tPhyOps);
+	}
 }
 
 

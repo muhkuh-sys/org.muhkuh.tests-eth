@@ -44,40 +44,8 @@ UART_STANDALONE_DEFINE_GLOBALS
 
 static const ETH_PARAMETER_T tEthernetParameter =
 {
-	.ulVerbose = 1,
-	.ulLinkUpTimeout = 4000,
-	.ulMaximumTransferTime = 0,
-	.atPortConfiguration =
-	{
-		{
-			.acName = "CH0",
-			.ulInterface = INTERFACE_INTPHY0,
-			.ulFunction = INTERFACE_FUNCTION_EchoServer,
-			.ulFlags = ETHERNET_PORT_FLAG_Permanent | ETHERNET_PORT_FLAG_LinkDownAllowed,
-			.ulIp = IPV4(192,168,64,20),
-			.ulGatewayIp = IPV4(0,0,0,0),
-			.ulNetmask = IPV4(255,255,255,0),
-			.ulRemoteIp = 0,
-			.usLinkUpDelay = 1000,
-			.usLocalPort = 1024,
-			.usRemotePort = 0,
-			.aucMac = { 0x00, 0x02, 0xa2, 0x20, 0x20, 0x00 }
-		},
-		{
-			.acName = "CH1",
-			.ulInterface = INTERFACE_None,
-			.ulFunction = INTERFACE_FUNCTION_None,
-			.ulFlags = ETHERNET_PORT_FLAG_Permanent | ETHERNET_PORT_FLAG_LinkDownAllowed,
-			.ulIp = IPV4(192,168,64,21),
-			.ulGatewayIp = IPV4(0,0,0,0),
-			.ulNetmask = IPV4(255,255,255,0),
-			.ulRemoteIp = IPV4(192,168,64,20),
-			.usLinkUpDelay = 1000,
-			.usLocalPort = 1025,
-			.usRemotePort = 1024,
-			.aucMac = { 0x00, 0x02, 0xa2, 0x20, 0x20, 0x01 }
-		}
-	}
+	.ulMagic = ETHTEST_PARAMETER_BLOCK_MAGIC,
+	.ulStructureVersion = ETHTEST_PARAMETER_BLOCK_VERSION
 };
 
 

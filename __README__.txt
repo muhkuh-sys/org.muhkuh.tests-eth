@@ -1,6 +1,7 @@
 This project is based on the Hilscher Ethernet MAC. It can be downloaded here: https://kb.hilscher.com/display/HAL/Ethernet+MAC
 
 TODO:
+ * Erwarteten Link Speed in die Parameter aufnehmen.
 
  * Deactivate the PHY/XC after the test.
 

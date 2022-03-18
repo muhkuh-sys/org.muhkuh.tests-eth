@@ -5,6 +5,8 @@
 #define __HAL_ETHMAC_WRAPPER_H__
 
 
+typedef void (*PFN_HAL_HANDLE_RECEIVED_PACKET)(void *pvNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
+
 void hal_ethmac_phy_init(unsigned int uiEnabledPorts);
 
 void hal_ethmac_pfifo_reset(void);
@@ -17,7 +19,7 @@ int hal_ethmac_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, u
 int hal_ethmac_get_empty_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket);
 int hal_ethmac_release_packet(unsigned int uiPort, void *pvPacket, void *phPacket);
 int hal_ethmac_send_packet(unsigned int uiPort, void *pvPacket, void *phPacket, unsigned int uiPacketSize);
-int hal_ethmac_get_received_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize);
+void hal_ethmac_get_received_packet(unsigned int uiPort, void *pvNetworkDriver, PFN_HAL_HANDLE_RECEIVED_PACKET pfnReceiveHandler);
 
 
 #endif  /* __HAL_ETHMAC_WRAPPER_H__ */

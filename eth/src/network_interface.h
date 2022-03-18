@@ -21,8 +21,9 @@ typedef int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNe
 typedef int (*PFN_NETWORK_FN_GET_EMPTY_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void **ppvPacket, void **pphPacket);
 typedef void (*PFN_NETWORK_FN_RELEASE_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket);
 typedef void (*PFN_NETWORK_FN_SEND_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
-typedef int (*PFN_NETWORK_FN_GET_RECEIVED_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void **ppvPacket, void **pphPacket, unsigned int *psizPacket);
+typedef void (*PFN_NETWORK_FN_PROCESS_RECEIVED_PACKETS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, struct NETWORK_DRIVER_STRUCT *ptAllNetworkDrivers, unsigned int sizAllNetworkDrivers);
 typedef void (*PFN_NETWORK_FN_DEACTIVATE)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
+typedef int (*PFN_NETWORK_FN_SHOW_STATISTICS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
 #if CFG_DEBUGMSG==1
 typedef void (*PFN_NETWORK_FN_STATISTICS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
 #endif
@@ -34,8 +35,9 @@ typedef struct STRUCT_NETWORK_IF
 	PFN_NETWORK_FN_GET_EMPTY_PACKET pfnGetEmptyPacket;
 	PFN_NETWORK_FN_RELEASE_PACKET pfnReleasePacket;
 	PFN_NETWORK_FN_SEND_PACKET pfnSendPacket;
-	PFN_NETWORK_FN_GET_RECEIVED_PACKET pfnGetReceivedPacket;
+	PFN_NETWORK_FN_PROCESS_RECEIVED_PACKETS pfnProcessReceivedPackets;
 	PFN_NETWORK_FN_DEACTIVATE pfnDeactivate;
+	PFN_NETWORK_FN_SHOW_STATISTICS pfnShowStatistics;
 #if CFG_DEBUGMSG==1
 	PFN_NETWORK_FN_STATISTICS pfnStatistics;
 #endif
@@ -263,6 +265,7 @@ typedef union FUNCTION_HANDLE_ENUM
 } FUNCTION_HANDLE_T;
 
 
+typedef void (*PFN_NETWORK_DRIVER_HANDLE_RECEIVED_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
 
 typedef struct NETWORK_DRIVER_STRUCT
 {
@@ -270,6 +273,7 @@ typedef struct NETWORK_DRIVER_STRUCT
 	unsigned int uiPort;
 	NETWORK_STATE_T tState;
 	NETWORK_IF_T tNetworkIf;
+	PFN_NETWORK_DRIVER_HANDLE_RECEIVED_PACKET pfnHandleReceivedPacket;
 	ETHERNET_PORT_CONFIGURATION_T tEthernetPortCfg;
 	TIMER_HANDLE_T tLinkUpTimer;
 	TIMER_HANDLE_T tEthernetHandlerTimer;

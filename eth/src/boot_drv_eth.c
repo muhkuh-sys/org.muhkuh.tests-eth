@@ -526,9 +526,6 @@ int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atN
 
 static void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
-	/* Process waiting packets. */
-	eth_process_packet(ptNetworkDriver);
-
 	if( systime_handle_is_elapsed(&(ptNetworkDriver->tEthernetHandlerTimer))!=0 )
 	{
 		/* process cyclic events here */

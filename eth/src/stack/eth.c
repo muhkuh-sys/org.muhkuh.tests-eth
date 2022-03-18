@@ -16,6 +16,7 @@
 #include "stack/ipv4.h"
 #include "options.h"
 #include "rdy_run.h"
+#include "uprintf.h"
 
 #define CFG_DEBUGMSG 0
 #if CFG_DEBUGMSG==1
@@ -57,57 +58,63 @@ const MAC_ADR_T g_tEmptyMac =
 
 
 
-void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver)
+void eth_process_one_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket)
 {
-	int iResult;
-	unsigned int sizPacket;
-	void *pvPacket;
 	ETH2_PACKET_T *ptPacket;
-	void *phPacket;
 	unsigned int uiEth2Typ;
 
 
-	/* Process incoming frames. */
-	iResult = ptNetworkDriver->tNetworkIf.pfnGetReceivedPacket(ptNetworkDriver, &pvPacket, &phPacket, &sizPacket);
-	if( iResult==0 )
+	ptPacket = (ETH2_PACKET_T *)pvPacket;
+
+	/* Check the size of the received packet. */
+	if( sizPacket<sizeof(ETH2_HEADER_T) )
 	{
-		ptPacket = (ETH2_PACKET_T *)pvPacket;
-
-//		uprintf("%s: rec\n", ptNetworkDriver->tEthernetPortCfg.pcName);
-		/* Check the size of the received packet. */
-		if( sizPacket<sizeof(ETH2_HEADER_T) )
-		{
-			DEBUGMSG(ZONE_VERBOSE, "[ETH] packet is too small! size: %d\n", sizPacket);
-		}
-		else
-		{
-			uiEth2Typ = ptPacket->tEth2Hdr.usTyp;
-			DEBUGMSG(ZONE_VERBOSE, "[ETH] received packet type 0x%04x, size %d\n", uiEth2Typ, sizPacket);
-
-			switch( uiEth2Typ )
-			{
-			case ETH2HEADER_TYP_IP:
-				ipv4_process_packet(ptNetworkDriver, ptPacket, sizPacket);
-				break;
-
-			case ETH2HEADER_TYP_ARP:
-				arp_process_packet(ptNetworkDriver, ptPacket, sizPacket);
-				break;
-
-			default:
-				DEBUGMSG(ZONE_VERBOSE, "[ETH] unknown packet! type 0x%04x\n", uiEth2Typ);
-				break;
-			}
-		}
-
-		ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket, phPacket);
+		DEBUGMSG(ZONE_VERBOSE, "[ETH] packet is too small! size: %d\n", sizPacket);
 	}
-#if 0
 	else
 	{
-		tNetworkIf.pfnStatistics(pvDrvEthUser);
+		uiEth2Typ = ptPacket->tEth2Hdr.usTyp;
+		DEBUGMSG(ZONE_VERBOSE, "[ETH] received packet type 0x%04x, size %d\n", uiEth2Typ, sizPacket);
+
+		switch( uiEth2Typ )
+		{
+		case ETH2HEADER_TYP_IP:
+			ipv4_process_packet(ptNetworkDriver, ptPacket, sizPacket);
+			break;
+
+		case ETH2HEADER_TYP_ARP:
+			arp_process_packet(ptNetworkDriver, ptPacket, sizPacket);
+			break;
+
+		default:
+			DEBUGMSG(ZONE_VERBOSE, "[ETH] unknown packet! type 0x%04x\n", uiEth2Typ);
+			break;
+		}
 	}
-#endif
+
+	ptNetworkDriver->tNetworkIf.pfnReleasePacket(ptNetworkDriver, ptPacket, phPacket);
+}
+
+
+
+void eth_process_packets(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int sizNetworkDriver)
+{
+	NETWORK_DRIVER_T *ptCnt;
+	NETWORK_DRIVER_T *ptEnd;
+
+
+	/* Loop over all drivers. */
+	ptCnt = ptNetworkDriver;
+	ptEnd = ptNetworkDriver + sizNetworkDriver;
+	while( ptCnt<ptEnd )
+	{
+		/* Process only configured drivers. */
+		if( ptCnt->f_is_configured!=0 )
+		{
+			ptCnt->tNetworkIf.pfnProcessReceivedPackets(ptCnt, ptNetworkDriver, sizNetworkDriver);
+		}
+		++ptCnt;
+	}
 }
 
 

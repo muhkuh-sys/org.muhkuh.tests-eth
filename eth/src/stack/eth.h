@@ -166,7 +166,9 @@ extern const MAC_ADR_T g_tBroadcastMac;
 extern const MAC_ADR_T g_tEmptyMac;
 
 
-void eth_process_packet(NETWORK_DRIVER_T *ptNetworkDriver);
+void eth_process_one_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
+
+void eth_process_packets(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int sizNetworkDriver);
 
 void eth_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPacket, void *phPacket, unsigned int sizEthUserData, const MAC_ADR_T *ptDstMac, unsigned int uiTyp);
 

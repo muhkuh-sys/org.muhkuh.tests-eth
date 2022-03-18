@@ -295,16 +295,14 @@ int hal_ethmac_send_packet(unsigned int uiPort, void *pvPacket __attribute__ ((u
 }
 
 
-int hal_ethmac_get_received_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize)
+void hal_ethmac_get_received_packet(unsigned int uiPort, void *pvNetworkDriver, PFN_HAL_HANDLE_RECEIVED_PACKET pfnReceiveHandler)
 {
-	int iResult;
 	ETHERNET_RESULT tHalResult;
 	uint32_t ulFillLevel;
 	ETHERNET_FRAME_T *ptFrame;
+	void *phFrame;
 	uint32_t ulLength;
 
-
-	iResult = -1;
 
 	/* Get the number of received packets. */
 	tHalResult = EthMac_GetRecvFillLevel(uiPort, 0, &ulFillLevel);
@@ -313,17 +311,12 @@ int hal_ethmac_get_received_packet(unsigned int uiPort, void **ppvPacket, void *
 		/* Is at least one packet waiting? */
 		if( ulFillLevel!=0 )
 		{
-			/* Receive the packet. */
-			tHalResult = EthMac_Recv(uiPort, &ptFrame, pphPacket, &ulLength, 0);
+			/* Receive the packet from the low priority FIFO. */
+			tHalResult = EthMac_Recv(uiPort, &ptFrame, &phFrame, &ulLength, 0);
 			if( tHalResult==ETH_OKAY )
 			{
-				*ppvPacket = ptFrame;
-				*puiPacketSize = ulLength;
-
-				iResult = 0;
+				pfnReceiveHandler(pvNetworkDriver, ptFrame, phFrame, ulLength);
 			}
 		}
 	}
-
-	return iResult;
 }

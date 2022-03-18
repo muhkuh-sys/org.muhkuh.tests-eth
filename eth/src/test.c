@@ -197,6 +197,9 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 		}
 		do
 		{
+			/* Handle incoming packets. */
+			eth_process_packets(atNetworkDriver, MAX_NETWORK_INTERFACES);
+
 			/* Be optimistic. */
 			iAllInterfacesUp = 1;
 
@@ -249,6 +252,9 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 		}
 		do
 		{
+			/* Handle incoming packets. */
+			eth_process_packets(atNetworkDriver, MAX_NETWORK_INTERFACES);
+
 			/* Expect all ports to be finished. */
 			iAllPortsFinished = 1;
 
@@ -283,6 +289,10 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 			}
 		} while( iAllPortsFinished==0 );
 	}
+
+	/* Show statistics for both ports. */
+	atNetworkDriver[0].tNetworkIf.pfnShowStatistics(atNetworkDriver+0);
+	atNetworkDriver[1].tNetworkIf.pfnShowStatistics(atNetworkDriver+1);
 
 	return tTestResult;
 }

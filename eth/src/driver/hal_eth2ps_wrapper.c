@@ -532,17 +532,14 @@ int hal_eth2ps_send_packet(unsigned int uiPort __attribute__ ((unused)), void *p
 
 
 
-int hal_eth2ps_get_received_packet(unsigned int uiPort __attribute__ ((unused)), void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize)
+void hal_eth2ps_get_received_packet(void *pvNetworkDriver0, PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort0, void *pvNetworkDriver1, PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort1)
 {
-	int iResult;
 	ETH2PS_RESULT_E tHalResult;
 	ETH2PS_FRAME_HANDLE_T hFrame;
 	ETH2PS_FRAME_INFO_T tFrameInfo;
 
 
-	iResult = -1;
-
-	/* Receive the packet. */
+	/* Receive a packet from to low priority queue. */
 	tHalResult = Eth2PS_GetIndCnf(0, &hFrame, &tFrameInfo);
 	if( tHalResult==ETH2PS_ERR_FIFO_EMPTY )
 	{
@@ -558,15 +555,68 @@ int hal_eth2ps_get_received_packet(unsigned int uiPort __attribute__ ((unused)),
 			 */
 			Eth2PS_ReleaseFrame(&hFrame);
 		}
+		/* Was this packet received on port 0? */
+		else if( tFrameInfo.uPortNo==0 )
+		{
+			/* Does a callback handler exist? */
+			if( pfnPort0!=NULL )
+			{
+				pfnPort0(pvNetworkDriver0, hFrame.pbData, (void*)hFrame.ulFifoEntry, hFrame.usLength);
+			}
+			else
+			{
+				/* No handler -> release the frame. */
+				Eth2PS_ReleaseFrame(&hFrame);
+			}
+		}
+		/* Was this packet received on port 1? */
+		else if( tFrameInfo.uPortNo==1 )
+		{
+			/* Does a callback handler exist? */
+			if( pfnPort1!=NULL )
+			{
+				pfnPort1(pvNetworkDriver1, hFrame.pbData, (void*)hFrame.ulFifoEntry, hFrame.usLength);
+			}
+			else
+			{
+				/* No handler -> release the frame. */
+				Eth2PS_ReleaseFrame(&hFrame);
+			}
+		}
 		else
 		{
-			/* This is an indication. */
-			*ppvPacket = hFrame.pbData;
-			*pphPacket = (void*)hFrame.ulFifoEntry;
-			*puiPacketSize = hFrame.usLength;
-
-			iResult = 0;
+			/* Unknown port -> release the frame. */
+			Eth2PS_ReleaseFrame(&hFrame);
 		}
+	}
+}
+
+
+int hal_eth2ps_get_statistics(unsigned int uiPort, void *pvBuffer, unsigned int sizBuffer)
+{
+	int iResult;
+	ETH2PS_RESULT_E tResult;
+	unsigned int sizChunk;
+	ETH2PS_COUNTERS_T tCounters;
+
+
+	iResult = -1;
+
+	tResult = Eth2PS_GetCounters(uiPort, &tCounters);
+	if( tResult==ETH2PS_OKAY )
+	{
+		/* Does the destination buffer exist? */
+		if( pvBuffer!=NULL && sizBuffer>0 )
+		{
+			/* Limit the size of the data to copy to the available counter data. */
+			sizChunk = sizBuffer;
+			if( sizChunk>sizeof(ETH2PS_COUNTERS_T) )
+			{
+				sizChunk = sizeof(ETH2PS_COUNTERS_T);
+			}
+			memcpy(pvBuffer, &tCounters, sizChunk);
+		}
+		iResult = 0;
 	}
 
 	return iResult;

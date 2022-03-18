@@ -203,14 +203,16 @@ static void ethmac_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket
 
 
 
-static int ethmac_get_received_packet(NETWORK_DRIVER_T *ptNetworkDriver, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize)
+static void ethmac_process_received_packets(NETWORK_DRIVER_T *ptNetworkDriver, NETWORK_DRIVER_T *ptAllNetworkDrivers __attribute__ ((unused)), unsigned int sizAllNetworkDrivers __attribute__ ((unused)))
 {
 	unsigned int uiPort;
+	PFN_HAL_HANDLE_RECEIVED_PACKET pfnReceiveHandler;
 
 
 	/* Get the index of the Ethernet port. */
 	uiPort = ptNetworkDriver->uiPort;
-	return hal_ethmac_get_received_packet(uiPort, ppvPacket, pphPacket, puiPacketSize);
+	pfnReceiveHandler = (PFN_HAL_HANDLE_RECEIVED_PACKET)(ptNetworkDriver->pfnHandleReceivedPacket);
+	hal_ethmac_get_received_packet(uiPort, ptNetworkDriver, pfnReceiveHandler);
 }
 
 
@@ -228,7 +230,7 @@ static const NETWORK_IF_T tNetworkIfEthMac =
 	.pfnGetEmptyPacket = ethmac_get_empty_packet,
 	.pfnReleasePacket = ethmac_release_packet,
 	.pfnSendPacket = ethmac_send_packet,
-	.pfnGetReceivedPacket = ethmac_get_received_packet,
+	.pfnProcessReceivedPackets = ethmac_process_received_packets,
 	.pfnDeactivate = ethmac_deactivate
 };
 
@@ -490,14 +492,29 @@ static void eth2ps_send_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvPacket
 
 
 
-static int eth2ps_get_received_packet(NETWORK_DRIVER_T *ptNetworkDriver, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize)
+static void eth2ps_process_received_packets(NETWORK_DRIVER_T *ptNetworkDriver __attribute__ ((unused)), NETWORK_DRIVER_T *ptAllNetworkDrivers, unsigned int sizAllNetworkDrivers)
 {
-	unsigned int uiPort;
+	NETWORK_DRIVER_T *ptDriverPort0;
+	NETWORK_DRIVER_T *ptDriverPort1;
+	PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort0;
+	PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort1;
 
 
-	/* Get the index of the Ethernet port. */
-	uiPort = ptNetworkDriver->uiPort;
-	return hal_eth2ps_get_received_packet(uiPort, ppvPacket, pphPacket, puiPacketSize);
+	pfnPort0 = NULL;
+	pfnPort1 = NULL;
+	if( sizAllNetworkDrivers>=1 && ptAllNetworkDrivers[0].f_is_configured!=0 )
+	{
+		ptDriverPort0 = ptAllNetworkDrivers;
+		pfnPort0 = (PFN_HAL_HANDLE_RECEIVED_PACKET)(ptDriverPort0->pfnHandleReceivedPacket);
+	}
+	if( sizAllNetworkDrivers>=2 && ptAllNetworkDrivers[1].f_is_configured!=0 )
+	{
+		ptDriverPort1 = ptAllNetworkDrivers + 1;
+		pfnPort1 = (PFN_HAL_HANDLE_RECEIVED_PACKET)(ptDriverPort1->pfnHandleReceivedPacket);
+	}
+
+	/* The 2 port switch has one receive FIFO for both ports. */
+	hal_eth2ps_get_received_packet(ptDriverPort0, pfnPort0, ptDriverPort1, pfnPort1);
 }
 
 
@@ -509,14 +526,56 @@ static void eth2ps_deactivate(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 
 
 
+static int eth2ps_show_statistics(NETWORK_DRIVER_T *ptNetworkDriver)
+{
+	int iResult;
+	unsigned int uiPort;
+	unsigned long aulCounter[17];
+
+
+	/* Get the index of the Ethernet port. */
+	uiPort = ptNetworkDriver->uiPort;
+	iResult = hal_eth2ps_get_statistics(uiPort, aulCounter, sizeof(aulCounter));
+	if( iResult!=0 )
+	{
+		uprintf("Failed to get statistics for port %d\n.", iResult);
+	}
+	else
+	{
+		uprintf("Statistics for port %d:\n", uiPort);
+		uprintf("  TxOutOctets:             0x%08x\n", aulCounter[0]);
+		uprintf("  TxSingleCollisions:      0x%08x\n", aulCounter[1]);
+		uprintf("  TxMultipleCollisions:    0x%08x\n", aulCounter[2]);
+		uprintf("  TxLateCollisions:        0x%08x\n", aulCounter[3]);
+		uprintf("  TxUnderrun:              0x%08x\n", aulCounter[4]);
+		uprintf("  TxAborted:               0x%08x\n", aulCounter[5]);
+		uprintf("  TxDiscarded:             0x%08x\n", aulCounter[6]);
+		uprintf("  RxInOctets:              0x%08x\n", aulCounter[7]);
+		uprintf("  RxFcsErrors:             0x%08x\n", aulCounter[8]);
+		uprintf("  RxAlignmentErrors:       0x%08x\n", aulCounter[9]);
+		uprintf("  RxFrameLengthErrors:     0x%08x\n", aulCounter[10]);
+		uprintf("  RxRuntFrames:            0x%08x\n", aulCounter[11]);
+		uprintf("  RxCollisionFragments:    0x%08x\n", aulCounter[12]);
+		uprintf("  RxOverflow:              0x%08x\n", aulCounter[13]);
+		uprintf("  RxDiscarded:             0x%08x\n", aulCounter[14]);
+		uprintf("  RxCirculatingFrmBlocked: 0x%08x\n", aulCounter[15]);
+		uprintf("  lRxUnknownErrors:        0x%08x\n", aulCounter[16]);
+	}
+
+	return iResult;
+}
+
+
+
 static const NETWORK_IF_T tNetworkIfEth2ps =
 {
 	.pfnGetLinkStatus = eth2ps_get_link_status,
 	.pfnGetEmptyPacket = eth2ps_get_empty_packet,
 	.pfnReleasePacket = eth2ps_release_packet,
 	.pfnSendPacket = eth2ps_send_packet,
-	.pfnGetReceivedPacket = eth2ps_get_received_packet,
-	.pfnDeactivate = eth2ps_deactivate
+	.pfnProcessReceivedPackets = eth2ps_process_received_packets,
+	.pfnDeactivate = eth2ps_deactivate,
+	.pfnShowStatistics = eth2ps_show_statistics
 };
 
 
@@ -538,6 +597,9 @@ int hal_muhkuh_eth2ps_initialize(NETWORK_DRIVER_T *ptNetworkDriver0, NETWORK_DRI
 	{
 		memcpy(&(ptNetworkDriver0->tNetworkIf), &tNetworkIfEth2ps, sizeof(NETWORK_IF_T));
 		memcpy(&(ptNetworkDriver1->tNetworkIf), &tNetworkIfEth2ps, sizeof(NETWORK_IF_T));
+
+		ptNetworkDriver0->pfnHandleReceivedPacket = eth_process_one_packet;
+		ptNetworkDriver1->pfnHandleReceivedPacket = eth_process_one_packet;
 	}
 
 	return iResult;

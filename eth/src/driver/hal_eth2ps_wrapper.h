@@ -5,6 +5,9 @@
 #define __HAL_ETH2PS_WRAPPER_H__
 
 
+typedef void (*PFN_HAL_HANDLE_RECEIVED_PACKET)(void *pvNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
+
+
 void hal_ethps2_prepare(void);
 
 int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts);
@@ -19,7 +22,8 @@ int hal_eth2ps_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, u
 int hal_eth2ps_get_empty_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket);
 int hal_eth2ps_release_packet(unsigned int uiPort, void *pvPacket, void *phPacket);
 int hal_eth2ps_send_packet(unsigned int uiPort, void *pvPacket, void *phPacket, unsigned int uiPacketSize);
-int hal_eth2ps_get_received_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket, unsigned int *puiPacketSize);
+void hal_eth2ps_get_received_packet(void *pvNetworkDriver0, PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort0, void *pvNetworkDriver1, PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort1);
+int hal_eth2ps_get_statistics(unsigned int uiPort, void *pvBuffer, unsigned int sizBuffer);
 
 
 #endif  /* __HAL_ETH2PS_WRAPPER_H__ */

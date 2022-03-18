@@ -420,6 +420,12 @@ int hal_eth2ps_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, u
 	iHalResult = phy_get_linkstate(uiPort, &uiLink, &uiSpeed, &uiDuplex);
 	if( iHalResult==0 )
 	{
+		Eth2PS_SetParameter(uiPort, ETH2PS_PARAM_PORT_ENABLE, uiLink);
+		MLEDCTRL_SetOutput(0, uiPort ? 7 : 5, uiLink);
+
+		/* Indicate a link state change at the corresponding ETH_2PS port */
+//		ETH_T* eth_instance;
+//		eth_2ps_mau_type_change_ind(eth_instance, uiPort);
 		/* Update link mode in MAC, please note that link mode must also updated in case of link down */
 		Eth2PS_SetLinkMode(uiPort, true, uiSpeed, uiDuplex);
 

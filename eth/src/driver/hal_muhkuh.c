@@ -583,8 +583,8 @@ static const NETWORK_IF_T tNetworkIfEth2ps =
 int hal_muhkuh_eth2ps_initialize(NETWORK_DRIVER_T *ptNetworkDriver0, NETWORK_DRIVER_T *ptNetworkDriver1)
 {
 	int iResult;
-	const uint8_t *pucMAC0;
-	const uint8_t *pucMAC1;
+	uint8_t *pucMAC0;
+	uint8_t *pucMAC1;
 
 
 	ptNetworkDriver0->uiPort = 0;

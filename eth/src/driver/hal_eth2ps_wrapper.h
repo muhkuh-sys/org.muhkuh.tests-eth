@@ -16,7 +16,7 @@ void hal_eth2ps_pfifo_reset(void);
 
 int hal_eth2ps_reset(unsigned int uiXcPort);
 
-int hal_eth2ps_init(const uint8_t *pucMAC0, const uint8_t *pucMAC1);
+int hal_eth2ps_init(uint8_t *pucMAC0, uint8_t *pucMAC1);
 
 int hal_eth2ps_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, unsigned int *puiSpeed, unsigned int *puiIsFullDuplex);
 int hal_eth2ps_get_empty_packet(unsigned int uiPort, void **ppvPacket, void **pphPacket);

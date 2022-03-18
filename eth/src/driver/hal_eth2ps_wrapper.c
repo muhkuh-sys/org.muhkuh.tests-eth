@@ -276,7 +276,7 @@ void hal_eth2ps_pfifo_reset(void)
 
 
 
-int hal_eth2ps_init(const uint8_t *pucMAC0, const uint8_t *pucMAC1)
+int hal_eth2ps_init(uint8_t *pucMAC0, uint8_t *pucMAC1)
 {
 	ETH_2PS_CONFIG_T tEthCfg;
 	unsigned int uiPort;

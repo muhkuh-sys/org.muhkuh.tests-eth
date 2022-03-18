@@ -498,7 +498,7 @@ int hal_eth2ps_release_packet(unsigned int uiPort __attribute__ ((unused)), void
 
 
 
-int hal_eth2ps_send_packet(unsigned int uiPort __attribute__ ((unused)), void *pvPacket, void *phPacket, unsigned int uiPacketSize)
+int hal_eth2ps_send_packet(unsigned int uiPort, void *pvPacket, void *phPacket, unsigned int uiPacketSize)
 {
 	int iResult;
 	ETH2PS_RESULT_E tHalResult;
@@ -526,7 +526,7 @@ int hal_eth2ps_send_packet(unsigned int uiPort __attribute__ ((unused)), void *p
 	hFrame.pbData = pvPacket;
 
 	/* Send the packet to the switch. */
-	tHalResult = Eth2PS_Send(3, &hFrame, 0, false, &uiCnfCnt);
+	tHalResult = Eth2PS_Send(uiPort, &hFrame, 0, false, &uiCnfCnt);
 	if( tHalResult==ETH2PS_OKAY )
 	{
 		iResult = 0;

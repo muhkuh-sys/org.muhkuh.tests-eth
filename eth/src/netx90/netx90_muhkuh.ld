@@ -59,7 +59,7 @@ SECTIONS
 	.parameter ALIGN(0x0100) :
 	{
 		parameter_start_address = . ;
-		. = . + 0x4000;
+		. = . + 0x0200;
 		parameter_end_address = . ;
 	} >INTRAM
 

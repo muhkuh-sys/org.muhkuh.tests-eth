@@ -725,6 +725,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iEthResult;
 	ETHERNET_TEST_RESULT_T tResult;
+	ETHERNET_TEST_RESULT_T tSetupResult;
 	ECHO_CLIENT_STATE_T tActionResult;
 	NETWORK_STATE_T tState;
 	LINK_STATE_T tLinkState;
@@ -739,6 +740,26 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 	/* Be pessimistic. */
 	tResult = ETHERNET_TEST_RESULT_Error;
+
+	/* Get the function and flags of the port. */
+	tFunction = (INTERFACE_FUNCTION_T)(ptNetworkDriver->tEthernetPortCfg.ulFunction);
+	ulFlags = ptNetworkDriver->tEthernetPortCfg.ulFlags;
+
+	/* Get an "in progress" result for the port.
+	 * This is the result for the port before it reaches the "link up" state.
+	 * A port with the "permanent" flag is always "InProgress".
+	 * A port with the function "None" and no "permanent" flag has an "in progress" result of FinishedOk.
+	 * A "Server" without the "permanent" flag also has an "in progress" result of FinishedOk.
+	 * All other functions have an "in progress" result of "InProgress".
+	 */
+	tSetupResult = ETHERNET_TEST_RESULT_InProgress;
+	if(
+		((ulFlags&ETHERNET_PORT_FLAG_Permanent)==0) &&
+		((tFunction==INTERFACE_FUNCTION_None) || (tFunction==INTERFACE_FUNCTION_EchoServer))
+	)
+	{
+		tSetupResult = ETHERNET_TEST_RESULT_FinishedOk;
+	}
 
 	if( ptNetworkDriver->f_is_configured==0 )
 	{
@@ -759,7 +780,6 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 		ethernet_cyclic_process(ptNetworkDriver);
 
-		ulFlags = ptNetworkDriver->tEthernetPortCfg.ulFlags;
 		ulFlagLinkDownAllowed = ulFlags & ETHERNET_PORT_FLAG_LinkDownAllowed;
 
 		tState = ptNetworkDriver->tState;
@@ -795,7 +815,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 						tState = NETWORK_STATE_LinkUp_Delay;
 					}
 				}
-				tResult = ETHERNET_TEST_RESULT_InProgress;
+				tResult = tSetupResult;
 			}
 			break;
 
@@ -826,7 +846,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 						tState = NETWORK_STATE_LinkUp_Ready;
 					}
 				}
-				tResult = ETHERNET_TEST_RESULT_InProgress;
+				tResult = tSetupResult;
 			}
 			break;
 
@@ -870,7 +890,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 						tState = NETWORK_STATE_Dhcp;
 					}
 				}
-				tResult = ETHERNET_TEST_RESULT_InProgress;
+				tResult = tSetupResult;
 			}
 			break;
 
@@ -920,7 +940,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 						break;
 					}
 				}
-				tResult = ETHERNET_TEST_RESULT_InProgress;
+				tResult = tSetupResult;
 			}
 			break;
 
@@ -943,7 +963,6 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			}
 			else
 			{
-				tFunction = (INTERFACE_FUNCTION_T)(ptNetworkDriver->tEthernetPortCfg.ulFunction);
 				switch(tFunction)
 				{
 				case INTERFACE_FUNCTION_None:

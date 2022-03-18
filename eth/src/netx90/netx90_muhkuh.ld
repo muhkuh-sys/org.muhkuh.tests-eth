@@ -24,7 +24,6 @@ MEMORY
 {
 	ASSERT_EMPTY(rwx): ORIGIN = 0x00000000, LENGTH = 0
 	INTRAM(rwx):       ORIGIN = 0x00024000, LENGTH = 0x0001c000
-	INTRAM3_S(rwx):    ORIGIN = 0x20080000, LENGTH = 0x00010000
 	IOVECTORS(rw):     ORIGIN = 0x2009FFF0, LENGTH = 0x00000010
 }
 
@@ -79,21 +78,6 @@ SECTIONS
 		. = ORIGIN(INTRAM) + LENGTH(INTRAM) ;
 		stack_top = . ;
 	} >INTRAM
-
-
-	/* INTRAM3 is used for the INTRAM image and the ethernet buffer. */
-	.INTRAM_IMAGE_ETH_BUFFER ORIGIN(INTRAM3_S) :
-	{
-		aucEthernetBuffer_start = .;
-
-		aucEthernetBuffer0_start = .;
-		. = . + 0x5550 ;
-		aucEthernetBuffer0_end = .;
-
-		aucEthernetBuffer1_start = .;
-		. = . + 0x5550 ;
-		aucEthernetBuffer1_end = .;
-	} >INTRAM3_S
 
 
 	.serialvectors ORIGIN(IOVECTORS) (NOLOAD) :

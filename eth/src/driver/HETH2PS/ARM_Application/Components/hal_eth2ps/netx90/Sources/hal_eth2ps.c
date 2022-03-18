@@ -55,7 +55,7 @@
 #define ETH2PS_XPEC_DPM_PTR      s_apulXpecDramArea
 #define ETH2PS_XC_INTRAM_PTR     s_apulIntRamStart
 #define ETH2PS_PFIFO_DEPTH       100
-#define ETH2PS_FRAME_BUF_CNT     84
+#define ETH2PS_FRAME_BUF_CNT     42
 __USE_PHY_CTRL
 __USE_XC_LOADER_FUNC_RESET
 __USE_XC_LOADER_FUNC_LOAD

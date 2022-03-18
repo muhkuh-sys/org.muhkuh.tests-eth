@@ -11,6 +11,9 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self.json = require 'dkjson'
   self.vstruct = require 'vstruct'
 
+  self.ulEthernetParameterBlockMagic = ${ETHTEST_PARAMETER_BLOCK_MAGIC}
+  self.ulEthernetParameterBlockVersion = ${ETHTEST_PARAMETER_BLOCK_VERSION}
+
   local atInterface = {
     ['None']     = ${INTERFACE_None},
     ['ETHMAC_INTPHY0']  = ${INTERFACE_ETHMAC_INTPHY0},
@@ -18,7 +21,8 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     ['ETHMAC_EXTPHY0']  = ${INTERFACE_ETHMAC_EXTPHY0},
     ['ETHMAC_EXTPHY1']  = ${INTERFACE_ETHMAC_EXTPHY1},
     ['ETH2PS_INTPHY0']  = ${INTERFACE_ETH2PS_INTPHY0},
-    ['ETH2PS_INTPHY1']  = ${INTERFACE_ETH2PS_INTPHY1}
+    ['ETH2PS_INTPHY1']  = ${INTERFACE_ETH2PS_INTPHY1},
+    ['ETH2PS_EXTSPE0']  = ${INTERFACE_ETH2PS_EXTSPE0}
   }
   self.atInterface = atInterface
   local strInterfaces = table.concat(pl.tablex.keys(atInterface), ',')
@@ -32,12 +36,15 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   local strInterfaceFunctions = table.concat(pl.tablex.keys(atInterfaceFunction), ',')
 
   local atEthernetPortFlags = {
-    ['Permanent'] = ${ETHERNET_PORT_FLAG_Permanent}
+    ['Permanent'] = ${ETHERNET_PORT_FLAG_Permanent},
+    ['LinkDownAllowed'] = ${ETHERNET_PORT_FLAG_LinkDownAllowed}
   }
   self.atEthernetPortFlags = atEthernetPortFlags
   local strEthernetPortFlags = table.concat(pl.tablex.keys(atEthernetPortFlags), ',')
 
   self.tStructure_EthernetPortConfiguration = self.vstruct.compile([[
+    ulMagic:u4
+    ulStructureVersion:u4
     ulVerbose:u4
     ulLinkUpTimeout:u4
     ulMaximumTransferTime:u4
@@ -349,6 +356,8 @@ function TestClassEth:run()
   -- Combine the parameters.
   local strEthernetPortConfiguration
   local atConfig = {
+    ['ulMagic'] = self.ulEthernetParameterBlockMagic,
+    ['ulStructureVersion'] = self.ulEthernetParameterBlockVersion,
     ['ulVerbose'] = 1,
     ['ulLinkUpTimeout'] = atParameter['link_up_timeout']:get(),
     ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),

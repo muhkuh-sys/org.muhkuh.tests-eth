@@ -500,6 +500,8 @@ static void eth2ps_process_received_packets(NETWORK_DRIVER_T *ptNetworkDriver __
 	PFN_HAL_HANDLE_RECEIVED_PACKET pfnPort1;
 
 
+	ptDriverPort0 = NULL;
+	ptDriverPort1 = NULL;
 	pfnPort0 = NULL;
 	pfnPort1 = NULL;
 	if( sizAllNetworkDrivers>=1 && ptAllNetworkDrivers[0].f_is_configured!=0 )

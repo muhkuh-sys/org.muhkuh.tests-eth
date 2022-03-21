@@ -177,9 +177,9 @@ void eth_release_packet(NETWORK_DRIVER_T *ptNetworkDriver, ETH2_PACKET_T *ptPack
 
 
 
-int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState)
+int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState, LINK_SPEED_T *ptLinkSpeed, LINK_DUPLEX_T *ptLinkDuplex)
 {
-	return ptNetworkDriver->tNetworkIf.pfnGetLinkStatus(ptNetworkDriver, ptLinkState);
+	return ptNetworkDriver->tNetworkIf.pfnGetLinkStatus(ptNetworkDriver, ptLinkState, ptLinkSpeed, ptLinkDuplex);
 }
 
 

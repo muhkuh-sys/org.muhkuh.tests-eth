@@ -15,9 +15,30 @@ typedef enum LINK_STATE_ENUM
 } LINK_STATE_T;
 
 
+
+typedef enum LINK_SPEED_ENUM
+{
+	LINK_SPEED_Unknown = 0,
+	LINK_SPEED_None = 1,
+	LINK_SPEED_10MBit = 2,
+	LINK_SPEED_100MBit = 3
+} LINK_SPEED_T;
+
+
+
+typedef enum LINK_DUPLEX_ENUM
+{
+	LINK_DUPLEX_Unknown = 0,
+	LINK_DUPLEX_None = 1,
+	LINK_DUPLEX_Half = 2,
+	LINK_DUPLEX_Full = 3
+} LINK_DUPLEX_T;
+
+
+
 struct NETWORK_DRIVER_STRUCT;
 
-typedef int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, LINK_STATE_T *ptLinkState);
+typedef int (*PFN_NETWORK_FN_GET_LINK_STATUS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, LINK_STATE_T *ptLinkState, LINK_SPEED_T *ptLinkSpeed, LINK_DUPLEX_T *ptLinkDuplex);
 typedef int (*PFN_NETWORK_FN_GET_EMPTY_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void **ppvPacket, void **pphPacket);
 typedef void (*PFN_NETWORK_FN_RELEASE_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket);
 typedef void (*PFN_NETWORK_FN_SEND_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
@@ -65,6 +86,17 @@ typedef enum INTERFACE_FUNCTION_ENUM
 	INTERFACE_FUNCTION_EchoServer = 1,    /* Echo all UDP data on the configured port. */
 	INTERFACE_FUNCTION_EchoClient = 2     /* Send UDP packets and expect an echo. */
 } INTERFACE_FUNCTION_T;
+
+
+
+typedef enum EXPECTED_LINK_ATTRIBUTES_ENUM
+{
+	EXPECTED_LINK_ATTRIBUTES_ANY = 0,
+	EXPECTED_LINK_ATTRIBUTES_10_HALF = 1,
+	EXPECTED_LINK_ATTRIBUTES_10_FULL = 2,
+	EXPECTED_LINK_ATTRIBUTES_100_HALF = 3,
+	EXPECTED_LINK_ATTRIBUTES_100_FULL = 4
+} EXPECTED_LINK_ATTRIBUTES_T;
 
 
 
@@ -226,6 +258,7 @@ typedef struct ETHERNET_PORT_CONFIGURATION_STRUCT
 	unsigned long ulInterface;
 	unsigned long ulFunction;
 	unsigned long ulFlags;
+	unsigned long ulExpectedLinkAttributes;
 	unsigned long ulIp;
 	unsigned long ulGatewayIp;
 	unsigned long ulNetmask;

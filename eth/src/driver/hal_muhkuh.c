@@ -122,34 +122,68 @@ int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 
 
 
-static int ethmac_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState)
+static int ethmac_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState, LINK_SPEED_T *ptLinkSpeed, LINK_DUPLEX_T *ptLinkDuplex)
 {
 	unsigned int uiPort;
 	int iResult;
 	unsigned int uiLinkState;
+	unsigned int uiSpeed;
+	unsigned int uiIsFullDuplex;
 	LINK_STATE_T tLinkState;
+	LINK_SPEED_T tLinkSpeed;
+	LINK_DUPLEX_T tLinkDuplex;
 
 
 	/* Get the index of the Ethernet port. */
 	uiPort = ptNetworkDriver->uiPort;
 
 	tLinkState = LINK_STATE_Unknown;
-	iResult = hal_ethmac_get_link_state(uiPort, &uiLinkState, NULL, NULL);
+	tLinkSpeed = LINK_SPEED_Unknown;
+	tLinkDuplex = LINK_DUPLEX_Unknown;
+	iResult = hal_ethmac_get_link_state(uiPort, &uiLinkState, &uiSpeed, &uiIsFullDuplex);
 	if( iResult==0 )
 	{
 		if( uiLinkState==0 )
 		{
 			tLinkState = LINK_STATE_Down;
+			tLinkSpeed = LINK_SPEED_None;
+			tLinkDuplex = LINK_DUPLEX_None;
 		}
 		else
 		{
 			tLinkState = LINK_STATE_Up;
+
+			if( uiSpeed==10 )
+			{
+				tLinkSpeed = LINK_SPEED_10MBit;
+			}
+			else if( uiSpeed==100 )
+			{
+				tLinkSpeed = LINK_SPEED_100MBit;
+			}
+
+			if( uiIsFullDuplex==0 )
+			{
+				tLinkDuplex = LINK_DUPLEX_Half;
+			}
+			else
+			{
+				tLinkDuplex = LINK_DUPLEX_Full;
+			}
 		}
 	}
 
 	if( ptLinkState!=NULL )
 	{
 		*ptLinkState = tLinkState;
+	}
+	if( ptLinkSpeed!=NULL )
+	{
+		*ptLinkSpeed = tLinkSpeed;
+	}
+	if( ptLinkDuplex!=NULL )
+	{
+		*ptLinkDuplex = tLinkDuplex;
 	}
 
 	return iResult;
@@ -411,34 +445,68 @@ int hal_muhkuh_eth2ps_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 
 
 
-static int eth2ps_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState)
+static int eth2ps_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState, LINK_SPEED_T *ptLinkSpeed, LINK_DUPLEX_T *ptLinkDuplex)
 {
 	unsigned int uiPort;
 	int iResult;
 	unsigned int uiLinkState;
+	unsigned int uiSpeed;
+	unsigned int uiIsFullDuplex;
 	LINK_STATE_T tLinkState;
+	LINK_SPEED_T tLinkSpeed;
+	LINK_DUPLEX_T tLinkDuplex;
 
 
 	/* Get the index of the Ethernet port. */
 	uiPort = ptNetworkDriver->uiPort;
 
 	tLinkState = LINK_STATE_Unknown;
-	iResult = hal_eth2ps_get_link_state(uiPort, &uiLinkState, NULL, NULL);
+	tLinkSpeed = LINK_SPEED_Unknown;
+	tLinkDuplex = LINK_DUPLEX_Unknown;
+	iResult = hal_eth2ps_get_link_state(uiPort, &uiLinkState, &uiSpeed, &uiIsFullDuplex);
 	if( iResult==0 )
 	{
 		if( uiLinkState==0 )
 		{
 			tLinkState = LINK_STATE_Down;
+			tLinkSpeed = LINK_SPEED_None;
+			tLinkDuplex = LINK_DUPLEX_None;
 		}
 		else
 		{
 			tLinkState = LINK_STATE_Up;
+
+			if( uiSpeed==10 )
+			{
+				tLinkSpeed = LINK_SPEED_10MBit;
+			}
+			else if( uiSpeed==100 )
+			{
+				tLinkSpeed = LINK_SPEED_100MBit;
+			}
+
+			if( uiIsFullDuplex==0 )
+			{
+				tLinkDuplex = LINK_DUPLEX_Half;
+			}
+			else
+			{
+				tLinkDuplex = LINK_DUPLEX_Full;
+			}
 		}
 	}
 
 	if( ptLinkState!=NULL )
 	{
 		*ptLinkState = tLinkState;
+	}
+	if( ptLinkSpeed!=NULL )
+	{
+		*ptLinkSpeed = tLinkSpeed;
+	}
+	if( ptLinkDuplex!=NULL )
+	{
+		*ptLinkDuplex = tLinkDuplex;
 	}
 
 	return iResult;

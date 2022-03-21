@@ -566,12 +566,176 @@ static void ethernet_cyclic_process(NETWORK_DRIVER_T *ptNetworkDriver)
 
 
 
+typedef struct LINK_SPEED_TO_STRING_STRUCT
+{
+	LINK_SPEED_T tLinkSpeed;
+	const char *pcName;
+} LINK_SPEED_TO_STRING_T;
+static const LINK_SPEED_TO_STRING_T atLinkSpeedToString[] =
+{
+	{ LINK_SPEED_Unknown, "unknown" },
+	{ LINK_SPEED_None,    "none" },
+	{ LINK_SPEED_10MBit,  "10MBit" },
+	{ LINK_SPEED_100MBit, "100MBit" }
+};
+
+static const char *link_speed_to_string(LINK_SPEED_T tLinkSpeed)
+{
+	const LINK_SPEED_TO_STRING_T *ptCnt;
+	const LINK_SPEED_TO_STRING_T *ptEnd;
+	const char *pcName;
+
+
+	pcName = "???";
+	ptCnt = atLinkSpeedToString;
+	ptEnd = atLinkSpeedToString + (sizeof(atLinkSpeedToString)/sizeof(atLinkSpeedToString[0]));
+	while( ptCnt<ptEnd )
+	{
+		if( ptCnt->tLinkSpeed==tLinkSpeed )
+		{
+			pcName = ptCnt->pcName;
+			break;
+		}
+		++ptCnt;
+	}
+	return pcName;
+}
+
+
+typedef struct LINK_DUPLEX_TO_STRING_STRUCT
+{
+	LINK_DUPLEX_T tLinkDuplex;
+	const char *pcName;
+} LINK_DUPLEX_TO_STRING_T;
+static const LINK_DUPLEX_TO_STRING_T atLinkDuplexToString[] =
+{
+	{ LINK_DUPLEX_Unknown, "unknown" },
+	{ LINK_DUPLEX_None,    "none" },
+	{ LINK_DUPLEX_Half,    "half duplex" },
+	{ LINK_DUPLEX_Full,    "full duplex" }
+};
+
+static const char *link_duplex_to_string(LINK_DUPLEX_T tLinkDuplex)
+{
+	const LINK_DUPLEX_TO_STRING_T *ptCnt;
+	const LINK_DUPLEX_TO_STRING_T *ptEnd;
+	const char *pcName;
+
+
+	pcName = "???";
+	ptCnt = atLinkDuplexToString;
+	ptEnd = atLinkDuplexToString + (sizeof(atLinkDuplexToString)/sizeof(atLinkDuplexToString[0]));
+	while( ptCnt<ptEnd )
+	{
+		if( ptCnt->tLinkDuplex==tLinkDuplex )
+		{
+			pcName = ptCnt->pcName;
+			break;
+		}
+		++ptCnt;
+	}
+	return pcName;
+}
+
+
+static int check_link_attributes(unsigned long ulExpectedLinkAttributes, LINK_SPEED_T tLinkSpeed, LINK_DUPLEX_T tLinkDuplex)
+{
+	EXPECTED_LINK_ATTRIBUTES_T tExpectedLinkAttributes;
+	LINK_SPEED_T tExpectedLinkSpeed;
+	LINK_DUPLEX_T tExpectedLinkDuplex;
+	int iResult;
+
+
+	/* Be pessimistic. */
+	iResult = -1;
+
+	tExpectedLinkAttributes = (EXPECTED_LINK_ATTRIBUTES_T)ulExpectedLinkAttributes;
+	switch( tExpectedLinkAttributes )
+	{
+	case EXPECTED_LINK_ATTRIBUTES_ANY:
+	case EXPECTED_LINK_ATTRIBUTES_10_HALF:
+	case EXPECTED_LINK_ATTRIBUTES_10_FULL:
+	case EXPECTED_LINK_ATTRIBUTES_100_HALF:
+	case EXPECTED_LINK_ATTRIBUTES_100_FULL:
+		iResult = 0;
+		break;
+	}
+	if( iResult!=0 )
+	{
+		uprintf("The expected link attributes have an invalid value of %d.\n", ulExpectedLinkAttributes);
+	}
+	else
+	{
+		tExpectedLinkSpeed = LINK_SPEED_Unknown;
+		tExpectedLinkDuplex = LINK_DUPLEX_Unknown;
+
+		switch( tExpectedLinkAttributes )
+		{
+		case EXPECTED_LINK_ATTRIBUTES_ANY:
+			/* Accept all speed and duplex attributes. */
+			break;
+
+		case EXPECTED_LINK_ATTRIBUTES_10_HALF:
+			tExpectedLinkSpeed = LINK_SPEED_10MBit;
+			tExpectedLinkDuplex = LINK_DUPLEX_Half;
+			if( (tLinkSpeed!=tExpectedLinkSpeed) || (tLinkDuplex!=tExpectedLinkDuplex) )
+			{
+				iResult = -1;
+			}
+			break;
+
+		case EXPECTED_LINK_ATTRIBUTES_10_FULL:
+			tExpectedLinkSpeed = LINK_SPEED_10MBit;
+			tExpectedLinkDuplex = LINK_DUPLEX_Full;
+			if( (tLinkSpeed!=tExpectedLinkSpeed) || (tLinkDuplex!=tExpectedLinkDuplex) )
+			{
+				iResult = -1;
+			}
+			break;
+
+		case EXPECTED_LINK_ATTRIBUTES_100_HALF:
+			tExpectedLinkSpeed = LINK_SPEED_100MBit;
+			tExpectedLinkDuplex = LINK_DUPLEX_Half;
+			if( (tLinkSpeed!=tExpectedLinkSpeed) || (tLinkDuplex!=tExpectedLinkDuplex) )
+			{
+				iResult = -1;
+			}
+			break;
+
+		case EXPECTED_LINK_ATTRIBUTES_100_FULL:
+			tExpectedLinkSpeed = LINK_SPEED_100MBit;
+			tExpectedLinkDuplex = LINK_DUPLEX_Full;
+			if( (tLinkSpeed!=tExpectedLinkSpeed) || (tLinkDuplex!=tExpectedLinkDuplex) )
+			{
+				iResult = -1;
+			}
+			break;
+		}
+
+		if( iResult!=0 )
+		{
+			uprintf("The established link has unexpected attributes. Expected % %, got %s %s.\n",
+				link_speed_to_string(tExpectedLinkSpeed),
+				link_duplex_to_string(tExpectedLinkDuplex),
+				link_speed_to_string(tLinkSpeed),
+				link_duplex_to_string(tLinkDuplex)
+			);
+		}
+	}
+
+	return iResult;
+}
+
+
+
 int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
 	int iEthResult;
 	NETWORK_STATE_T tState;
 	LINK_STATE_T tLinkState;
+	LINK_SPEED_T tLinkSpeed;
+	LINK_DUPLEX_T tLinkDuplex;
 	unsigned long ulDelay;
 	DHCP_STATE_T tDhcpState;
 	const char *pcName;
@@ -586,7 +750,7 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
-		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState);
+		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState, &tLinkSpeed, &tLinkDuplex);
 		if( iEthResult!=0 )
 		{
 			/* Failed to get the link state. */
@@ -608,16 +772,25 @@ int ethernet_startup_process(NETWORK_DRIVER_T *ptNetworkDriver)
 			{
 				uprintf("%s: link up\n", pcName);
 
-				ulDelay = ptNetworkDriver->tEthernetPortCfg.usLinkUpDelay;
-				if( ulDelay==0 )
+				/* Link is up. Check the attributes. */
+				iEthResult = check_link_attributes(ptNetworkDriver->tEthernetPortCfg.ulExpectedLinkAttributes, tLinkSpeed, tLinkDuplex);
+				if( iEthResult!=0 )
 				{
-					tState = NETWORK_STATE_LinkUp_Ready;
+					tState = NETWORK_STATE_Error;
 				}
 				else
 				{
-					uprintf("%s: link up delay of %dms.\n", pcName, ulDelay);
-					systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), ulDelay);
-					tState = NETWORK_STATE_LinkUp_Delay;
+					ulDelay = ptNetworkDriver->tEthernetPortCfg.usLinkUpDelay;
+					if( ulDelay==0 )
+					{
+						tState = NETWORK_STATE_LinkUp_Ready;
+					}
+					else
+					{
+						uprintf("%s: link up delay of %dms.\n", pcName, ulDelay);
+						systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), ulDelay);
+						tState = NETWORK_STATE_LinkUp_Delay;
+					}
 				}
 			}
 			break;
@@ -754,6 +927,8 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 	ECHO_CLIENT_STATE_T tActionResult;
 	NETWORK_STATE_T tState;
 	LINK_STATE_T tLinkState;
+	LINK_SPEED_T tLinkSpeed;
+	LINK_DUPLEX_T tLinkDuplex;
 	const char *pcName;
 	unsigned long ulFlags;
 	unsigned long ulFlagLinkDownAllowed;
@@ -796,7 +971,7 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 		pcName = ptNetworkDriver->tEthernetPortCfg.acName;
 
 		/* Get the current link state. */
-		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState);
+		iEthResult = eth_get_link_status(ptNetworkDriver, &tLinkState, &tLinkSpeed, &tLinkDuplex);
 		if( iEthResult!=0 )
 		{
 			/* Failed to get the link state. */
@@ -828,16 +1003,25 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 				{
 					uprintf("%s: link up\n", pcName);
 
-					ulDelay = ptNetworkDriver->tEthernetPortCfg.usLinkUpDelay;
-					if( ulDelay==0 )
+					/* Link is up. Check the attributes. */
+					iEthResult = check_link_attributes(ptNetworkDriver->tEthernetPortCfg.ulExpectedLinkAttributes, tLinkSpeed, tLinkDuplex);
+					if( iEthResult!=0 )
 					{
-						tState = NETWORK_STATE_LinkUp_Ready;
+						tState = NETWORK_STATE_Error;
 					}
 					else
 					{
-						uprintf("%s: link up delay of %dms.\n", pcName, ulDelay);
-						systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), ulDelay);
-						tState = NETWORK_STATE_LinkUp_Delay;
+						ulDelay = ptNetworkDriver->tEthernetPortCfg.usLinkUpDelay;
+						if( ulDelay==0 )
+						{
+							tState = NETWORK_STATE_LinkUp_Ready;
+						}
+						else
+						{
+							uprintf("%s: link up delay of %dms.\n", pcName, ulDelay);
+							systime_handle_start_ms(&(ptNetworkDriver->tLinkUpTimer), ulDelay);
+							tState = NETWORK_STATE_LinkUp_Delay;
+						}
 					}
 				}
 				tResult = tSetupResult;

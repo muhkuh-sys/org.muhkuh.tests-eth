@@ -56,6 +56,16 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self.atEthernetPortFlags = atEthernetPortFlags
   local strEthernetPortFlags = table.concat(pl.tablex.keys(atEthernetPortFlags), ',')
 
+  local atExpectedLinkAttributes = {
+    ['ANY'] = ${EXPECTED_LINK_ATTRIBUTES_ANY},
+    ['10_HALF'] = ${EXPECTED_LINK_ATTRIBUTES_10_HALF},
+    ['10_FULL'] = ${EXPECTED_LINK_ATTRIBUTES_10_FULL},
+    ['100_HALF'] = ${EXPECTED_LINK_ATTRIBUTES_100_HALF},
+    ['100_FULL'] = ${EXPECTED_LINK_ATTRIBUTES_100_FULL}
+  }
+  self.atExpectedLinkAttributes = atExpectedLinkAttributes
+  local strExpectedLinkAttributes = table.concat(pl.tablex.keys(atExpectedLinkAttributes), ',')
+
   self.tStructure_EthernetPortConfiguration = self.vstruct.compile([[
     ulMagic:u4
     ulStructureVersion:u4
@@ -67,6 +77,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
       ulInterface:u4
       ulFunction:u4
       ulFlags:u4
+      ulExpectedLinkAttributes:u4
       ulIp:u4
       ulGatewayIp:u4
       ulNetmask:u4
@@ -112,6 +123,11 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     P:MC('port0_flags', 'The flags for port 0.'):
       required(false):
       constraint(strEthernetPortFlags),
+
+    P:SC('port0_expected_link_attributes', 'The expected link attributes for port 0.'):
+      default('ANY'):
+      required(true):
+      constraint(strEthernetPortExpectedLinkAttributes),
 
     P:P('port0_mac', 'The MAC for port 0.'):
       default('00:02:a2:20:20:00'):
@@ -171,6 +187,11 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     P:MC('port1_flags', 'The flags for port 1.'):
       required(false):
       constraint(strEthernetPortFlags),
+
+    P:SC('port1_expected_link_attributes', 'The expected link attributes for port 1.'):
+      default('ANY'):
+      required(true):
+      constraint(strEthernetPortExpectedLinkAttributes),
 
     P:P('port1_mac', 'The MAC for port 1.'):
       default('00:02:a2:20:20:01'):
@@ -375,6 +396,21 @@ function TestClassEth:run()
     end
   end
 
+  local strPort0_ExpectedLinkAttributes = atParameter['port0_expected_link_attributes']:get()
+  local ulPort0_ExpectedLinkAttributes = self.atExpectedLinkAttributes[strPort0_ExpectedLinkAttributes]
+  if ulPort0_ExpectedLinkAttributes==nil then
+    local strMsg = string.format('Unknown expected link attributes "%s" specified for port 0.', strPort0_ExpectedLinkAttributes)
+    tLog.error(strMsg)
+    error(strMsg)
+  end
+  local strPort1_ExpectedLinkAttributes = atParameter['port1_expected_link_attributes']:get()
+  local ulPort1_ExpectedLinkAttributes = self.atExpectedLinkAttributes[strPort1_ExpectedLinkAttributes]
+  if ulPort1_ExpectedLinkAttributes==nil then
+    local strMsg = string.format('Unknown expected link attributes "%s" specified for port 1.', strPort1_ExpectedLinkAttributes)
+    tLog.error(strMsg)
+    error(strMsg)
+  end
+
   -- Combine the parameters.
   local strEthernetPortConfiguration
   local atConfig = {
@@ -389,6 +425,7 @@ function TestClassEth:run()
       ['ulInterface'] = ulPort0_Interface,
       ['ulFunction'] = ulPort0_InterfaceFunction,
       ['ulFlags'] = ulPort0_Flags,
+      ['ulExpectedLinkAttributes'] = ulPort0_ExpectedLinkAttributes,
       ['ulIp'] = port0_ip,
       ['ulGatewayIp'] = atParameter['port0_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port0_netmask']:get(),
@@ -404,6 +441,7 @@ function TestClassEth:run()
       ['ulInterface'] = ulPort1_Interface,
       ['ulFunction'] = ulPort1_InterfaceFunction,
       ['ulFlags'] = ulPort1_Flags,
+      ['ulExpectedLinkAttributes'] = ulPort1_ExpectedLinkAttributes,
       ['ulIp'] = port1_ip,
       ['ulGatewayIp'] = atParameter['port1_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port1_netmask']:get(),

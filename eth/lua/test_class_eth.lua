@@ -71,6 +71,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
       ulGatewayIp:u4
       ulNetmask:u4
       ulRemoteIp:u4
+      ulNumberOfTestPackets:u4
       usLinkUpDelay:u2
       usLocalPort:u2
       usRemotePort:u2
@@ -149,6 +150,9 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
       default(1024):
       required(true),
 
+    P:U32('port0_number_of_testpackets', 'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
+      default(2048):
+      required(true),
 
     P:P('port1_name', 'The name of port 1.'):
       default('CH1'):
@@ -203,6 +207,10 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
 
     P:U16('port1_remote_port', 'The local port number of port 1.'):
       default(1024):
+      required(true),
+
+    P:U32('port1_number_of_testpackets', 'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
+      default(2048):
       required(true)
   }
 end
@@ -385,6 +393,7 @@ function TestClassEth:run()
       ['ulGatewayIp'] = atParameter['port0_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port0_netmask']:get(),
       ['ulRemoteIp'] = atParameter['port0_remote_ip']:get(),
+      ['ulNumberOfTestPackets'] = atParameter['port0_number_of_testpackets']:get(),
       ['usLinkUpDelay'] = atParameter['port0_link_up_delay']:get(),
       ['usLocalPort'] = atParameter['port0_local_port']:get(),
       ['usRemotePort'] = atParameter['port0_remote_port']:get(),
@@ -399,6 +408,7 @@ function TestClassEth:run()
       ['ulGatewayIp'] = atParameter['port1_gateway_ip']:get(),
       ['ulNetmask'] = atParameter['port1_netmask']:get(),
       ['ulRemoteIp'] = atParameter['port1_remote_ip']:get(),
+      ['ulNumberOfTestPackets'] = atParameter['port1_number_of_testpackets']:get(),
       ['usLinkUpDelay'] = atParameter['port1_link_up_delay']:get(),
       ['usLocalPort'] = atParameter['port1_local_port']:get(),
       ['usRemotePort'] = atParameter['port1_remote_port']:get(),

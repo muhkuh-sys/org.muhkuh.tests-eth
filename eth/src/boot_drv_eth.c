@@ -295,6 +295,7 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 	unsigned long ulSeed;
 	unsigned short usLocalPort;
 	unsigned long ulRemoteIp;
+	unsigned long ulNumberOfTestPackets;
 	unsigned short usRemotePort;
 
 
@@ -302,10 +303,17 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 	ulRemoteIp = ptEthCfg->ulRemoteIp;
 	usRemotePort = MUS2NUS(ptEthCfg->usRemotePort);
 
+	/* If the number of packets is set to 0, use a default value. */
+	ulNumberOfTestPackets = ptEthCfg->ulNumberOfTestPackets;
+	if( ulNumberOfTestPackets==0 )
+	{
+		ulNumberOfTestPackets = 2048;
+	}
+
 	ptHandle = &(ptNetworkDriver->tFunctionHandle.tClient);
 
 	ptHandle->tState = ECHO_CLIENT_STATE_Idle;
-	ptHandle->uiPacketsLeft = 2048;
+	ptHandle->uiPacketsLeft = ulNumberOfTestPackets;
 	ptHandle->ulServerIp = ulRemoteIp;
 	ptHandle->usServerPort = usRemotePort;
 	ptHandle->ptUdpAssoc = udp_registerPort(

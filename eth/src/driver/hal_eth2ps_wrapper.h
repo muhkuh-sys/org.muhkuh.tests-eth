@@ -8,9 +8,28 @@
 typedef void (*PFN_HAL_HANDLE_RECEIVED_PACKET)(void *pvNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
 
 
+typedef enum HAL_ETH2PS_RESULT_ENUM
+{
+	HAL_ETH2PS_RESULT_Ok = 0,
+	HAL_ETH2PS_RESULT_0SPEPortsAreNotSupportedYet = 1,
+	HAL_ETH2PS_RESULT_2SPEPortsAreNotSupportedYet = 2,
+	HAL_ETH2PS_RESULT_UnknownSetup = 3,
+	HAL_ETH2PS_RESULT_FailedToAddRTEPhy0 = 4,
+	HAL_ETH2PS_RESULT_FailedToAddRTEPhy1 = 5,
+	HAL_ETH2PS_RESULT_FailedToAddSPEPhy0 = 6,
+	HAL_ETH2PS_RESULT_FailedToAddSPEPhy1 = 7,
+	HAL_ETH2PS_RESULT_FailedToInitializeSPEPhy0 = 8,
+	HAL_ETH2PS_RESULT_FailedToInitializeSPEPhy1 = 9,
+	HAL_ETH2PS_RESULT_FailedToRegisterExtLinkApiSPEPhy0 = 10,
+	HAL_ETH2PS_RESULT_FailedToRegisterExtLinkApiSPEPhy1 = 11,
+	HAL_ETH2PS_RESULT_FailedToReleaseSPEPhy0 = 12,
+	HAL_ETH2PS_RESULT_FailedToReleaseSPEPhy1 = 13,
+} HAL_ETH2PS_RESULT_T;
+
+
 void hal_ethps2_prepare(void);
 
-int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts);
+HAL_ETH2PS_RESULT_T hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts);
 
 void hal_eth2ps_pfifo_reset(void);
 

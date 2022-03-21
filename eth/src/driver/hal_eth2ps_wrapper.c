@@ -176,19 +176,20 @@ static unsigned int intphy_read(unsigned int uiPhy, unsigned int uiAddr)
 }
 
 
-int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
+HAL_ETH2PS_RESULT_T hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 {
-	int iResult;
+	HAL_ETH2PS_RESULT_T tResult;
 	uint32_t ulValue;
 	int iHalResult;
 
 
-	/* Be pessimistic. */
-	iResult = -1;
+	/* Be optimistic. */
+	tResult = HAL_ETH2PS_RESULT_Ok;
 
 	if( uiNumberOfSpePorts==0 )
 	{
 		/* Not supported yet. */
+		tResult = HAL_ETH2PS_RESULT_0SPEPortsAreNotSupportedYet;
 	}
 	else if( uiNumberOfSpePorts==1 )
 	{
@@ -208,19 +209,35 @@ int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 		INTPHY_SetModeAutoNeg(0, MSK_INTPHY_AUTONEG_ADV_ALL_CAPABLE);
 
 		iHalResult = phy_add(0, 0, intphy_write, intphy_read);
-		if( iHalResult==0 )
+		if( iHalResult!=0 )
+		{
+			tResult = HAL_ETH2PS_RESULT_FailedToAddRTEPhy0;
+		}
+		else
 		{
 			/* Initialize external SPE PHY on xC channel 1 */
 			iHalResult = adinphy_initialize(1, EXTPHY_MDIO_ADDR_PORT1, &(g_tEth2PS.tEth));
-			if( iHalResult==0 )
+			if( iHalResult!=0 )
+			{
+				tResult = HAL_ETH2PS_RESULT_FailedToInitializeSPEPhy1;
+			}
+			else
 			{
 				/* Add PHY to HAL driver */
 				iHalResult = phy_add(1, EXTPHY_MDIO_ADDR_PORT1, adinphy_write_cl45, adinphy_read_cl45);
-				if( iHalResult==0 )
+				if( iHalResult!=0 )
+				{
+					tResult = HAL_ETH2PS_RESULT_FailedToAddSPEPhy1;
+				}
+				else
 				{
 					/* Register link state API for external PHYs */
 					iHalResult = phy_register_ext_link_api(1, adinphy_get_linkstate);
-					if( iHalResult==0 )
+					if( iHalResult!=0 )
+					{
+						tResult = HAL_ETH2PS_RESULT_FailedToRegisterExtLinkApiSPEPhy1;
+					}
+					else
 					{
 						/* Configure the port with the external PHY on it */
 						g_tSysCfg.atPortCfg[1].fNoPhyLinkInput = true;        /* Disable link check during transmission for xC channel 1 as well
@@ -230,7 +247,11 @@ int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 
 						/* Disable software power-down and enable auto-negotiation */
 						iHalResult = adinphy_release(1);
-						if( iHalResult==0 )
+						if( iHalResult!=0 )
+						{
+							tResult = HAL_ETH2PS_RESULT_FailedToReleaseSPEPhy1;
+						}
+						else
 						{
 							/* Fill out PHY latencies MDI<->MII */
 							g_tSysCfg.uiSystime = 0;
@@ -247,7 +268,7 @@ int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 							phy_write(1, 4, 1 | PHY_ADV_ALL);             /* advertise all modes */
 							phy_write(1, 0, PHY_CONTROL_AUTO_NEG_ENABLE | PHY_CONTROL_AUTO_NEG_RESTART); /* restart auto-neg */
 
-							iResult = 0;
+							tResult = HAL_ETH2PS_RESULT_Ok;
 						}
 					}
 				}
@@ -257,13 +278,15 @@ int hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 	else if( uiNumberOfSpePorts==2 )
 	{
 		/* Not supported yet. */
+		tResult = HAL_ETH2PS_RESULT_2SPEPortsAreNotSupportedYet;
 	}
 	else
 	{
 		/* Unknown setup. */
+		tResult = HAL_ETH2PS_RESULT_UnknownSetup;
 	}
 
-	return iResult;
+	return tResult;
 }
 
 

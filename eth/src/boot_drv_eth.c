@@ -335,6 +335,9 @@ static void echo_client_initialize(NETWORK_DRIVER_T *ptNetworkDriver, ETHERNET_P
 int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atNetworkDriver)
 {
 	int iResult;
+#if CFG_USE_ETH2PS!=0
+	HAL_ETH2PS_RESULT_T tHalEth2psResult;
+#endif
 	unsigned int uiInterfaceIndex;
 	ETHERNET_PORT_CONFIGURATION_T *ptEthCfg;
 	NETWORK_DRIVER_T *ptNetworkDriver;
@@ -447,18 +450,35 @@ int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atN
 			iResult = -1;
 #else
 			iResult = hal_muhkuh_eth2ps_prepare(ptNetworkDriver0);
-			if( iResult==0 )
+			if( iResult!=0 )
+			{
+				uprintf("Failed to prepare the ETH2PS HAL: %d\n", iResult);
+			}
+			else
 			{
 				/* Activate the internal and external PHY. */
-				iResult = hal_eth2ps_phy_init(1);
-				if( iResult==0 )
+				tHalEth2psResult = hal_eth2ps_phy_init(1);
+				if( tHalEth2psResult!=HAL_ETH2PS_RESULT_Ok )
+				{
+					uprintf("Failed to initialize the PHY for the ETH2PS HAL: %d\n", tHalEth2psResult);
+					iResult = -1;
+				}
+				else
 				{
 					hal_eth2ps_pfifo_reset();
 
 					iResult = hal_muhkuh_eth2ps_disable(ptNetworkDriver0);
-					if( iResult==0 )
+					if( iResult!=0 )
+					{
+						uprintf("Failed to disable the ETH2PS HAL in the startup procedure: %d\n", iResult);
+					}
+					else
 					{
 						iResult = hal_muhkuh_eth2ps_initialize(ptNetworkDriver0, ptNetworkDriver1);
+						if( iResult!=0 )
+						{
+							uprintf("Failed to initialize the ETH2PS HAL: %d\n", iResult);
+						}
 					}
 				}
 			}

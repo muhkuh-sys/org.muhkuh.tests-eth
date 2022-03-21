@@ -159,6 +159,12 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	/* Be optimistic. */
 	tTestResult = TEST_RESULT_OK;
 
+	/* Clear the driver structure.
+	 * This is important to check at the end of the test if the
+	 * "ShowStatistics" function pointer is already initialized.
+	 */
+	memset(atNetworkDriver, 0, sizeof(atNetworkDriver));
+
 	ulVerbosity = ptTestParams->ulVerbose;
 	if( ulVerbosity!=0 )
 	{
@@ -291,8 +297,14 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	}
 
 	/* Show statistics for both ports. */
-	atNetworkDriver[0].tNetworkIf.pfnShowStatistics(atNetworkDriver+0);
-	atNetworkDriver[1].tNetworkIf.pfnShowStatistics(atNetworkDriver+1);
+	if( atNetworkDriver[0].tNetworkIf.pfnShowStatistics!=NULL )
+	{
+		atNetworkDriver[0].tNetworkIf.pfnShowStatistics(atNetworkDriver+0);
+	}
+	if( atNetworkDriver[1].tNetworkIf.pfnShowStatistics!=NULL )
+	{
+		atNetworkDriver[1].tNetworkIf.pfnShowStatistics(atNetworkDriver+1);
+	}
 
 	return tTestResult;
 }

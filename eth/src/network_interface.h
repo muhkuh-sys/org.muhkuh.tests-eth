@@ -43,7 +43,6 @@ typedef int (*PFN_NETWORK_FN_GET_EMPTY_PACKET)(struct NETWORK_DRIVER_STRUCT *ptN
 typedef void (*PFN_NETWORK_FN_RELEASE_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket);
 typedef void (*PFN_NETWORK_FN_SEND_PACKET)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
 typedef void (*PFN_NETWORK_FN_PROCESS_RECEIVED_PACKETS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver, struct NETWORK_DRIVER_STRUCT *ptAllNetworkDrivers, unsigned int sizAllNetworkDrivers);
-typedef void (*PFN_NETWORK_FN_DEACTIVATE)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
 typedef int (*PFN_NETWORK_FN_SHOW_STATISTICS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
 #if CFG_DEBUGMSG==1
 typedef void (*PFN_NETWORK_FN_STATISTICS)(struct NETWORK_DRIVER_STRUCT *ptNetworkDriver);
@@ -57,7 +56,6 @@ typedef struct STRUCT_NETWORK_IF
 	PFN_NETWORK_FN_RELEASE_PACKET pfnReleasePacket;
 	PFN_NETWORK_FN_SEND_PACKET pfnSendPacket;
 	PFN_NETWORK_FN_PROCESS_RECEIVED_PACKETS pfnProcessReceivedPackets;
-	PFN_NETWORK_FN_DEACTIVATE pfnDeactivate;
 	PFN_NETWORK_FN_SHOW_STATISTICS pfnShowStatistics;
 #if CFG_DEBUGMSG==1
 	PFN_NETWORK_FN_STATISTICS pfnStatistics;

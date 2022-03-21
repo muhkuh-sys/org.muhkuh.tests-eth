@@ -8,6 +8,7 @@
 typedef void (*PFN_HAL_HANDLE_RECEIVED_PACKET)(void *pvNetworkDriver, void *pvPacket, void *phPacket, unsigned int sizPacket);
 
 void hal_ethmac_phy_init(unsigned int uiEnabledPorts);
+void hal_ethmac_phy_deinit(unsigned int uiEnabledPorts);
 
 void hal_ethmac_pfifo_reset(void);
 

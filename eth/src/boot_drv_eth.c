@@ -475,7 +475,7 @@ int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atN
 				{
 					hal_eth2ps_pfifo_reset();
 
-					iResult = hal_muhkuh_eth2ps_disable(ptNetworkDriver0);
+					iResult = hal_muhkuh_eth2ps_disable(ptNetworkDriver0, ptNetworkDriver1);
 					if( iResult!=0 )
 					{
 						uprintf("Failed to disable the ETH2PS HAL in the startup procedure: %d\n", iResult);
@@ -545,6 +545,87 @@ int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atN
 				}
 			}
 		}
+	}
+
+	return iResult;
+}
+
+
+
+int ethernet_deinit(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atNetworkDriver)
+{
+	int iResult;
+#if CFG_USE_ETH2PS!=0
+	HAL_ETH2PS_RESULT_T tHalEth2psResult;
+#endif
+	NETWORK_DRIVER_T *ptNetworkDriver0;
+	NETWORK_DRIVER_T *ptNetworkDriver1;
+	INTERFACE_T tInterface0;
+	INTERFACE_T tInterface1;
+
+
+	iResult = 0;
+
+	/* Get both interfaces. */
+	tInterface0 = (INTERFACE_T)(atEthCfg[0].ulInterface);
+	tInterface1 = (INTERFACE_T)(atEthCfg[1].ulInterface);
+	/* Get both network drivers. */
+	ptNetworkDriver0 = atNetworkDriver;
+	ptNetworkDriver1 = atNetworkDriver + 1U;
+
+	/* Configuration 1: 1 single port on INTPHY */
+	if( tInterface0==INTERFACE_ETHMAC_INTPHY0 && tInterface1==INTERFACE_None )
+	{
+#if CFG_USE_ETHMAC==0
+		uprintf("ERROR: ETHMAC is not available in this build.\n");
+		iResult = -1;
+#else
+		/* Deactivate only one PHY port. */
+		hal_ethmac_phy_deinit(1);
+
+		iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver0, 0);
+#endif
+	}
+	/* Configuration 2: 2 separate ports on INTPHY */
+	else if( tInterface0==INTERFACE_ETHMAC_INTPHY0 && tInterface1==INTERFACE_ETHMAC_INTPHY1 )
+	{
+#if CFG_USE_ETHMAC==0
+		uprintf("ERROR: ETHMAC is not available in this build.\n");
+		iResult = -1;
+#else
+		/* Deactivate both PHY ports. */
+		hal_ethmac_phy_deinit(2);
+
+		iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver0, 0);
+		if( iResult==0 )
+		{
+			iResult = hal_muhkuh_ethmac_disable(ptNetworkDriver1, 1);
+		}
+#endif
+	}
+	/* Configuration 3: 1 port on INTPHY and 1 port on SPE as a switch */
+	else if( tInterface0==INTERFACE_ETH2PS_INTPHY0 && tInterface1==INTERFACE_ETH2PS_EXTSPE0 )
+	{
+#if CFG_USE_ETH2PS==0
+		uprintf("ERROR: ETH2PS is not available in this build.\n");
+		iResult = -1;
+#else
+		/* Deactivate the internal and external PHY. */
+		tHalEth2psResult = hal_eth2ps_phy_deinit(1);
+		if( tHalEth2psResult!=HAL_ETH2PS_RESULT_Ok )
+		{
+			uprintf("Failed to de-initialize the PHY for the ETH2PS HAL: %d\n", tHalEth2psResult);
+			iResult = -1;
+		}
+		else
+		{
+			iResult = hal_muhkuh_eth2ps_disable(ptNetworkDriver0, ptNetworkDriver1);
+			if( iResult!=0 )
+			{
+				uprintf("Failed to disable the ETH2PS HAL in the startup procedure: %d\n", iResult);
+			}
+		}
+#endif
 	}
 
 	return iResult;

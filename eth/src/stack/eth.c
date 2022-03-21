@@ -181,11 +181,3 @@ int eth_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkS
 {
 	return ptNetworkDriver->tNetworkIf.pfnGetLinkStatus(ptNetworkDriver, ptLinkState, ptLinkSpeed, ptLinkDuplex);
 }
-
-
-
-void eth_deactivate(NETWORK_DRIVER_T *ptNetworkDriver)
-{
-	ptNetworkDriver->tNetworkIf.pfnDeactivate(ptNetworkDriver);
-}
-

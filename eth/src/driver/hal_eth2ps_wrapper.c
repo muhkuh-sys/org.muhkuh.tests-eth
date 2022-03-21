@@ -291,6 +291,56 @@ HAL_ETH2PS_RESULT_T hal_eth2ps_phy_init(unsigned int uiNumberOfSpePorts)
 
 
 
+HAL_ETH2PS_RESULT_T hal_eth2ps_phy_deinit(unsigned int uiNumberOfSpePorts)
+{
+	HAL_ETH2PS_RESULT_T tResult;
+	int iHalResult;
+
+
+	/* Be optimistic. */
+	tResult = HAL_ETH2PS_RESULT_Ok;
+
+	if( uiNumberOfSpePorts==0 )
+	{
+		/* Not supported yet. */
+		tResult = HAL_ETH2PS_RESULT_0SPEPortsAreNotSupportedYet;
+	}
+	else if( uiNumberOfSpePorts==1 )
+	{
+		/* Disconnect XC from internal PHY */
+		AsicCtrl_SetIoConfig(1, DFLT_VAL_NX90_io_config0_sel_xm0_mii_cfg
+		                      | DFLT_VAL_NX90_io_config0_mask_sel_xc0_mdio);
+
+		/* This sets both ports into power down mode. */
+		INTPHY_SetupDualPhy();
+
+		/* This sets the external PHY to power down mode. */
+		iHalResult = adinphy_initialize(1, EXTPHY_MDIO_ADDR_PORT1, &(g_tEth2PS.tEth));
+		if( iHalResult!=0 )
+		{
+			tResult = HAL_ETH2PS_RESULT_FailedToInitializeSPEPhy1;
+		}
+		else
+		{
+			tResult = HAL_ETH2PS_RESULT_Ok;
+		}
+	}
+	else if( uiNumberOfSpePorts==2 )
+	{
+		/* Not supported yet. */
+		tResult = HAL_ETH2PS_RESULT_2SPEPortsAreNotSupportedYet;
+	}
+	else
+	{
+		/* Unknown setup. */
+		tResult = HAL_ETH2PS_RESULT_UnknownSetup;
+	}
+
+	return tResult;
+}
+
+
+
 void hal_eth2ps_pfifo_reset(void)
 {
 	/* reset pointer FIFO borders */
@@ -425,6 +475,22 @@ int hal_eth2ps_init(uint8_t *pucMAC0, uint8_t *pucMAC1)
 	return iResult;
 }
 
+
+
+int hal_eth2ps_deinit(void)
+{
+	int iResult;
+
+
+	/* reset the hardware block */
+	iResult = XC_Reset(0, 0, NULL);
+	if( iResult==0 )
+	{
+		iResult = XC_Reset(0, 1, NULL);
+	}
+
+	return iResult;
+}
 
 
 int hal_eth2ps_get_link_state(unsigned int uiPort, unsigned int *puiLinkState, unsigned int *puiSpeed, unsigned int *puiIsFullDuplex)

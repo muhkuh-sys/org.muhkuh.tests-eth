@@ -251,13 +251,6 @@ static void ethmac_process_received_packets(NETWORK_DRIVER_T *ptNetworkDriver, N
 
 
 
-static void ethmac_deactivate(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)))
-{
-	/* TODO: deactivate all. */
-}
-
-
-
 static const NETWORK_IF_T tNetworkIfEthMac =
 {
 	.pfnGetLinkStatus = ethmac_get_link_status,
@@ -265,7 +258,6 @@ static const NETWORK_IF_T tNetworkIfEthMac =
 	.pfnReleasePacket = ethmac_release_packet,
 	.pfnSendPacket = ethmac_send_packet,
 	.pfnProcessReceivedPackets = ethmac_process_received_packets,
-	.pfnDeactivate = ethmac_deactivate
 };
 
 
@@ -356,7 +348,7 @@ int hal_muhkuh_eth2ps_initialize(NETWORK_DRIVER_T *ptNetworkDriver0 __attribute_
 
 
 
-int hal_muhkuh_eth2ps_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)))
+int hal_muhkuh_eth2ps_disable(NETWORK_DRIVER_T *ptNetworkDriver0 __attribute__((unused)), NETWORK_DRIVER_T *ptNetworkDriver1 __attribute__((unused)))
 {
 	uprintf("ERROR: ETH2PS is not available in this build.\n");
 	return -1;
@@ -589,13 +581,6 @@ static void eth2ps_process_received_packets(NETWORK_DRIVER_T *ptNetworkDriver __
 
 
 
-static void eth2ps_deactivate(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)))
-{
-	/* TODO: deactivate all. */
-}
-
-
-
 static int eth2ps_show_statistics(NETWORK_DRIVER_T *ptNetworkDriver)
 {
 	int iResult;
@@ -644,7 +629,6 @@ static const NETWORK_IF_T tNetworkIfEth2ps =
 	.pfnReleasePacket = eth2ps_release_packet,
 	.pfnSendPacket = eth2ps_send_packet,
 	.pfnProcessReceivedPackets = eth2ps_process_received_packets,
-	.pfnDeactivate = eth2ps_deactivate,
 	.pfnShowStatistics = eth2ps_show_statistics
 };
 
@@ -677,11 +661,13 @@ int hal_muhkuh_eth2ps_initialize(NETWORK_DRIVER_T *ptNetworkDriver0, NETWORK_DRI
 
 
 
-int hal_muhkuh_eth2ps_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)))
+int hal_muhkuh_eth2ps_disable(NETWORK_DRIVER_T *ptNetworkDriver0 __attribute__((unused)), NETWORK_DRIVER_T *ptNetworkDriver1 __attribute__((unused)))
 {
-	/* FIXME: add a reset here. */
+	int iResult;
 
-	return 0;
+
+	iResult = hal_eth2ps_deinit();
+	return iResult;
 }
 
 #endif

@@ -117,6 +117,21 @@ void hal_ethmac_phy_init(unsigned int uiEnabledPorts)
 }
 
 
+
+void hal_ethmac_phy_deinit(unsigned int uiEnabledPorts)
+{
+	/* Disconnect XC from internal PHY */
+	AsicCtrl_SetIoConfig(1, DFLT_VAL_NX90_io_config0_sel_xm0_mii_cfg
+	                      | DFLT_VAL_NX90_io_config0_mask_sel_xc0_mdio);
+	if( uiEnabledPorts>1 )
+	{
+		AsicCtrl_SetIoConfig(2, DFLT_VAL_NX90_io_config1_sel_xm1_mii_cfg);
+	}
+
+	int_phy_reset(0, 0);
+}
+
+
 /*-------------------------------------------------------------------------*/
 
 

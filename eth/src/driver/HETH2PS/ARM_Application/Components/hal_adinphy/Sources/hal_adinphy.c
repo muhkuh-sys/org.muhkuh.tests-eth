@@ -23,7 +23,7 @@
 
 #define BV(x) (1 << x)                /* Bit vector with 1 at bit x */
 #define BM(name) (MSK_NX90_##name)    /* netX 90 bit mask */
-#define WAIT_100NS(x) for(int i = 0; i < x; i++)    /* Wait for ~100ns */
+//#define WAIT_100NS(x) for(int i = 0; i < x; i++)    /* Wait for ~100ns */
 
 void(*s_link_state_callback)(void* pvCtx) = NULL;   /* Pointer to a callback function for a
                                                        link state change of any ADIN1100 PHY */
@@ -32,6 +32,19 @@ HW_PTR_HIF_IO_CTRL(hif_io_ctrl_reg)   /* Pointer to hif_io_ctrl base register */
 HW_PTR_PHY_CTRL(phy_ctrl_reg)         /* Pointer to phy_ctrl base register */
 
 SPE_PHY_T ext_phy[2];                 /* SPE PHY data structure, one per xC port */
+
+
+static void __attribute__ ((optimize ("0"))) WAIT_100NS(int x)
+{
+	int i;
+
+
+	for(i = 0; i < x; i++)
+	{
+		__asm__("NOP");
+	}
+}
+
 
 int adinphy_initialize(uint8_t xc_port, uint8_t mdio_addr, void* pt_inst)
 {

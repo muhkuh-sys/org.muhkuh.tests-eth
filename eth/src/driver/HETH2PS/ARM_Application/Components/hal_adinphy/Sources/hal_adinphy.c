@@ -262,7 +262,7 @@ void adinphy_write_cl45(unsigned int uiPhy, unsigned int uiReg, unsigned int uiV
  * \param [in] mdio_sw_reg    Pointer on MIIMU_SW register
  * \param [in] mdio_frame     Complete MDIO frame with preamble
  */
-void adinphy_write_mdio(volatile uint32_t* mdio_sw_reg, uint64_t mdio_frame)
+static void adinphy_write_mdio(volatile uint32_t* mdio_sw_reg, uint64_t mdio_frame)
 {
   uint8_t cur_pos = 64;
   uint32_t miimu_enable_mask = HW_MSK(eth_miimu_sw_enable) | HW_MSK(eth_miimu_sw_mdoe);
@@ -298,7 +298,7 @@ void adinphy_write_mdio(volatile uint32_t* mdio_sw_reg, uint64_t mdio_frame)
  * \param [in]  mdio_frame    Complete MDIO frame with preamble
  * \param [out] data          Data received from MDIO
  */
-void adinphy_read_mdio(volatile uint32_t* mdio_sw_reg, uint64_t mdio_frame, uint16_t* data)
+static void adinphy_read_mdio(volatile uint32_t* mdio_sw_reg, uint64_t mdio_frame, uint16_t* data)
 {
   uint8_t cur_pos = 64;
   uint32_t miimu_enable_mask = HW_MSK(eth_miimu_sw_enable) | HW_MSK(eth_miimu_sw_mdoe);

@@ -37,10 +37,16 @@
             "compileCommands": "${workspaceFolder}/eth/targets/netx4000/compile_commands.json"
         },
         {
-            "name": "NETX90_MUHKUH",
+            "name": "NETX90_MUHKUH_ETHMAC",
             "cStandard": "c11",
             "cppStandard": "c++14",
-            "compileCommands": "${workspaceFolder}/eth/targets/netx90/muhkuh/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/eth/targets/netx90/muhkuh_ethmac/compile_commands.json"
+        },
+        {
+            "name": "NETX90_MUHKUH_ETH2PS",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "compileCommands": "${workspaceFolder}/eth/targets/netx90/muhkuh_eth2ps/compile_commands.json"
         },
         {
             "name": "NETX90_STANDALONE_ETHMAC",

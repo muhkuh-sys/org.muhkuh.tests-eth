@@ -34,6 +34,36 @@
 
 /*-------------------------------------------------------------------------*/
 
+
+/*
+ *  |m|s|
+ *  |a|t|
+ *  |s|a|
+ *  |k|t|
+ *  | |e|
+ *  +-+-+----------------------------
+ *  |0|0| led off
+ *  +-+-+----------------------------
+ *  |1|0| yellow
+ *  +-+-+----------------------------
+ *  |0|1| end of sequence (restart)
+ *  +-+-+----------------------------
+ *  |1|1| green
+ *  +-+-+----------------------------
+ */
+
+/*                               *_G */
+#define BLINKI_M_STARTUP                   0x00000001
+#define BLINKI_S_STARTUP                   0x00000005
+
+/*                            *__GG  */
+#define BLINKI_M_RUNNING                   0x00000003
+#define BLINKI_S_RUNNING                   0x00000013
+
+
+/*-------------------------------------------------------------------------*/
+
+
 typedef struct INTERFACE_TO_STRING_STRUCT
 {
 	INTERFACE_T tInterface;
@@ -154,6 +184,7 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	int iElapsed;
 	unsigned long ulVerbosity;
 	unsigned long ulFlags;
+	BLINKI_HANDLE_T tBlinki;
 
 
 	/* Be optimistic. */
@@ -201,6 +232,8 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	}
 	else
 	{
+		rdy_run_blinki_init(&tBlinki, BLINKI_M_STARTUP, BLINKI_S_STARTUP);
+
 		ulTimeout = ptTestParams->ulLinkUpTimeout;
 		if( ulTimeout!=0 )
 		{
@@ -248,12 +281,16 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 					iResult = -1;
 				}
 			}
+
+			rdy_run_blinki(&tBlinki);
 		} while( iAllInterfacesUp==0 && iResult==0 );
 	}
 
 	if( iResult==0 )
 	{
 		uprintf("--- All interfaces are up. ---\n");
+
+		rdy_run_blinki_init(&tBlinki, BLINKI_M_RUNNING, BLINKI_S_RUNNING);
 
 		/* Expect all ports to be OK. */
 		ulTimeout = ptTestParams->ulMaximumTransferTime;
@@ -298,6 +335,8 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 					break;
 				}
 			}
+
+			rdy_run_blinki(&tBlinki);
 		} while( iAllPortsFinished==0 );
 	}
 

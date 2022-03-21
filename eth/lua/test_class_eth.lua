@@ -15,7 +15,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self.ulEthernetParameterBlockVersion = ${ETHTEST_PARAMETER_BLOCK_VERSION}
 
   local atInterface = {
-    ['None']     = ${INTERFACE_None},
+    ['None']            = ${INTERFACE_None},
     ['ETHMAC_INTPHY0']  = ${INTERFACE_ETHMAC_INTPHY0},
     ['ETHMAC_INTPHY1']  = ${INTERFACE_ETHMAC_INTPHY1},
     ['ETHMAC_EXTPHY0']  = ${INTERFACE_ETHMAC_EXTPHY0},
@@ -26,6 +26,20 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   }
   self.atInterface = atInterface
   local strInterfaces = table.concat(pl.tablex.keys(atInterface), ',')
+
+  -- Map the interface to a filename.
+  self.atInterface2Binary = {
+    [${INTERFACE_None}] = '',  -- NOTE: Do not set a fixed binary for the "None" interface. It can work with both ports.
+    [${INTERFACE_ETHMAC_INTPHY0}] = 'netx/eth_ethmac_netx%s.bin',
+    [${INTERFACE_ETHMAC_INTPHY1}] = 'netx/eth_ethmac_netx%s.bin',
+    [${INTERFACE_ETHMAC_EXTPHY0}] = 'netx/eth_ethmac_netx%s.bin',
+    [${INTERFACE_ETHMAC_EXTPHY1}] = 'netx/eth_ethmac_netx%s.bin',
+    [${INTERFACE_ETH2PS_INTPHY0}] = 'netx/eth_eth2ps_netx%s.bin',
+    [${INTERFACE_ETH2PS_INTPHY1}] = 'netx/eth_eth2ps_netx%s.bin',
+    [${INTERFACE_ETH2PS_EXTSPE0}] = 'netx/eth_eth2ps_netx%s.bin',
+
+    ['default'] = 'netx/eth_ethmac_netx%s.bin'  -- Use the ETHMAC as default.
+  }
 
   local atInterfaceFunction = {
     ['None']       = ${INTERFACE_FUNCTION_None},
@@ -397,6 +411,31 @@ function TestClassEth:run()
 
   ----------------------------------------------------------------------
   --
+  -- Get the binary for the selected interfaces.
+  --
+  local strFilenameTemplate = ''
+  for _, tAttr in ipairs(atConfig) do
+    local ulInterface = tAttr.ulInterface
+    local strNew = self.atInterface2Binary[ulInterface]
+    if strNew==nil then
+      local strMsg = string.format('No filename template defined for interface %d', ulInterface)
+      tLog.error(strMsg)
+      error(strMsg)
+    end
+    if strFilenameTemplate=='' then
+      strFilenameTemplate = strNew
+    elseif strFilenameTemplate~=strNew then
+      local strMsg = 'No filename template found for the selected combination of interfaces.'
+      tLog.error(strMsg)
+      error(strMsg)
+    end
+  end
+  if strFilenameTemplate=='' then
+    strFilenameTemplate = self.atInterface2Binary['default']
+  end
+
+  ----------------------------------------------------------------------
+  --
   -- Open the connection to the netX.
   -- (or re-use an existing connection.)
   --
@@ -438,7 +477,7 @@ function TestClassEth:run()
     tLog.error('No binary for chip type %s.', tAsicTyp)
     error('No matching binary found.')
   end
-  local strNetxBinary = string.format('netx/eth_netx%s.bin', strBinary)
+  local strNetxBinary = string.format(strFilenameTemplate, strBinary)
 
   local ulResult = tester:mbin_simple_run(tPlugin, strNetxBinary, strEthernetPortConfiguration)
   if ulResult~=0 then

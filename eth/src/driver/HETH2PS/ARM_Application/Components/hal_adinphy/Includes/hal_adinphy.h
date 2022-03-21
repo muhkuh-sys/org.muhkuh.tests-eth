@@ -93,7 +93,7 @@ int adinphy_release(uint8_t xc_port);
  * handler on the ARM, it only sets the respective registers to use HIF_DIRQ and capture an interrupt
  * on low signal level at this pin.
  */
-void adinphy_setup_irq();
+void adinphy_setup_irq(void);
 
 /*!
  * Interrupt service routine for HIF_DIRQ (MMIO17) pin
@@ -106,7 +106,7 @@ void adinphy_setup_irq();
  * the link state callback (registered with `adinphy_register_link_state_callback()`) is called with
  * a pointer on the corresponding SPE PHY's data structure as parameter.
  */
-void adinphy_irq_handler();
+void adinphy_irq_handler(void);
 
 /*!
  * Reference a callback for link state changes

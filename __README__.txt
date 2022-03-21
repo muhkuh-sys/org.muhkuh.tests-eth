@@ -4,15 +4,14 @@ TODO:
  * Wo liegt der Code, wo liegen die Ethernet Buffer?
    Für netX90 geklärt, bei allen anderen offen.
 
- * Server irgendwie blinken lassen?
-   Vielleicht nur im Standalone-Mode?
-
  * LED Config mit Option Chunk realisiern.
-
- * Deactivate the PHY/XC after the test.
 
 
 Done:
+ * Show startup and running phase on the SYS LED.
+
+ * Deactivate the PHY/XC after the test.
+
  * Erwarteten Link Speed in die Parameter aufnehmen.
 
  * Implement the number of test packets for the echo client as a test parameter.

@@ -127,7 +127,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     P:SC('port0_expected_link_attributes', 'The expected link attributes for port 0.'):
       default('ANY'):
       required(true):
-      constraint(strEthernetPortExpectedLinkAttributes),
+      constraint(strExpectedLinkAttributes),
 
     P:P('port0_mac', 'The MAC for port 0.'):
       default('00:02:a2:20:20:00'):
@@ -191,7 +191,7 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
     P:SC('port1_expected_link_attributes', 'The expected link attributes for port 1.'):
       default('ANY'):
       required(true):
-      constraint(strEthernetPortExpectedLinkAttributes),
+      constraint(strExpectedLinkAttributes),
 
     P:P('port1_mac', 'The MAC for port 1.'):
       default('00:02:a2:20:20:01'):

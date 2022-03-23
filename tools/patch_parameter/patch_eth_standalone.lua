@@ -330,7 +330,7 @@ local function applyFunctions(atInput, atFunctions, atOutput, atPath)
     if strType=='function' then
       local tOut = fnProcess(tValue)
       if tOut==nil then
-        error(string.format('Failed to process key %s with value %s.', table.concat(atPathSub, '.')))
+        error(string.format('Failed to process key %s with value %s.', table.concat(atPathSub, '.'), dkjson.encode(tValue)))
       end
       atOutput[strKey] = tOut
 

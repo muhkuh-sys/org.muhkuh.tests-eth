@@ -17,7 +17,7 @@
             "usLinkUpDelay":1000,
             "usLocalPort":1024,
             "usRemotePort":0,
-            "aucMac":"00:02:a2:20:20:00"
+            "aucMac":"00:02:a2:20:20:04"
         },
         {
             "acName":"CH1",
@@ -27,11 +27,11 @@
             "ulIp":"192.168.64.241",
             "ulGatewayIp":"0.0.0.0",
             "ulNetmask":"255.255.255.0",
-            "ulRemoteIp":"192.168.64.20",
+            "ulRemoteIp":"0.0.0.0",
             "usLinkUpDelay":1000,
             "usLocalPort":1025,
-            "usRemotePort":1024,
-            "aucMac":"00:02:a2:20:20:01"
+            "usRemotePort":0,
+            "aucMac":"00:02:a2:20:20:05"
         }
     ]
 }

@@ -166,7 +166,8 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
       default(1024):
       required(true),
 
-    P:U32('port0_number_of_testpackets', 'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
+    P:U32('port0_number_of_testpackets',
+          'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
       default(2048):
       required(true),
 
@@ -230,7 +231,8 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
       default(1024):
       required(true),
 
-    P:U32('port1_number_of_testpackets', 'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
+    P:U32('port1_number_of_testpackets',
+          'The number of packets to exchange on this port. "0" selects an implementation specific default value.'):
       default(2048):
       required(true)
   }
@@ -399,14 +401,20 @@ function TestClassEth:run()
   local strPort0_ExpectedLinkAttributes = atParameter['port0_expected_link_attributes']:get()
   local ulPort0_ExpectedLinkAttributes = self.atExpectedLinkAttributes[strPort0_ExpectedLinkAttributes]
   if ulPort0_ExpectedLinkAttributes==nil then
-    local strMsg = string.format('Unknown expected link attributes "%s" specified for port 0.', strPort0_ExpectedLinkAttributes)
+    local strMsg = string.format(
+      'Unknown expected link attributes "%s" specified for port 0.',
+      strPort0_ExpectedLinkAttributes
+    )
     tLog.error(strMsg)
     error(strMsg)
   end
   local strPort1_ExpectedLinkAttributes = atParameter['port1_expected_link_attributes']:get()
   local ulPort1_ExpectedLinkAttributes = self.atExpectedLinkAttributes[strPort1_ExpectedLinkAttributes]
   if ulPort1_ExpectedLinkAttributes==nil then
-    local strMsg = string.format('Unknown expected link attributes "%s" specified for port 1.', strPort1_ExpectedLinkAttributes)
+    local strMsg = string.format(
+      'Unknown expected link attributes "%s" specified for port 1.',
+      strPort1_ExpectedLinkAttributes
+    )
     tLog.error(strMsg)
     error(strMsg)
   end
@@ -498,24 +506,27 @@ function TestClassEth:run()
   end
   local tPlugin = _G.tester:getCommonPlugin(strPluginPattern, atPluginOptions)
   if tPlugin==nil then
-    local strPluginOptions = pl.pretty.write(atPluginOptions)
-    local strError = string.format('Failed to establish a connection to the netX with pattern "%s" and options "%s".', strPluginPattern, strPluginOptions)
+    local strError = string.format(
+      'Failed to establish a connection to the netX with pattern "%s" and options "%s".',
+      strPluginPattern,
+      pl.pretty.write(atPluginOptions)
+    )
     error(strError)
   end
 
   local astrBinaryName = {
-    [romloader.ROMLOADER_CHIPTYP_NETX4000_RELAXED] = '4000',
-    [romloader.ROMLOADER_CHIPTYP_NETX4000_FULL]    = '4000',
-    [romloader.ROMLOADER_CHIPTYP_NETX4100_SMALL]   = '4000',
-    [romloader.ROMLOADER_CHIPTYP_NETX500]          = '500',
-    [romloader.ROMLOADER_CHIPTYP_NETX100]          = '500',
-    [romloader.ROMLOADER_CHIPTYP_NETX90_MPW]       = '90_mpw',
-    [romloader.ROMLOADER_CHIPTYP_NETX90]           = '90',
-    [romloader.ROMLOADER_CHIPTYP_NETX90B]          = '90',
---    [romloader.ROMLOADER_CHIPTYP_NETX56]           = '56',
---    [romloader.ROMLOADER_CHIPTYP_NETX56B]          = '56',
---    [romloader.ROMLOADER_CHIPTYP_NETX50]           = '50',
---    [romloader.ROMLOADER_CHIPTYP_NETX10]           = '10'
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX4000_RELAXED] = '4000',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX4000_FULL]    = '4000',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX4100_SMALL]   = '4000',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX500]          = '500',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX100]          = '500',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX90_MPW]       = '90_mpw',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX90]           = '90',
+    [_G.romloader.ROMLOADER_CHIPTYP_NETX90B]          = '90',
+--    [_G.romloader.ROMLOADER_CHIPTYP_NETX56]           = '56',
+--    [_G.romloader.ROMLOADER_CHIPTYP_NETX56B]          = '56',
+--    [_G.romloader.ROMLOADER_CHIPTYP_NETX50]           = '50',
+--    [_G.romloader.ROMLOADER_CHIPTYP_NETX10]           = '10'
   }
 
   -- Get the binary for the ASIC.
@@ -527,7 +538,7 @@ function TestClassEth:run()
   end
   local strNetxBinary = string.format(strFilenameTemplate, strBinary)
 
-  local ulResult = tester:mbin_simple_run(tPlugin, strNetxBinary, strEthernetPortConfiguration)
+  local ulResult = _G.tester:mbin_simple_run(tPlugin, strNetxBinary, strEthernetPortConfiguration)
   if ulResult~=0 then
     error('The test failed with return code:' .. ulResult)
   end

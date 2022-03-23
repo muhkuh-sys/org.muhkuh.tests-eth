@@ -294,6 +294,8 @@ int hal_muhkuh_ethmac_initialize(NETWORK_DRIVER_T *ptNetworkDriver, unsigned int
 		iResult = hal_ethmac_xc_init(uiPort, pucMAC);
 
 		memcpy(&(ptNetworkDriver->tNetworkIf), &tNetworkIfEthMac, sizeof(NETWORK_IF_T));
+
+		ptNetworkDriver->pfnHandleReceivedPacket = eth_process_one_packet;
 	}
 
 	return iResult;

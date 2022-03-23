@@ -60,6 +60,17 @@ local atEthernetPortFlagsName2Bit = {
   ETHERNET_PORT_FLAG_LinkDownAllowed = 0x00000002
 }
 
+local atExpectedLinkAttributesName2Index = {
+  EXPECTED_LINK_ATTRIBUTES_ANY      = 0,
+  EXPECTED_LINK_ATTRIBUTES_10_HALF  = 1,
+  EXPECTED_LINK_ATTRIBUTES_10_FULL  = 2,
+  EXPECTED_LINK_ATTRIBUTES_100_HALF = 3,
+  EXPECTED_LINK_ATTRIBUTES_100_FULL = 4
+}
+local atExpectedLinkAttributesIndex2Name = {}
+for k,v in pairs(atExpectedLinkAttributesName2Index) do
+  atExpectedLinkAttributesIndex2Name[v] = k
+end
 
 -- Read a maximum of 512kB from the binary input file.
 local sizBinaryMaxInBytes = 512*1024
@@ -76,10 +87,12 @@ local tRapaStruct = vstruct.compile([[
       ulInterface:u4
       ulFunction:u4
       ulFlags:u4
+      ulExpectedLinkAttributes:u4
       ulIp:u4
       ulGatewayIp:u4
       ulNetmask:u4
       ulRemoteIp:u4
+      ulNumberOfTestPackets:u4
       usLinkUpDelay:u2
       usLocalPort:u2
       usRemotePort:u2
@@ -87,7 +100,7 @@ local tRapaStruct = vstruct.compile([[
     }
   }
 ]])
-local sizRapaStruct = 132
+local sizRapaStruct = 148
 
 ------------------------------------------------------------------------------
 --
@@ -177,6 +190,14 @@ local function parseFlags(strInput)
   return ulResult
 end
 
+local function formatExpectedLinkAttributes(ulInput)
+  return atExpectedLinkAttributesIndex2Name[ulInput]
+end
+
+local function parseExpectedLinkAttributes(strInput)
+  return atExpectedLinkAttributesName2Index[strInput]
+end
+
 local function formatIp(ulInput)
   return string.format('%d.%d.%d.%d', ulInput&0xff, (ulInput>>8)&0xff, (ulInput>>16)&0xff, (ulInput>>24)&0xff)
 end
@@ -222,10 +243,12 @@ local atFormatFunctions = {
       ulInterface = formatInterface,
       ulFunction = formatFunction,
       ulFlags = formatFlags,
+      ulExpectedLinkAttributes = formatExpectedLinkAttributes,
       ulIp = formatIp,
       ulGatewayIp = formatIp,
       ulNetmask = formatIp,
       ulRemoteIp = formatIp,
+      ulNumberOfTestPackets = nil,
       usLinkUpDelay = nil,
       usLocalPort = nil,
       usRemotePort = nil,
@@ -236,10 +259,12 @@ local atFormatFunctions = {
       ulInterface = formatInterface,
       ulFunction = formatFunction,
       ulFlags = formatFlags,
+      ulExpectedLinkAttributes = formatExpectedLinkAttributes,
       ulIp = formatIp,
       ulGatewayIp = formatIp,
       ulNetmask = formatIp,
       ulRemoteIp = formatIp,
+      ulNumberOfTestPackets = nil,
       usLinkUpDelay = nil,
       usLocalPort = nil,
       usRemotePort = nil,
@@ -260,10 +285,12 @@ local atParseFunctions = {
       ulInterface = parseInterface,
       ulFunction = parseFunction,
       ulFlags = parseFlags,
+      ulExpectedLinkAttributes = parseExpectedLinkAttributes,
       ulIp = parseIp,
       ulGatewayIp = parseIp,
       ulNetmask = parseIp,
       ulRemoteIp = parseIp,
+      ulNumberOfTestPackets = nil,
       usLinkUpDelay = nil,
       usLocalPort = nil,
       usRemotePort = nil,
@@ -274,10 +301,12 @@ local atParseFunctions = {
       ulInterface = parseInterface,
       ulFunction = parseFunction,
       ulFlags = parseFlags,
+      ulExpectedLinkAttributes = parseExpectedLinkAttributes,
       ulIp = parseIp,
       ulGatewayIp = parseIp,
       ulNetmask = parseIp,
       ulRemoteIp = parseIp,
+      ulNumberOfTestPackets = nil,
       usLinkUpDelay = nil,
       usLocalPort = nil,
       usRemotePort = nil,
@@ -332,32 +361,36 @@ local strPrettyPrintTemplate = [[
   ulMaximumTransferTime: $(data.ulMaximumTransferTime)ms
 
   PortConfiguration 1:
-    acName:        $(data.atPortConfiguration[1].acName)
-    ulInterface:   $(data.atPortConfiguration[1].ulInterface)
-    ulFunction:    $(data.atPortConfiguration[1].ulFunction)
-    ulFlags:       $(data.atPortConfiguration[1].ulFlags)
-    ulIp:          $(data.atPortConfiguration[1].ulIp)
-    ulGatewayIp:   $(data.atPortConfiguration[1].ulGatewayIp)
-    ulNetmask:     $(data.atPortConfiguration[1].ulNetmask)
-    ulRemoteIp:    $(data.atPortConfiguration[1].ulRemoteIp)
-    usLinkUpDelay: $(data.atPortConfiguration[1].usLinkUpDelay)
-    usLocalPort:   $(data.atPortConfiguration[1].usLocalPort)
-    usRemotePort:  $(data.atPortConfiguration[1].usRemotePort)
-    aucMac:        $(data.atPortConfiguration[1].aucMac)
+    acName:                   $(data.atPortConfiguration[1].acName)
+    ulInterface:              $(data.atPortConfiguration[1].ulInterface)
+    ulFunction:               $(data.atPortConfiguration[1].ulFunction)
+    ulFlags:                  $(data.atPortConfiguration[1].ulFlags)
+    ulExpectedLinkAttributes: $(data.atPortConfiguration[1].ulExpectedLinkAttributes)
+    ulIp:                     $(data.atPortConfiguration[1].ulIp)
+    ulGatewayIp:              $(data.atPortConfiguration[1].ulGatewayIp)
+    ulNetmask:                $(data.atPortConfiguration[1].ulNetmask)
+    ulRemoteIp:               $(data.atPortConfiguration[1].ulRemoteIp)
+    ulNumberOfTestPackets:    $(data.atPortConfiguration[1].ulNumberOfTestPackets)
+    usLinkUpDelay:            $(data.atPortConfiguration[1].usLinkUpDelay)
+    usLocalPort:              $(data.atPortConfiguration[1].usLocalPort)
+    usRemotePort:             $(data.atPortConfiguration[1].usRemotePort)
+    aucMac:                   $(data.atPortConfiguration[1].aucMac)
 
   PortConfiguration 2:
-    acName:        $(data.atPortConfiguration[2].acName)
-    ulInterface:   $(data.atPortConfiguration[2].ulInterface)
-    ulFunction:    $(data.atPortConfiguration[2].ulFunction)
-    ulFlags:       $(data.atPortConfiguration[2].ulFlags)
-    ulIp:          $(data.atPortConfiguration[2].ulIp)
-    ulGatewayIp:   $(data.atPortConfiguration[2].ulGatewayIp)
-    ulNetmask:     $(data.atPortConfiguration[2].ulNetmask)
-    ulRemoteIp:    $(data.atPortConfiguration[2].ulRemoteIp)
-    usLinkUpDelay: $(data.atPortConfiguration[2].usLinkUpDelay)
-    usLocalPort:   $(data.atPortConfiguration[2].usLocalPort)
-    usRemotePort:  $(data.atPortConfiguration[2].usRemotePort)
-    aucMac:        $(data.atPortConfiguration[2].aucMac)
+    acName:                   $(data.atPortConfiguration[2].acName)
+    ulInterface:              $(data.atPortConfiguration[2].ulInterface)
+    ulFunction:               $(data.atPortConfiguration[2].ulFunction)
+    ulFlags:                  $(data.atPortConfiguration[2].ulFlags)
+    ulExpectedLinkAttributes: $(data.atPortConfiguration[2].ulExpectedLinkAttributes)
+    ulIp:                     $(data.atPortConfiguration[2].ulIp)
+    ulGatewayIp:              $(data.atPortConfiguration[2].ulGatewayIp)
+    ulNetmask:                $(data.atPortConfiguration[2].ulNetmask)
+    ulRemoteIp:               $(data.atPortConfiguration[2].ulRemoteIp)
+    ulNumberOfTestPackets:    $(data.atPortConfiguration[2].ulNumberOfTestPackets)
+    usLinkUpDelay:            $(data.atPortConfiguration[2].usLinkUpDelay)
+    usLocalPort:              $(data.atPortConfiguration[2].usLocalPort)
+    usRemotePort:             $(data.atPortConfiguration[2].usRemotePort)
+    aucMac:                   $(data.atPortConfiguration[2].aucMac)
 ]]
 
 

@@ -30,7 +30,7 @@ Import('atEnv')
 #----------------------------------------------------------------------------
 # Build the ETHMAC HAL as a library.
 
-sources_ethmac = """
+sources_ethmac_netx90 = """
     src/driver/hal_ethmac_wrapper.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_pfifo.c
     src/driver/HETHMAC/ARM_Application/Components/hal_common/Sources/hal_xc.c
@@ -50,7 +50,7 @@ sources_ethmac = """
     src/driver/HETHMAC/ARM_Application/Components/ip_stack/Sources/phy.c
 """
 
-aCppPathLibEthMac = [
+aCppPathLibEthMac_netx90 = [
     'src/driver/HETHMAC/ARM_Application/Components/Includes',
     'src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/netx90/Includes',
     'src/driver/HETHMAC/ARM_Application/Components/hal_ethmac/Includes',
@@ -61,15 +61,15 @@ aCppPathLibEthMac = [
 
 env_netx90_ethmac_l = atEnv.NETX90.Clone()
 env_netx90_ethmac_l.CompileDb('targets/netx90/libethmac/compile_commands.json')
-env_netx90_ethmac_l.Append(CPPPATH = aCppPathLibEthMac)
+env_netx90_ethmac_l.Append(CPPPATH = aCppPathLibEthMac_netx90)
 env_netx90_ethmac_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETHMAC_TARGET_NX90', '1']])
-src_netx90_ethmac_l = env_netx90_ethmac_l.SetBuildPath('targets/netx90/libethmac', 'src', sources_ethmac)
+src_netx90_ethmac_l = env_netx90_ethmac_l.SetBuildPath('targets/netx90/libethmac', 'src', sources_ethmac_netx90)
 lib_netx90_ethmac_l = env_netx90_ethmac_l.StaticLibrary('targets/netx90/libethmac/libethmac_netx90.a', src_netx90_ethmac_l)
 
 #----------------------------------------------------------------------------
 # Build the ETH2PS HAL as a library.
 
-sources_eth2ps = """
+sources_eth2ps_netx90 = """
     src/driver/hal_eth2ps_wrapper.c
     src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/Sources/hal_adinphy.c
     src/driver/HETH2PS/ARM_Application/Components/hal_common/Sources/hal_pfifo.c
@@ -98,7 +98,7 @@ sources_eth2ps = """
 
 """
 
-aCppPathLibEth2ps = [
+aCppPathLibEth2ps_netx90 = [
     'src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/Includes/',
     'src/driver/HETH2PS/ARM_Application/Components/hal_adinphy/adin1100_u2/Includes',
     'src/driver/HETH2PS/ARM_Application/Components/Includes',
@@ -113,9 +113,9 @@ aCppPathLibEth2ps = [
 
 env_netx90_eth2ps_l = atEnv.NETX90.Clone()
 env_netx90_eth2ps_l.CompileDb('targets/netx90/libeth2ps/compile_commands.json')
-env_netx90_eth2ps_l.Append(CPPPATH = aCppPathLibEth2ps)
+env_netx90_eth2ps_l.Append(CPPPATH = aCppPathLibEth2ps_netx90)
 env_netx90_eth2ps_l.Append(CPPDEFINES = [['__NETX90', '1'], ['HAL_ETH2PS_TARGET_NX90', '1']])
-src_netx90_eth2ps_l = env_netx90_eth2ps_l.SetBuildPath('targets/netx90/libeth2ps', 'src', sources_eth2ps)
+src_netx90_eth2ps_l = env_netx90_eth2ps_l.SetBuildPath('targets/netx90/libeth2ps', 'src', sources_eth2ps_netx90)
 lib_netx90_eth2ps_l = env_netx90_eth2ps_l.StaticLibrary('targets/netx90/libeth2ps/libeth2ps_netx90.a', src_netx90_eth2ps_l)
 
 #----------------------------------------------------------------------------

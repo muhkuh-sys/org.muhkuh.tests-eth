@@ -39,6 +39,7 @@ int hal_muhkuh_ethmac_disable(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 
 #else
 
+#       if ASIC_TYP==ASIC_TYP_NETX90 || ASIC_TYP==ASIC_TYP_NETX90_MPW
 int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
 {
 	HOSTDEF(ptAsicCtrlArea);
@@ -120,7 +121,25 @@ int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 	return iResult;
 }
 
+#        elif ASIC_TYP==ASIC_TYP_NETX500
 
+int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((unused)), unsigned int uiPort)
+{
+	HOSTDEF(ptSystimeArea);
+	int iResult;
+
+
+	/* Set the systime. */
+	ptSystimeArea->ulSystime_border = 1000000000U - 1U;
+	ptSystimeArea->ulSystime_count_value = 0xa0000000U;
+
+	/* All OK. */
+	iResult = 0;
+
+	return iResult;
+}
+
+#endif
 
 static int ethmac_get_link_status(NETWORK_DRIVER_T *ptNetworkDriver, LINK_STATE_T *ptLinkState, LINK_SPEED_T *ptLinkSpeed, LINK_DUPLEX_T *ptLinkDuplex)
 {

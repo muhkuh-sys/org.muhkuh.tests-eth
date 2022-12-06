@@ -511,7 +511,7 @@ void NX500_GPIO_SetLine( unsigned long ulVal )
 /*****************************************************************************/
 int NX500_GPIO_GetInput( unsigned long ulGpioNum )
 {
-  return ( s_ptGpio->ulGpio_in & (1<<ulGpioNum) ) ? 1 : 0;
+  return ( s_ptGpio->ulGpio_in & (1U<<ulGpioNum) ) ? 1 : 0;
 }
 
 /*****************************************************************************/
@@ -586,7 +586,7 @@ void NX500_GPIO_IrqReset( unsigned long ulGpioNum )
 *   GPIO
 * \params
 *   ulGpioNum          [in]   Selected GPIO
-*   uiTimeout          [out]  The Time to wait in µs
+*   uiTimeout          [out]  The Time to wait in ï¿½s
 * \return
 *                                                                            */
 /*****************************************************************************/
@@ -594,7 +594,7 @@ void NX500_GPIO_Sleep( unsigned long ulCounter, unsigned int uiTimeout )
 {
   unsigned int uiVal;
 
-  /* Convert counter value from µs to ns */
+  /* Convert counter value from ï¿½s to ns */
   uiTimeout = uiTimeout * (NX500_DEV_FREQUENCY/1000000);
 
   s_ptGpio->aulGpio_counter_ctrl[ulCounter]  = 0;          /* Clear the timer register         */
@@ -616,13 +616,13 @@ void NX500_GPIO_Sleep( unsigned long ulCounter, unsigned int uiTimeout )
 *   GPIO
 * \params
 *   ulGpioNum          [in]   Selected GPIO
-*   uiTimeout          [out]  The Time to wait in µs
+*   uiTimeout          [out]  The Time to wait in ï¿½s
 * \return
 *                                                                            */
 /*****************************************************************************/
 void NX500_GPIO_SetupTimer( unsigned long ulCounter, unsigned int uiTimeout )
 {
-  /* Convert counter value from µs to ns */
+  /* Convert counter value from ï¿½s to ns */
   uiTimeout = uiTimeout * (NX500_DEV_FREQUENCY/1000000);
 
   s_ptGpio->aulGpio_counter_ctrl[ulCounter]  = 0;          /* Clear the timer register         */
@@ -1044,7 +1044,7 @@ void NX500_INTPHY_Init( NX500_PHY_CONTROL_T *ptPhyCtrlInit )
 {
   unsigned short usMiimuData;
   unsigned int ulDelayCnt;
-  unsigned int uPhyAdr = (ptPhyCtrlInit->bf.phy_address << 1);
+  unsigned int uPhyAdr = (ptPhyCtrlInit->bf.phy_address << 1U);
 
 #ifdef PHY_SIM_BYPASS
   ptPhyCtrlInit->bf.phy_sim_byp = PHY_SIM_BYPASS;
@@ -1487,7 +1487,7 @@ void NX500_MMU_Init( unsigned long* pulTTBBase )
   unsigned long ulTemp;
 
   /* Disable MMU and Caches first of all */
-  asm volatile (                                                                    \
+  __asm__ __volatile__ (                                                                    \
       "mrc    p15, 0, r0, c1, c0, 0;"   /* Get MMU Control Register content */      \
       "bic    r0, r0, #0x1000;"         /* MMU_Control_I*/                          \
       "bic    r0, r0, #0x0005;"         /* MMU_Control_M | MMU_Control_C */         \
@@ -1500,7 +1500,7 @@ void NX500_MMU_Init( unsigned long* pulTTBBase )
       : "r0" /* clobber list */);
 
   /* Set the TTB register */
-  asm volatile ("mcr  p15,0,%0,c2,c0,0" : : "r"(ttb_base) /*:*/);
+  __asm__ __volatile__ ("mcr  p15,0,%0,c2,c0,0" : : "r"(ttb_base) /*:*/);
 
   /* Set the Domain Access Control Register */
   ulTemp = ARM_ACCESS_TYPE_MANAGER(0)    |
@@ -1519,7 +1519,7 @@ void NX500_MMU_Init( unsigned long* pulTTBBase )
            ARM_ACCESS_TYPE_NO_ACCESS(13) |
            ARM_ACCESS_TYPE_NO_ACCESS(14) |
            ARM_ACCESS_TYPE_NO_ACCESS(15);
-  asm volatile ("mcr  p15,0,%0,c3,c0,0" : : "r"(ulTemp) /*:*/);
+  __asm__ __volatile__ ("mcr  p15,0,%0,c3,c0,0" : : "r"(ulTemp) /*:*/);
 
   /* Clear all TTB entries - ie Set them to Faulting */
   memset(pulTTBBase, 0, ARM_FIRST_LEVEL_PAGE_TABLE_SIZE);
@@ -1536,7 +1536,7 @@ void NX500_MMU_Init( unsigned long* pulTTBBase )
   }
 
   /* Invalidate Caches, Activate Caches */
-  asm volatile (                                                                      \
+  __asm__ __volatile__ (                                                                      \
       "mov    r0,#0;"                                                                 \
       "mcr    p15,0,r0,c7,c7,0;"        /* invalidate  i/d-cache */                   \
       "mcr    p15,0,r0,c8,c7,0;"        /* invalidate TLBs */                         \

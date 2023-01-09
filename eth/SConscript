@@ -107,7 +107,7 @@ env_netx500_ethmac_l.CompileDb('targets/netx500/libethmac/compile_commands.json'
 env_netx500_ethmac_l.Append(CPPPATH = aCppPathLibEthMac_netx500)
 env_netx500_ethmac_l.Append(CPPDEFINES = [['__NETX100', '1'], ['HAL_ETHMAC_TARGET_NX500', '1']])
 src_netx500_ethmac_l = env_netx500_ethmac_l.SetBuildPath('targets/netx500/libethmac', 'src', sources_ethmac_netx500)
-lib_netx500_ethmac_l = env_netx500_ethmac_l.StaticLibrary('targets/netx500/libethmac/libethmac_netx90.a', src_netx500_ethmac_l)
+lib_netx500_ethmac_l = env_netx500_ethmac_l.StaticLibrary('targets/netx500/libethmac/libethmac_netx500.a', src_netx500_ethmac_l)
 
 #----------------------------------------------------------------------------
 # Build the ETH2PS HAL as a library.
@@ -228,6 +228,18 @@ ETH_ETHMAC_NETX90 = env_netx90_ethmac_t.ObjCopy('targets/netx90/muhkuh_ethmac/et
 txt_netx90_ethmac_t = env_netx90_ethmac_t.ObjDump('targets/netx90/muhkuh_ethmac/eth_ethmac_netx90.txt', elf_netx90_ethmac_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 Export('ETH_ETHMAC_NETX90')
 
+
+env_netx500_ethmac_t = atEnv.NETX500.Clone()
+env_netx500_ethmac_t.CompileDb('targets/netx500/muhkuh_ethmac/compile_commands.json')
+env_netx500_ethmac_t.Replace(LDFILE = 'src/netx500/netx500_muhkuh.ld')
+env_netx500_ethmac_t.Append(CPPPATH = aCppPath)
+env_netx500_ethmac_t.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
+src_netx500_ethmac_t = env_netx500_ethmac_t.SetBuildPath('targets/netx500/muhkuh_ethmac', 'src', sources_muhkuh + sources_common + sources_netx500)
+elf_netx500_ethmac_t = env_netx500_ethmac_t.Elf('targets/netx500/muhkuh_ethmac/eth_ethmac_netx500.elf', src_netx500_ethmac_t + env_netx500_ethmac_t['PLATFORM_LIBRARY'] + lib_netx500_ethmac_l)
+ETH_ETHMAC_NETX500 = env_netx500_ethmac_t.ObjCopy('targets/netx500/muhkuh_ethmac/eth_ethmac_netx500.bin', elf_netx500_ethmac_t)
+txt_netx500_ethmac_t = env_netx500_ethmac_t.ObjDump('targets/netx500/muhkuh_ethmac/eth_ethmac_netx500.txt', elf_netx500_ethmac_t, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+Export('ETH_ETHMAC_NETX500')
+
 env_netx90_eth2ps_t = atEnv.NETX90.Clone()
 env_netx90_eth2ps_t.CompileDb('targets/netx90/muhkuh_eth2ps/compile_commands.json')
 env_netx90_eth2ps_t.Replace(LDFILE = 'src/netx90/netx90_muhkuh.ld')
@@ -249,15 +261,17 @@ elf_netx90_ethmac_s = env_netx90_ethmac_s.Elf('targets/netx90/standalone_ethmac/
 bb0_netx90_ethmac_s = env_netx90_ethmac_s.HBootImage('targets/netx90/standalone_ethmac/eth_ethmac_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_ethmac_s}))
 txt_netx90_ethmac_s = env_netx90_ethmac_s.ObjDump('targets/netx90/standalone_ethmac/eth_netx90.txt', elf_netx90_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
-env_netx500_ethmac_s = atEnv.NETX500.Clone()
-env_netx500_ethmac_s.CompileDb('targets/netx500/standalone_ethmac/compile_commands.json')
-env_netx500_ethmac_s.Replace(LDFILE = 'src/netx500/netx500_standalone.ld')
-env_netx500_ethmac_s.Append(CPPPATH = aCppPath)
-env_netx500_ethmac_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
-src_netx500_ethmac_s = env_netx500_ethmac_s.SetBuildPath('targets/netx500/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx500)
-elf_netx500_ethmac_s = env_netx500_ethmac_s.Elf('targets/netx500/standalone_ethmac/eth_netx500.elf', src_netx500_ethmac_s + env_netx500_ethmac_s['PLATFORM_LIBRARY'] + lib_netx500_ethmac_l)
-#bb0_netx500_ethmac_s = env_netx500_ethmac_s.HBootImage('targets/netx500/standalone_ethmac/eth_ethmac_netx500.img', 'src/netx500/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx500_ethmac_s}))
-txt_netx500_ethmac_s = env_netx500_ethmac_s.ObjDump('targets/netx500/standalone_ethmac/eth_netx500.txt', elf_netx500_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+
+
+# env_netx500_ethmac_s = atEnv.NETX500.Clone()
+# env_netx500_ethmac_s.CompileDb('targets/netx500/standalone_ethmac/compile_commands.json')
+# env_netx500_ethmac_s.Replace(LDFILE = 'src/netx500/netx500_intram.ld')
+# env_netx500_ethmac_s.Append(CPPPATH = aCppPath)
+# env_netx500_ethmac_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
+# src_netx500_ethmac_s = env_netx500_ethmac_s.SetBuildPath('targets/netx500/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx500)
+# elf_netx500_ethmac_s = env_netx500_ethmac_s.Elf('targets/netx500/standalone_ethmac/eth_netx500.elf', src_netx500_ethmac_s + env_netx500_ethmac_s['PLATFORM_LIBRARY'] + lib_netx500_ethmac_l)
+# #bb0_netx500_ethmac_s = env_netx500_ethmac_s.HBootImage('targets/netx500/standalone_ethmac/eth_ethmac_netx500.img', 'src/netx500/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx500_ethmac_s}))
+# txt_netx500_ethmac_s = env_netx500_ethmac_s.ObjDump('targets/netx500/standalone_ethmac/eth_netx500.txt', elf_netx500_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
 
 env_netx90_eth2ps_s = atEnv.NETX90.Clone()
 env_netx90_eth2ps_s.CompileDb('targets/netx90/standalone_eth2ps/compile_commands.json')

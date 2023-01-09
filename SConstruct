@@ -73,6 +73,7 @@ SConscript('eth/SConscript')
 Import(
     'ETH_ETHMAC_NETX90',
     'ETH_ETH2PS_NETX90',
+    "ETH_ETHMAC_NETX500",
 #    'ETH_NETX90_MPW',
 #    'ETH_NETX500',
 #    'ETH_NETX4000',
@@ -140,6 +141,7 @@ tArcList0.AddFiles('netx/',
 #    ETH_NETX90_MPW,
     ETH_ETHMAC_NETX90,
     ETH_ETH2PS_NETX90,
+    ETH_ETHMAC_NETX500,
 #    ETH_NETX500,
 #    ETH_NETX4000
 )

@@ -47,7 +47,7 @@ static void sys_phy_write(unsigned int uiPhy, unsigned int uiReg, unsigned int u
 }
 
 /* MII Management Interface */
-static PHY_OPS_T s_tPhyOps =
+static const PHY_OPS_T s_tPhyOps =
 {
   sys_phy_write,
   sys_phy_read

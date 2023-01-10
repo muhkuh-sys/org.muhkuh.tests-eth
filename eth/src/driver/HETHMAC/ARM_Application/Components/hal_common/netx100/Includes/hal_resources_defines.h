@@ -33,7 +33,7 @@ typedef void(*NX500_PFN_SYSTIME_GET_SYSTIME) ( unsigned long* pulSystime_s, unsi
 
 /* *** xPEC Register area *** */
 #define __USE_XPEC_REGS                        \
-  static NX500_XPEC_AREA_T* s_ptXpecStart[] =  \
+  static NX500_XPEC_AREA_T* const s_ptXpecStart[] =  \
   {                                            \
     (NX500_XPEC_AREA_T*) Addr_NX500_xpec0,     \
     (NX500_XPEC_AREA_T*) Addr_NX500_xpec1,     \
@@ -53,7 +53,7 @@ typedef void(*NX500_PFN_SYSTIME_GET_SYSTIME) ( unsigned long* pulSystime_s, unsi
   };
 
 #define __USE_XPEC_DRAM                                   \
-  static volatile unsigned long* s_pulXpecDramStart[] =   \
+  static volatile unsigned long* const s_pulXpecDramStart[] =   \
   {                                                       \
     (volatile unsigned long*) Adr_NX500_xpec0_ram_start,  \
     (volatile unsigned long*) Adr_NX500_xpec1_ram_start,  \
@@ -64,7 +64,7 @@ typedef void(*NX500_PFN_SYSTIME_GET_SYSTIME) ( unsigned long* pulSystime_s, unsi
 
 /* *** xMAC area *** */
 #define __USE_XMAC                              \
-  static NX500_XMAC_AREA_T* s_ptXmacStart[] =   \
+  static const NX500_XMAC_AREA_T* const s_ptXmacStart[] =   \
   {                                             \
     (NX500_XMAC_AREA_T*) Addr_NX500_xmac0,      \
     (NX500_XMAC_AREA_T*) Addr_NX500_xmac1,      \
@@ -80,10 +80,10 @@ typedef int(*NX500_PFN_NX500_XC_LOAD) ( unsigned int uPortNo, NX500_XC_TYPE_E eX
 typedef int(*NX500_PFN_NX500_XC_START)( unsigned int uPortNo, void* pvUser );
 typedef int(*NX500_PFN_NX500_XC_START_UNITS)( unsigned int uPortNo, unsigned int uUnitVec, void* pvUser );
 
-#define __USE_XC_LOADER_FUNC_RESET       static NX500_PFN_NX500_XC_RESET       pfnXcReset      = NX500_XC_Reset;
+#define __USE_XC_LOADER_FUNC_RESET       static const NX500_PFN_NX500_XC_RESET       pfnXcReset      = NX500_XC_Reset;
 #define __USE_XC_LOADER_FUNC_RESET_UNITS static NX500_PFN_NX500_XC_RESET_UNITS pfnXcResetUnits = NX500_XC_ResetUnits;
-#define __USE_XC_LOADER_FUNC_LOAD        static NX500_PFN_NX500_XC_LOAD        pfnXcLoad       = NX500_XC_Load;
-#define __USE_XC_LOADER_FUNC_START       static NX500_PFN_NX500_XC_START       pfnXcStart      = NX500_XC_Start;
+#define __USE_XC_LOADER_FUNC_LOAD        static const NX500_PFN_NX500_XC_LOAD        pfnXcLoad       = NX500_XC_Load;
+#define __USE_XC_LOADER_FUNC_START       static const NX500_PFN_NX500_XC_START       pfnXcStart      = NX500_XC_Start;
 #define __USE_XC_LOADER_FUNC_START_UNITS static NX500_PFN_NX500_XC_START_UNITS pfnXcStartUnits = NX500_XC_StartUnits;
 
 
@@ -98,7 +98,7 @@ typedef int(*NX500_PFN_NX500_XC_START_UNITS)( unsigned int uPortNo, unsigned int
 
 /* *** INTRAM area *** */
 #define __USE_INTRAM                                      \
-  static volatile  unsigned long* s_pulIntRamStart[4] =   \
+  static volatile  unsigned long* const s_pulIntRamStart[4] =   \
   {                                                       \
     (volatile unsigned long*) Addr_NX500_sram0_ahbls0,    \
     (volatile unsigned long*) Addr_NX500_sram1_ahbls1,    \
@@ -118,7 +118,7 @@ typedef int(*NX500_PFN_NX500_XC_START_UNITS)( unsigned int uPortNo, unsigned int
 /* Copy data from Host to netX */
 #define NX_WRITEMEM(dst, src, len) memcpy(dst, src, len)
 
-#define lock_irqfiq_save(x)    NX500_lock_irqfiq_save(x)   
+#define lock_irqfiq_save(x)    NX500_lock_irqfiq_save(x)
 #define lock_irqfiq_restore(x) NX500_lock_irqfiq_restore(x)
 
 

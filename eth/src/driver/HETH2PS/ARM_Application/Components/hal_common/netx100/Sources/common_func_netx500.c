@@ -544,7 +544,7 @@ void NX500_GPIO_IrqReset( unsigned long ulGpioNum )
 *   GPIO
 * \params
 *   ulGpioNum          [in]   Selected GPIO
-*   uiTimeout          [out]  The Time to wait in µs
+*   uiTimeout          [out]  The Time to wait in ï¿½s
 * \return
 *                                                                            */
 /*****************************************************************************/
@@ -552,7 +552,7 @@ void NX500_GPIO_Sleep( unsigned long ulCounter, unsigned int uiTimeout )
 {
   unsigned int uiVal;
 
-  /* Convert counter value from µs to ns */
+  /* Convert counter value from ï¿½s to ns */
   uiTimeout = uiTimeout * (NX500_DEV_FREQUENCY/1000000);
 
   s_ptGpio->aulGpio_counter_ctrl[ulCounter]  = 0;          /* Clear the timer register         */
@@ -574,13 +574,13 @@ void NX500_GPIO_Sleep( unsigned long ulCounter, unsigned int uiTimeout )
 *   GPIO
 * \params
 *   ulGpioNum          [in]   Selected GPIO
-*   uiTimeout          [out]  The Time to wait in µs
+*   uiTimeout          [out]  The Time to wait in ï¿½s
 * \return
 *                                                                            */
 /*****************************************************************************/
 void NX500_GPIO_SetupTimer( unsigned long ulCounter, unsigned int uiTimeout )
 {
-  /* Convert counter value from µs to ns */
+  /* Convert counter value from ï¿½s to ns */
   uiTimeout = uiTimeout * (NX500_DEV_FREQUENCY/1000000);
 
   s_ptGpio->aulGpio_counter_ctrl[ulCounter]  = 0;          /* Clear the timer register         */

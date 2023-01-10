@@ -113,7 +113,7 @@ static ETHMAC_XPEC_DPM* s_aptXpecDRam[ETHMAC_PORTS];
 
 /* Pointer to XC microcodes */
 
-static const unsigned long* paulxPecCodes[]    =
+static const unsigned long* const paulxPecCodes[]    =
 {
   XcCode_xpec_ethmac0,
 #if ETHMAC_PORTS > 1
@@ -125,7 +125,7 @@ static const unsigned long* paulxPecCodes[]    =
 #endif
 };
 
-static const unsigned long* paulxMacRpuCodes[] =
+static const unsigned long* const paulxMacRpuCodes[] =
 {
   XcCode_rpu_ethmac0,
 #if ETHMAC_PORTS > 1
@@ -137,7 +137,7 @@ static const unsigned long* paulxMacRpuCodes[] =
 #endif
 };
 
-static const unsigned long* paulxMacTpuCodes[] =
+static const unsigned long* const paulxMacTpuCodes[] =
 {
   XcCode_tpu_ethmac0,
 #if ETHMAC_PORTS > 1

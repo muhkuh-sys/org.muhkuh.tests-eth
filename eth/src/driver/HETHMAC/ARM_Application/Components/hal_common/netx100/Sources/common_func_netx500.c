@@ -1455,7 +1455,7 @@ union ARM_MMU_FIRST_LEVEL_DESCRIPTOR {
 #define ARM_ACCESS_PERM_RW_RO                   2
 #define ARM_ACCESS_PERM_RW_RW                   3
 
-static MMU_MAPPING_TABLE s_atMMUMapping[] =
+static const MMU_MAPPING_TABLE s_atMMUMapping[] =
 {
   {Adr_NX500_intram0_base, Adr_NX500_intram0_base,  2,  ARM_UNCACHEABLE, ARM_UNBUFFERABLE, ARM_ACCESS_PERM_RW_RW},   // internal SRAM and Registers
   {Addr_NX500_sdram,       Addr_NX500_sdram,      128,  ARM_CACHEABLE,   ARM_BUFFERABLE,   ARM_ACCESS_PERM_RW_RW},   // SDRAM cached
@@ -1705,7 +1705,7 @@ static const unsigned long XcCode_tpu_reset3[57] = {
 
 };
 
-static const unsigned long* paulxMacRpuCodes[4]=
+static const unsigned long* const paulxMacRpuCodes[4]=
 {
   XcCode_rpu_reset0,
   XcCode_rpu_reset1,
@@ -1713,7 +1713,7 @@ static const unsigned long* paulxMacRpuCodes[4]=
   XcCode_rpu_reset3
 };
 
-static const unsigned long* paulxMacTpuCodes[4]=
+static const unsigned long* const paulxMacTpuCodes[4]=
 {
   XcCode_tpu_reset0,
   XcCode_tpu_reset1,

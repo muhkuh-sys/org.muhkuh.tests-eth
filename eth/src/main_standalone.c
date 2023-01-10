@@ -32,6 +32,7 @@
 #include "uprintf.h"
 #include "version.h"
 
+
 #include "driver/HETHMAC/ARM_Application/Components/hal_ethmac/Includes/eth_mac_version.h"
 #include "driver/HETH2PS/ARM_Application/Components/hal_eth2ps/Includes/eth2ps_version.h"
 
@@ -41,11 +42,49 @@
 
 UART_STANDALONE_DEFINE_GLOBALS
 
-
+#include "stack/ipv4.h"
 static const ETH_PARAMETER_T tEthernetParameter =
 {
 	.ulMagic = ETHTEST_PARAMETER_BLOCK_MAGIC,
-	.ulStructureVersion = ETHTEST_PARAMETER_BLOCK_VERSION
+	.ulStructureVersion = ETHTEST_PARAMETER_BLOCK_VERSION,
+	.ulVerbose = 1,
+	.ulLinkUpTimeout = 0,
+	.ulMaximumTransferTime = 0,
+	.atPortConfiguration =
+		{
+			{
+				.acName = "CH0",
+				.ulInterface = INTERFACE_ETHMAC_INTPHY0,
+				.ulFunction = INTERFACE_FUNCTION_EchoServer,
+				.ulFlags = 0x00000003,
+				.ulExpectedLinkAttributes = 0,
+				.ulIp = IP_ADR(192,168,64,240),
+				.ulGatewayIp = 0,
+				.ulNetmask = IP_ADR(255,255,255,0),
+				.ulRemoteIp = IP_ADR(0,0,0,0),
+				.ulNumberOfTestPackets = 2048,
+				.usLinkUpDelay = 1000,
+				.usLocalPort = 1024,
+				.usRemotePort = 0,
+				.aucMac = { 0x00U,0x02U,0xa2U,0x20U,0x20U,0x04U }
+			},
+			{
+				.acName = "CH1",
+				.ulInterface = INTERFACE_ETHMAC_INTPHY1,
+				.ulFunction = INTERFACE_FUNCTION_EchoServer,
+				.ulFlags = 0x00000003,
+				.ulExpectedLinkAttributes = 0,
+				.ulIp = IP_ADR(192,168,64,241),
+				.ulGatewayIp = 0,
+				.ulNetmask = IP_ADR(255,255,255,0),
+				.ulRemoteIp = IP_ADR(0,0,0,0),
+				.ulNumberOfTestPackets = 2048,
+				.usLinkUpDelay = 1000,
+				.usLocalPort = 1025,
+				.usRemotePort = 0,
+				.aucMac = { 0x00U,0x02U,0xa2U,0x20U,0x20U,0x05U }
+			}
+		}
 };
 
 

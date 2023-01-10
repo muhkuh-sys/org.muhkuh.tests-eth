@@ -13,6 +13,15 @@
 #define MSK_ETHMAC_IRQ_RX_ERR        0x00000080U
 #define MSK_ETHMAC_IRQ_TX_ERR        0x00000100U
 
+
+/* INTRAM area structure */
+typedef struct INTRAM_AREA_STRUCT
+{
+	unsigned long ulStart;
+	unsigned long ulEnd;
+} INTRAM_AREA_T;
+
+
 /* MAC address structure */
 typedef uint8_t ETHERNET_MAC_ADDR_T[6];
 

@@ -149,6 +149,19 @@ static const unsigned long* const paulxMacTpuCodes[] =
 #endif
 };
 
+
+static const INTRAM_AREA_T const ptFIFO_INTRAM_AREA[] =
+{
+  {0x4000,0x8000},
+#if ETHMAC_PORTS > 1
+  {0x8000,0xc000},
+#endif
+#if ETHMAC_PORTS > 2
+  {0x14000,0x18000},
+  {0x18000,0x1c000}
+#endif
+};
+
 /* Initialize FIFO Unit */
 static void initFifoUnit( unsigned int uiPort )
 {
@@ -185,12 +198,18 @@ static void initFifoUnit( unsigned int uiPort )
   /* each port has it's own internal ram bank */
   ulFifoPtr |= (uiPort << SRT_ETHMAC_FIFO_ELEMENT_INT_RAM_SEGMENT_NUM);
 
+  unsigned long ulFIFO_Addr;
+
   /* fill the empty pointer FIFO */
-  for( uiIdx = 1; uiIdx <= uiEmptyPtrCnt; uiIdx++ )
+  for( uiIdx = 0; uiIdx <= uiEmptyPtrCnt; uiIdx++ )
   {
-    ulFifoPtr &= ~MSK_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM;
-    ulFifoPtr |= (uiIdx << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
-    NX_WRITE32(s_ptPFifo->aulPfifo[uiFifoStart + ETHERNET_FIFO_EMPTY], ulFifoPtr);
+    ulFIFO_Addr = uiIdx * ETH_FRAME_BUF_SIZE + uiPort * INTRAM_SEGMENT_SIZE;
+    if ((ulFIFO_Addr >= ptFIFO_INTRAM_AREA[uiPort].ulStart) && ((ulFIFO_Addr + ETH_FRAME_BUF_SIZE) < ptFIFO_INTRAM_AREA[uiPort].ulEnd))
+    {
+	ulFifoPtr &= ~MSK_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM;
+	ulFifoPtr |= (uiIdx << SRT_ETHMAC_FIFO_ELEMENT_FRAME_BUF_NUM);
+	NX_WRITE32(s_ptPFifo->aulPfifo[uiFifoStart + ETHERNET_FIFO_EMPTY], ulFifoPtr);
+    }
   }
 }
 

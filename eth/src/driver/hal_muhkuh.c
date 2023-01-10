@@ -130,8 +130,8 @@ int hal_muhkuh_ethmac_prepare(NETWORK_DRIVER_T *ptNetworkDriver __attribute__((u
 
 
 	/* Set the systime. */
-	ptSystimeArea->ulSystime_border = 1000000000U - 1U;
-	ptSystimeArea->ulSystime_count_value = 0xa0000000U;
+	// ptSystimeArea->ulSystime_border = 1000000000U - 1U;
+	// ptSystimeArea->ulSystime_count_value = 0xa0000000U;
 
 	/* All OK. */
 	iResult = 0;

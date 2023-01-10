@@ -11,11 +11,15 @@ ENTRY(start)
 
 MEMORY
 {
-	ASSERT_EMPTY(rwx)	: ORIGIN = 0x00000000, LENGTH = 0
+	ASSERT_EMPTY(rwx)      : ORIGIN = 0x00000000, LENGTH = 0
 
-	DTCM(rw)		: ORIGIN = 0x10000000, LENGTH = 0x00002000
-	INTRAM(rwx)		: ORIGIN = 0x00004000, LENGTH = 0x0001c000
-    /* IOVECTORS(rw)   : ORIGIN = 0x2009FFF0, LENGTH = 0x00000010 */
+    INTRAM_XC0(rw)            : ORIGIN = 0x00004000,  LENGTH = 0x00004000
+	INTRAM_XC1(rw)            : ORIGIN = 0x00008000,  LENGTH = 0x00004000
+    INTRAM_CODE(rwx)          : ORIGIN = 0x0000c000,  LENGTH = 0x00008000
+    INTRAM_XC2(rw)            : ORIGIN = 0x00014000,  LENGTH = 0x00004000
+    INTRAM_XC3(rw)            : ORIGIN = 0x00018000,  LENGTH = 0x00004000
+    INTRAM_BSS(rwx)           : ORIGIN = 0x0001c000,  LENGTH = 0x00004000
+	DTCM(rw)                  : ORIGIN = 0x10000000,  LENGTH = 0x00002000
 }
 
 
@@ -24,8 +28,9 @@ SECTIONS
 {
 	.assert_empty (NOLOAD) :
 	{
-		/* NOTE: include all sections here which should be empty. */
-        *(.data*)
+		/* NOTE: include all sections here whioch should be empty.
+		 */
+		*(.data)
 		*(.glue*)
 		*(.vfp11_veneer)
 		*(.v4_bx)
@@ -36,42 +41,64 @@ SECTIONS
 	} >ASSERT_EMPTY
 
 
-	.code ORIGIN(INTRAM) :
-	{
-		load_address = . ;
-		KEEP(*(.header))
-		*(.init_code)
-		*(.text* .rodata*)
-	} >INTRAM
+    .xcCode0 ORIGIN(INTRAM_XC0) :
+    {
+        load_address = . ;
+        KEEP(*(.header))
+        *rpu_ethmac0.o(.rodata)
+        *rpu_ethmac1.o(.rodata)
+        *rpu_ethmac2.o(.rodata)
+        *rpu_ethmac3.o(.rodata)
+        *tpu_ethmac0.o(.rodata)
+        *tpu_ethmac1.o(.rodata)
+        *tpu_ethmac2.o(.rodata)
+        *tpu_ethmac3.o(.rodata)
+        *xpec_ethmac0.o(.rodata)        
+    } >INTRAM_XC0
 
 
-	.bss ALIGN(0x10):
+    .xcCode1 ORIGIN(INTRAM_XC1) :
+    {
+        *xpec_ethmac1.o(.rodata)
+    } >INTRAM_XC1
+
+    .xcCode2 ORIGIN(INTRAM_XC2) :
+    {
+        *xpec_ethmac2.o(.rodata)
+    } >INTRAM_XC2
+
+    .xcCode3 ORIGIN(INTRAM_XC3) :
+    {
+        *xpec_ethmac3.o(.rodata)
+    } >INTRAM_XC3
+
+	.code ORIGIN(INTRAM_CODE) :
 	{
-		/* .bss section which is used for uninitialized data */
-		__bss_start__ = . ;
-		*(.bss COMMON)
-		__bss_end__ = . ;
-	} >INTRAM
+		*(.init_code .text* .rodata*)
+	} >INTRAM_CODE
+
+
+	.bss ORIGIN(INTRAM_BSS):
+	{
+		PROVIDE ( __bss_start__ = . );
+		*(.bss* COMMON)
+		PROVIDE ( __bss_end__ = . );
+	} >INTRAM_BSS
 
 
 	.parameter ALIGN(0x0100) :
 	{
 		parameter_start_address = . ;
-		. = . + 0x0200;
+		. = . + 0x0400;
 		parameter_end_address = . ;
-	} >INTRAM
+	} >INTRAM_BSS
 
 
 	.stack :
 	{
-		. = . + 0x4000;
-		. = ORIGIN(INTRAM) + LENGTH(INTRAM) ;
-		stack_top = . ;
-	} >INTRAM
-
-
-	/* Set the top of the stack to the end of INTRAM. */
-	stack_top = ORIGIN(INTRAM) + LENGTH(INTRAM) ;
+		. = ORIGIN(INTRAM_BSS) + LENGTH(INTRAM_BSS) ;
+		PROVIDE ( stack_top = . );
+	} >INTRAM_BSS
 
 
 	.serialvectors ORIGIN(DTCM)+LENGTH(DTCM)-0x10 :
@@ -115,4 +142,3 @@ SECTIONS
 	.debug_typenames 0 : { *(.debug_typenames) }
 	.debug_varnames  0 : { *(.debug_varnames) }
 }
-

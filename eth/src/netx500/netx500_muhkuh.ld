@@ -46,29 +46,29 @@ SECTIONS
         load_address = . ;
         KEEP(*(.header))
         *rpu_ethmac0.o(.rodata)
-        *rpu_ethmac1.o(.rodata)
-        *rpu_ethmac2.o(.rodata)
-        *rpu_ethmac3.o(.rodata)
         *tpu_ethmac0.o(.rodata)
-        *tpu_ethmac1.o(.rodata)
-        *tpu_ethmac2.o(.rodata)
-        *tpu_ethmac3.o(.rodata)
-        *xpec_ethmac0.o(.rodata)        
+        *xpec_ethmac0.o(.rodata)
     } >INTRAM_XC0
 
 
     .xcCode1 ORIGIN(INTRAM_XC1) :
     {
+        *rpu_ethmac1.o(.rodata)
+        *tpu_ethmac1.o(.rodata)
         *xpec_ethmac1.o(.rodata)
     } >INTRAM_XC1
 
     .xcCode2 ORIGIN(INTRAM_XC2) :
     {
+        *rpu_ethmac2.o(.rodata)
+        *tpu_ethmac2.o(.rodata)
         *xpec_ethmac2.o(.rodata)
     } >INTRAM_XC2
 
     .xcCode3 ORIGIN(INTRAM_XC3) :
     {
+        *rpu_ethmac3.o(.rodata)
+        *tpu_ethmac3.o(.rodata)
         *xpec_ethmac3.o(.rodata)
     } >INTRAM_XC3
 

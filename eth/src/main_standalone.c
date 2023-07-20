@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "asic_types.h"
+#include "board.h"
 #include "options.h"
 #include "rdy_run.h"
 #include "systime.h"
@@ -52,6 +53,7 @@ static const ETH_PARAMETER_T tEthernetParameter =
 void main_standalone(void)
 {
 	TEST_RESULT_T tTestResult;
+	int iResult;
 	const ETH_PARAMETER_T *ptTestParams;
 
 
@@ -78,8 +80,17 @@ void main_standalone(void)
 	/* Copy the configuration to the option structure. */
 	memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
 
-	/* Run the test. */
-	tTestResult = test(ptTestParams);
+	iResult = board_initialize();
+	if( iResult!=0 )
+	{
+		uprintf("Failed to initialize the board.\n");
+		tTestResult = TEST_RESULT_ERROR_BOARD_INIT;
+	}
+	else
+	{
+		/* Run the test. */
+		tTestResult = test(ptTestParams);
+	}
 
 	/* Show the result on the SYS LED. */
 	if( tTestResult==TEST_RESULT_OK )

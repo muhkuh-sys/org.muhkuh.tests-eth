@@ -173,8 +173,17 @@ sources_netx90 = """
     src/driver/hal_muhkuh.c
 """
 
+sources_netx90_intphy_std = """
+    src/board/netx90/intphy_std.c
+    src/board/netx90/pad_control.c
+"""
+
 sources_netx500 = """
     src/driver/hal_muhkuh.c
+"""
+
+sources_netx500_ethmac_std = """
+    src/board/netx500/ethmac_std.c
 """
 
 sources_common = """
@@ -256,7 +265,7 @@ env_netx90_ethmac_s.CompileDb('targets/netx90/standalone_ethmac/compile_commands
 env_netx90_ethmac_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
 env_netx90_ethmac_s.Append(CPPPATH = aCppPath)
 env_netx90_ethmac_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
-src_netx90_ethmac_s = env_netx90_ethmac_s.SetBuildPath('targets/netx90/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx90)
+src_netx90_ethmac_s = env_netx90_ethmac_s.SetBuildPath('targets/netx90/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx90 + sources_netx90_intphy_std)
 elf_netx90_ethmac_s = env_netx90_ethmac_s.Elf('targets/netx90/standalone_ethmac/eth_netx90.elf', src_netx90_ethmac_s + env_netx90_ethmac_s['PLATFORM_LIBRARY'] + lib_netx90_ethmac_l)
 bb0_netx90_ethmac_s = env_netx90_ethmac_s.HBootImage('targets/netx90/standalone_ethmac/eth_ethmac_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_ethmac_s}))
 txt_netx90_ethmac_s = env_netx90_ethmac_s.ObjDump('targets/netx90/standalone_ethmac/eth_netx90.txt', elf_netx90_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
@@ -267,7 +276,7 @@ env_netx500_ethmac_s.CompileDb('targets/netx500/standalone_ethmac/compile_comman
 env_netx500_ethmac_s.Replace(LDFILE = 'src/netx500/netx500_intram.ld')
 env_netx500_ethmac_s.Append(CPPPATH = aCppPath)
 env_netx500_ethmac_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '1'], ['CFG_USE_ETH2PS', '0']])
-src_netx500_ethmac_s = env_netx500_ethmac_s.SetBuildPath('targets/netx500/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx500)
+src_netx500_ethmac_s = env_netx500_ethmac_s.SetBuildPath('targets/netx500/standalone_ethmac', 'src', sources_standalone + sources_common + sources_netx500 + sources_netx500_ethmac_std)
 elf_netx500_ethmac_s = env_netx500_ethmac_s.Elf('targets/netx500/standalone_ethmac/eth_netx500.elf', src_netx500_ethmac_s + env_netx500_ethmac_s['PLATFORM_LIBRARY'] + lib_netx500_ethmac_l)
 #bb0_netx500_ethmac_s = env_netx500_ethmac_s.HBootImage('targets/netx500/standalone_ethmac/eth_ethmac_netx500.img', 'src/netx500/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx500_ethmac_s}))
 txt_netx500_ethmac_s = env_netx500_ethmac_s.ObjDump('targets/netx500/standalone_ethmac/eth_netx500.txt', elf_netx500_ethmac_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
@@ -278,7 +287,7 @@ env_netx90_eth2ps_s.CompileDb('targets/netx90/standalone_eth2ps/compile_commands
 env_netx90_eth2ps_s.Replace(LDFILE = 'src/netx90/netx90_standalone.ld')
 env_netx90_eth2ps_s.Append(CPPPATH = aCppPath)
 env_netx90_eth2ps_s.Append(CPPDEFINES = [['CFG_USE_ETHMAC', '0'], ['CFG_USE_ETH2PS', '1']])
-src_netx90_eth2ps_s = env_netx90_eth2ps_s.SetBuildPath('targets/netx90/standalone_eth2ps', 'src', sources_standalone + sources_common + sources_netx90)
+src_netx90_eth2ps_s = env_netx90_eth2ps_s.SetBuildPath('targets/netx90/standalone_eth2ps', 'src', sources_standalone + sources_common + sources_netx90 + sources_netx90_intphy_std)
 elf_netx90_eth2ps_s = env_netx90_eth2ps_s.Elf('targets/netx90/standalone_eth2ps/eth_netx90.elf', src_netx90_eth2ps_s + env_netx90_eth2ps_s['PLATFORM_LIBRARY'] + lib_netx90_eth2ps_l)
 bb0_netx90_eth2ps_s = env_netx90_eth2ps_s.HBootImage('targets/netx90/standalone_eth2ps/eth_eth2ps_netx90.img', 'src/netx90/COM_to_INTRAM.xml', HBOOTIMAGE_KNOWN_FILES=dict({'tElfCOM': elf_netx90_eth2ps_s}))
 txt_netx90_eth2ps_s = env_netx90_eth2ps_s.ObjDump('targets/netx90/standalone_eth2ps/eth_netx90.txt', elf_netx90_eth2ps_s, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])

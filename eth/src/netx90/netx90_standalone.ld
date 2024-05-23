@@ -20,10 +20,15 @@
 
 ENTRY(start)
 
+/* NOTE: Usually images start at address 0x00024000. This one is moved up to 0x00034000.
+ *       The reason for this is to enable an upload of the image in the ROM Webserver.
+ *       There the image is loaded to 0x00020000-0x0003....., and the first data section
+ *       is copied to 0x00024xxx . The image trashes itself.
+ */
 MEMORY
 {
 	ASSERT_EMPTY(rwx): ORIGIN = 0x00000000, LENGTH = 0
-	INTRAM(rwx):       ORIGIN = 0x00024000, LENGTH = 0x0001c000
+	INTRAM(rwx):       ORIGIN = 0x00034000, LENGTH = 0x0001c000
 }
 
 

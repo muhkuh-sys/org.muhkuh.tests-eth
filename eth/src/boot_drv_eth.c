@@ -384,7 +384,7 @@ int ethernet_init(ETHERNET_PORT_CONFIGURATION_T *atEthCfg, NETWORK_DRIVER_T *atN
 		}
 		else
 		{
-			if( ptEthCfg->acName==NULL )
+			if( ptEthCfg->acName[0]==0 )
 			{
 				uprintf("ERROR: the name of interface %d is not set.\n", uiInterfaceIndex);
 				iResult = -1;

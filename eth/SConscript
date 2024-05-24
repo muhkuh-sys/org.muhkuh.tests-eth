@@ -221,7 +221,7 @@ sources_standalone = """
 
 #----------------------------------------------------------------------------
 #
-# Build the crc test.
+# Build the Muhkuh and standalone versions.
 #
 aCppPath = [
     'src',

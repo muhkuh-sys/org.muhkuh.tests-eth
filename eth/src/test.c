@@ -365,7 +365,7 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	iResult = ethernet_deinit(g_t_romloader_options.t_ethernet.atPorts, atNetworkDriver);
 	if( iResult!=0 )
 	{
-		uprintf("Failed to initialize the Ethernet driver: %d\n", iResult);
+		uprintf("Failed to de-init the Ethernet driver: %d\n", iResult);
 		tTestResult = TEST_RESULT_ERROR_STARTUP_PROCESS;
 	}
 

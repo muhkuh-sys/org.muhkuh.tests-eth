@@ -43,6 +43,9 @@ SECTIONS
 
     .xcCode0 ORIGIN(INTRAM_XC0) :
     {
+		KEEP(*(.header))
+		*(.init_code)
+        *options_default.o(.rodata)
         *rpu_ethmac0.o(.rodata)
         *tpu_ethmac0.o(.rodata)
         *xpec_ethmac0.o(.rodata)
@@ -72,9 +75,7 @@ SECTIONS
 
 	.code ORIGIN(INTRAM_CODE) :
 	{
-		load_address = . ;
-		KEEP(*(.header))
-		*(.init_code .text* .rodata*)
+		*(.text* .rodata*)
 	} >INTRAM_CODE
 
 
@@ -86,11 +87,9 @@ SECTIONS
 	} >INTRAM_BSS
 
 
-	.parameter ALIGN(0x0100) :
+	.parameter :
 	{
-		parameter_start_address = . ;
-		. = . + 0x0400;
-		parameter_end_address = . ;
+		KEEP(*(.params))
 	} >INTRAM_BSS
 
 

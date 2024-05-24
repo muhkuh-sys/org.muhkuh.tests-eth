@@ -27,7 +27,7 @@
 #define IPV4(ip3,ip2,ip1,ip0) ((unsigned long)((ip0<<24)|(ip1<<16)|(ip2<<8)|ip3))
 
 #define ETHTEST_PARAMETER_BLOCK_MAGIC 0x41504152
-#define ETHTEST_PARAMETER_BLOCK_VERSION 0x00010000
+#define ETHTEST_PARAMETER_BLOCK_VERSION 0x00020000
 
 typedef struct ETH_PARAMETER_STRUCT
 {
@@ -36,6 +36,7 @@ typedef struct ETH_PARAMETER_STRUCT
 	unsigned long ulVerbose;
 	unsigned long ulLinkUpTimeout;
 	unsigned long ulMaximumTransferTime;
+	unsigned long ulExitMethod;
 	ETHERNET_PORT_CONFIGURATION_T atPortConfiguration[MAX_NETWORK_INTERFACES];
 } ETH_PARAMETER_T;
 
@@ -53,5 +54,12 @@ typedef enum TEST_RESULT_ENUM
 	TEST_RESULT_ERROR_BOARD_INIT = 7
 } TEST_RESULT_T;
 
+
+typedef enum EXIT_METHOD_ENUM
+{
+	EXIT_METHOD_Stop = 0,
+	EXIT_METHOD_Return = 1,
+	EXIT_METHOD_Reset = 2
+} EXIT_METHOD_T;
 
 #endif  /* __TEST_INTERFACE_H__ */

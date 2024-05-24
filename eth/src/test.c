@@ -178,6 +178,7 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 	int iAllInterfacesUp;
 	ETHERNET_TEST_RESULT_T tResult;
 	int iAllPortsFinished;
+	int iShutdownRequested;
 	unsigned long ulIp;
 	unsigned long ulTimeout;
 	TIMER_HANDLE_T tTimeout;
@@ -305,6 +306,7 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 
 			/* Expect all ports to be finished. */
 			iAllPortsFinished = 1;
+			iShutdownRequested = 0;
 
 			for(uiCnt=0; uiCnt<MAX_NETWORK_INTERFACES; ++uiCnt)
 			{
@@ -316,6 +318,10 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 					break;
 
 				case ETHERNET_TEST_RESULT_FinishedOk:
+					break;
+
+				case ETHERNET_TEST_RESULT_ShutdownRequested:
+					iShutdownRequested = 1;
 					break;
 
 				case ETHERNET_TEST_RESULT_Error:
@@ -334,6 +340,11 @@ TEST_RESULT_T test(const ETH_PARAMETER_T *ptTestParams)
 					tTestResult = TEST_RESULT_ERROR_MAX_TRANSFER_TIME;
 					break;
 				}
+			}
+
+			if( iShutdownRequested!=0 )
+			{
+				break;
 			}
 
 			rdy_run_blinki(&tBlinki);

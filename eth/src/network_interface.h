@@ -304,6 +304,7 @@ typedef struct NETWORK_DRIVER_STRUCT
 	int f_is_configured;
 	unsigned int uiPort;
 	NETWORK_STATE_T tState;
+	int f_shutdown_requested;
 	NETWORK_IF_T tNetworkIf;
 	PFN_NETWORK_DRIVER_HANDLE_RECEIVED_PACKET pfnHandleReceivedPacket;
 	ETHERNET_PORT_CONFIGURATION_T tEthernetPortCfg;

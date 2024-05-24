@@ -18,6 +18,10 @@
 #include "uprintf.h"
 
 
+/* This is the shutdown magic. If the echo server receives a packet with exactly this data, it is stopped. */
+static const char acShutdownMagic[] = "Shutdown";
+
+
 static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *pvData, unsigned int sizPacket, void *pvUser __attribute__((unused)))
 {
 	int iResult;
@@ -34,6 +38,15 @@ static void echo_server_process_packet(NETWORK_DRIVER_T *ptNetworkDriver, void *
 
 		/* Cast the data to a eth2 packet. */
 		ptPkt = (ETH2_PACKET_T*)pvData;
+
+		/* Is this packet a reset magic? */
+		if(
+			sizPacket==sizeof(acShutdownMagic) &&
+			memcmp(acShutdownMagic, (unsigned char*)(&(ptPkt->uEth2Data.tIpPkt.uIpData.tUdpPkt.uUdpData)), sizPacket)==0
+		) {
+			/* Yes, this is a shutdown magic. */
+			ptNetworkDriver->f_shutdown_requested = 1U;
+		}
 
 		/* Allocate a new packet. */
 		iResult = eth_get_empty_packet(ptNetworkDriver, &ptSendPacket, &phSendPacket);
@@ -1278,6 +1291,12 @@ ETHERNET_TEST_RESULT_T ethernet_test_process(NETWORK_DRIVER_T *ptNetworkDriver)
 					{
 						/* The server should keep running. This is necessary for tests between 2 devices. */
 						tResult = ETHERNET_TEST_RESULT_InProgress;
+						/* Stop the server if a shutdown was requested. */
+						if( ptNetworkDriver->f_shutdown_requested!=0 )
+						{
+							tState = NETWORK_STATE_Ok;
+							tResult = ETHERNET_TEST_RESULT_ShutdownRequested;
+						}
 					}
 					break;
 

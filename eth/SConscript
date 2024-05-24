@@ -170,6 +170,8 @@ lib_netx90_eth2ps_l = env_netx90_eth2ps_l.StaticLibrary('targets/netx90/libeth2p
 # (i.e. spaces, tabs, newlines). The amount of whitespace does not matter.
 
 sources_netx90 = """
+    src/board/netx90/reset.c
+    src/board/netx90/stop.c
     src/driver/hal_muhkuh.c
 """
 
@@ -179,6 +181,8 @@ sources_netx90_intphy_std = """
 """
 
 sources_netx500 = """
+    src/board/netx500/reset.c
+    src/board/netx500/stop.c
     src/driver/hal_muhkuh.c
 """
 

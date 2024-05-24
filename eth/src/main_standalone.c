@@ -77,6 +77,23 @@ void main_standalone(void)
 	uprintf("Parameters: 0x%08x\n", (unsigned long)ptTestParams);
 	uprintf("  Verbose: 0x%08x\n", ptTestParams->ulVerbose);
 
+	/* Parse the exit method. */
+	tExitMethod = (EXIT_METHOD_T)(ptTestParams->ulExitMethod);
+	iResult = -1;
+	switch(tExitMethod)
+	{
+		case EXIT_METHOD_Stop:
+		case EXIT_METHOD_Return:
+		case EXIT_METHOD_Reset:
+			iResult = 0;
+			break;
+	}
+	if( iResult!=0 )
+	{
+		uprintf("Invalid exit mode: 0x%08x. Defaulting to 'STOP'.\n");
+		tExitMethod = EXIT_METHOD_Stop;
+	}
+
 	/* Copy the configuration to the option structure. */
 	memcpy(&g_t_romloader_options.t_ethernet.atPorts, ptTestParams->atPortConfiguration, sizeof(g_t_romloader_options.t_ethernet.atPorts));
 
@@ -102,33 +119,21 @@ void main_standalone(void)
 		rdy_run_setLEDs(RDYRUN_YELLOW);
 	}
 
-	/* Stop in an endless loop. */
-	uprintf("Stopped.\n");
-	while(1)
-	{
-#if ASIC_TYP==ASIC_TYP_NETX500
-		__asm__("NOP");
-#elif ASIC_TYP==ASIC_TYP_NETX50
-		__asm__("NOP");
-#elif ASIC_TYP==ASIC_TYP_NETX10
-		__asm__("NOP");
-#elif ASIC_TYP==ASIC_TYP_NETX56
-		__asm__("NOP");
-#elif ASIC_TYP==ASIC_TYP_NETX6
-#       error "netX6 is not yet supported"
 
-#elif ASIC_TYP==ASIC_TYP_NETX4000
-		__asm__("WFE");
-#elif ASIC_TYP==ASIC_TYP_NETX90_MPW
-		__asm__("WFE");
-#elif ASIC_TYP==ASIC_TYP_NETX90_MPW_APP
-		__asm__("WFE");
-#elif ASIC_TYP==ASIC_TYP_NETX90
-		__asm__("WFE");
-#elif ASIC_TYP==ASIC_TYP_NETX90_APP
-		__asm__("WFE");
-#else
-#       error "Invalid ASIC_TYP!"
-#endif
+	switch(tExitMethod)
+	{
+		case EXIT_METHOD_Stop:
+			/* Stop in an endless loop. */
+			uprintf("Stopped.\n");
+			board_stop_cpu();
+			break;
+
+		case EXIT_METHOD_Return:
+			break;
+
+		case EXIT_METHOD_Reset:
+			uprintf("Reset.\n");
+			board_reset();
+			break;
 	}
 }

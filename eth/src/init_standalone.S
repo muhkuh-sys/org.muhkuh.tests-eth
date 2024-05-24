@@ -24,11 +24,20 @@
 start:
 @----------------------------------------------------------------------------
 @
-@ Switch to the new stack.
+@ Save the registers and switch to the new stack.
 @
+	@ Save all working register.
+	push    {r4, lr}
+
+	@ Save the old stack position.
+	mov     r3, sp
+
 	@ Set own stack position.
 	ldr     r2, =stack_top
 	mov     sp, r2
+
+	@ Store the old stack position on the new stack.
+	push    {r3}
 
 
 @----------------------------------------------------------------------------
@@ -50,7 +59,20 @@ clear_bss:
 @ This shoul never return.
 @
 	@ Call the main routine. It requires the pointer to the parameter block in r0.
-	b       main_standalone
+	bl      main_standalone
+
+
+@----------------------------------------------------------------------------
+@
+@ Restore the registers and switch to the old stack.
+@
+	@ Restore the old stack position.
+	pop     {r4}
+	mov     sp, r4
+
+	@ Restore the working register.
+	pop     {r4, lr}
+	bx      lr
 
     .endfunc
 

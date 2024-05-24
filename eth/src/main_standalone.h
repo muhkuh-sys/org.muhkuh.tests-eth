@@ -25,7 +25,8 @@
 #define __MAIN_STANDALONE_H__
 
 
-void main_standalone(void) __attribute__ ((noreturn));
+const ETH_PARAMETER_T tEthernetParameter;
+
 
 
 #endif  /* __MAIN_STANDALONE_H__ */

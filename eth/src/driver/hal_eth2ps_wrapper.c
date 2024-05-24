@@ -15,7 +15,7 @@
 #include "HETH2PS/ARM_Application/Targets/Includes/sys.h"
 
 #define EXTPHY_MDIO_ADDR_PORT0 0x0  /* MDIO hardware address of the external PHY on port 0 */
-#define EXTPHY_MDIO_ADDR_PORT1 0x1  /* MDIO hardware address of the external PHY on port 1, if connected */
+#define EXTPHY_MDIO_ADDR_PORT1 0x3  /* MDIO hardware address of the external PHY on port 1, if connected */
 
 #define INGRESS_LATENCY (200 + 20) /* default is internal OmniPhy EPHY (latency_red=0) + half clock period due timestamp reference point at rising edge of MII.RxClk */
 #define EGRESS_LATENCY  116 /* default is internal OmniPhy PHY */

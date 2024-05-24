@@ -71,16 +71,16 @@ atEnv.DEFAULT.Version('targets/version/version.h', 'templates/version.h')
 # Build all sub-projects.
 #
 SConscript('eth/SConscript')
-Import(
-    'ETH_ETHMAC_NETX90',
-    'ETH_ETH2PS_NETX90',
-    "ETH_ETHMAC_NETX500",
-#    'ETH_NETX90_MPW',
-#    'ETH_NETX500',
-#    'ETH_NETX4000',
-
-    'LUA_TEST_CLASS_ETH'
-)
+Import('LUA_TEST_CLASS_ETH')
+if hasattr(atEnv, 'NETX90') == True:
+    Import(
+        'ETH_ETHMAC_NETX90',
+        'ETH_ETH2PS_NETX90'
+    )
+if hasattr(atEnv, 'NETX500') == True:
+    Import(
+        "ETH_ETHMAC_NETX500",
+    )
 
 
 #SConscript('board_configs/SConscript')
@@ -126,42 +126,47 @@ tDoc = atEnv.DEFAULT.Asciidoc(
 #
 # Build the artifacts.
 #
-strGroup = 'org.muhkuh.tests'
-strModule = 'eth'
+if (hasattr(atEnv, 'NETX90') == True) and (hasattr(atEnv, 'NETX500') == True):
+    strGroup = 'org.muhkuh.tests'
+    strModule = 'eth'
 
-# Split the group by dots.
-aGroup = strGroup.split('.')
-# Build the path for all artifacts.
-strModulePath = 'targets/jonchki/repository/%s/%s/%s' % ('/'.join(aGroup), strModule, PROJECT_VERSION)
+    # Split the group by dots.
+    aGroup = strGroup.split('.')
+    # Build the path for all artifacts.
+    strModulePath = 'targets/jonchki/repository/%s/%s/%s' % ('/'.join(aGroup), strModule, PROJECT_VERSION)
 
-# Set the name of the artifact.
-strArtifact0 = 'eth'
+    # Set the name of the artifact.
+    strArtifact0 = 'eth'
 
-tArcList0 = atEnv.DEFAULT.ArchiveList('zip')
-tArcList0.AddFiles('netx/',
-#    ETH_NETX90_MPW,
-    ETH_ETHMAC_NETX90,
-    ETH_ETH2PS_NETX90,
-    ETH_ETHMAC_NETX500,
-#    ETH_NETX500,
-#    ETH_NETX4000
-)
-tArcList0.AddFiles('lua/',
-    LUA_TEST_CLASS_ETH)
-tArcList0.AddFiles('templates',
-    'eth/lua/test.lua')
-#tArcList0.AddFiles('doc/',
-#    tDoc)
-tArcList0.AddFiles('',
-    'installer/jonchki/install.lua',
-    'installer/jonchki/install_testcase.lua')
+    tArcList0 = atEnv.DEFAULT.ArchiveList('zip')
+    tArcList0.AddFiles('netx/',
+#        ETH_NETX90_MPW,
+        ETH_ETHMAC_NETX90,
+        ETH_ETH2PS_NETX90,
+        ETH_ETHMAC_NETX500,
+#        ETH_NETX500,
+#        ETH_NETX4000
+    )
+    tArcList0.AddFiles('lua/',
+        LUA_TEST_CLASS_ETH)
+    tArcList0.AddFiles('templates',
+        'eth/lua/test.lua')
+#    tArcList0.AddFiles('doc/',
+#        tDoc)
+    tArcList0.AddFiles('',
+        'installer/jonchki/install.lua',
+        'installer/jonchki/install_testcase.lua')
 
-tArtifact0 = atEnv.DEFAULT.Archive(os.path.join(strModulePath, '%s-%s.zip' % (strArtifact0, PROJECT_VERSION)), None, ARCHIVE_CONTENTS = tArcList0)
-tArtifact0Hash = atEnv.DEFAULT.Hash('%s.hash' % tArtifact0[0].get_path(), tArtifact0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
-tConfiguration0 = atEnv.DEFAULT.Version(os.path.join(strModulePath, '%s-%s.xml' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/%s.xml' % strModule)
-tConfiguration0Hash = atEnv.DEFAULT.Hash('%s.hash' % tConfiguration0[0].get_path(), tConfiguration0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
-tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s.pom' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/pom.xml')
+    tArtifact0 = atEnv.DEFAULT.Archive(os.path.join(strModulePath, '%s-%s.zip' % (strArtifact0, PROJECT_VERSION)), None, ARCHIVE_CONTENTS = tArcList0)
+    tArtifact0Hash = atEnv.DEFAULT.Hash('%s.hash' % tArtifact0[0].get_path(), tArtifact0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
+    tConfiguration0 = atEnv.DEFAULT.Version(os.path.join(strModulePath, '%s-%s.xml' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/%s.xml' % strModule)
+    tConfiguration0Hash = atEnv.DEFAULT.Hash('%s.hash' % tConfiguration0[0].get_path(), tConfiguration0[0].get_path(), HASH_ALGORITHM='md5,sha1,sha224,sha256,sha384,sha512', HASH_TEMPLATE='${ID_UC}:${HASH}\n')
+    tArtifact0Pom = atEnv.DEFAULT.ArtifactVersion(os.path.join(strModulePath, '%s-%s.pom' % (strArtifact0, PROJECT_VERSION)), 'installer/jonchki/pom.xml')
 
+else:
+    print("*** WARNING ***")
+    print("No artifacts generated as not all build targets are enabled.")
+    print("*** WARNING ***")
 
 #----------------------------------------------------------------------------
 #

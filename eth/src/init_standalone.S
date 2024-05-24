@@ -4,6 +4,7 @@
 	.extern stack_top
 
 	.global start
+    .global tEthernetParameter
 
 #include "asic_types.h"
 
@@ -56,9 +57,9 @@ clear_bss:
 @----------------------------------------------------------------------------
 @
 @ Call the main routine.
-@ This shoul never return.
 @
 	@ Call the main routine. It requires the pointer to the parameter block in r0.
+	ldr     r0, =tEthernetParameter
 	bl      main_standalone
 
 

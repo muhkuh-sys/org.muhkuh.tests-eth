@@ -43,18 +43,18 @@
 
 UART_STANDALONE_DEFINE_GLOBALS
 
-static const ETH_PARAMETER_T tEthernetParameter =
+const ETH_PARAMETER_T tEthernetParameter __attribute__ ((section(".params"))) =
 {
 	.ulMagic = ETHTEST_PARAMETER_BLOCK_MAGIC,
 	.ulStructureVersion = ETHTEST_PARAMETER_BLOCK_VERSION,
 };
 
 
-void main_standalone(void)
+void main_standalone(const ETH_PARAMETER_T *ptTestParams)
 {
 	TEST_RESULT_T tTestResult;
 	int iResult;
-	const ETH_PARAMETER_T *ptTestParams;
+	EXIT_METHOD_T tExitMethod;
 
 
 	systime_init();
@@ -63,9 +63,6 @@ void main_standalone(void)
 #if ASIC_TYP==ASIC_TYP_NETX4000_RELAXED || ASIC_TYP==ASIC_TYP_NETX4000
 	cr7_global_timer_initialize();
 #endif
-
-	/* Use the static Ethernet parameters. */
-	ptTestParams = &tEthernetParameter;
 
 	uprintf("\f. *** Ethernet test by doc_bacardi@users.sourceforge.net ***\n");
 	uprintf("V" VERSION_ALL "\n\n");

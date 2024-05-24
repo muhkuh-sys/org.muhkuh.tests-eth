@@ -27,6 +27,7 @@
 
 const ETH_PARAMETER_T tEthernetParameter;
 
+void main_standalone(const ETH_PARAMETER_T *ptTestParams);
 
 
 #endif  /* __MAIN_STANDALONE_H__ */

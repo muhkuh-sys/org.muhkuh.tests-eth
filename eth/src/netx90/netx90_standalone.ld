@@ -62,6 +62,10 @@ SECTIONS
 		__bss_end__ = . ;
 	} >INTRAM
 
+	.parameter :
+	{
+		KEEP(*(.params))
+	} >INTRAM
 
 	.stack :
 	{

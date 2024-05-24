@@ -4,6 +4,7 @@
     "ulVerbose":true,
     "ulLinkUpTimeout":4000,
     "ulMaximumTransferTime":0,
+    "ulExitMethod":"Stop",
     "atPortConfiguration":[
         {
             "acName":"CH0",

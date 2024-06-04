@@ -14,11 +14,11 @@ function TestClassEth:_init(strTestName, uiTestCase, tLogWriter, strLogLevel)
   self.ulEthernetParameterBlockMagic = ${ETHTEST_PARAMETER_BLOCK_MAGIC}
   self.ulEthernetParameterBlockVersion = ${ETHTEST_PARAMETER_BLOCK_VERSION}
 
-  self.atExitMethod = {
-    ['Stop']     = ${EXIT_METHOD_Stop},
-    ['Return']   = ${EXIT_METHOD_Return},
-    ['Reset']    = ${EXIT_METHOD_Reset}
-  }
+  -- self.atExitMethod = {
+  --   ['Stop']     = ${EXIT_METHOD_Stop},
+  --   ['Return']   = ${EXIT_METHOD_Return},
+  --   ['Reset']    = ${EXIT_METHOD_Reset}
+  -- }
 
   local atInterface = {
     ['None']            = ${INTERFACE_None},
@@ -434,7 +434,7 @@ function TestClassEth:run()
     ['ulVerbose'] = 1,
     ['ulLinkUpTimeout'] = atParameter['link_up_timeout']:get(),
     ['ulMaximumTransferTime'] = atParameter['maximum_transfer_time']:get(),
-    ['ulExitMethod'] =self.atExitMethod.Return,
+    -- ['ulExitMethod'] =self.atExitMethod.Return,
 
     {
       ['acName'] = port0_name,

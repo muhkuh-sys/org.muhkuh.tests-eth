@@ -315,3 +315,5 @@ if hasattr(atEnv, 'NETX90') == True:
 #
 LUA_TEST_CLASS_ETH = env_netx90_ethmac_t.GccSymbolTemplate('targets/lua/test_class_eth.lua', elf_netx90_ethmac_t, GCCSYMBOLTEMPLATE_TEMPLATE=File('lua/test_class_eth.lua'))
 Export('LUA_TEST_CLASS_ETH')
+LUA_PATCH_STANDALONE = env_netx90_ethmac_s.GccSymbolTemplate('targets/lua/patch_eth_standalone.lua', elf_netx90_ethmac_s, GCCSYMBOLTEMPLATE_TEMPLATE=File('lua/patch_eth_standalone.lua'))
+Export('LUA_PATCH_STANDALONE')

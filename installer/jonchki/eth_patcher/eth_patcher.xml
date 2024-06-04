@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jonchki-artifact version="1.0">
+	<info group="com.hilscher.ptd.muhkuh_tests"
+	      module="eth"
+	      artifact="eth-patcher"
+	      version="0.0.1"
+	      vcs-id="GITabc">
+		<license name="GPL-2.0"/>
+		<author name="Muhkuh Team" url="https://github.com/muhkuh-sys" />
+		<description>A patcher for ETH standalone images.</description>
+	</info>
+	<dependencies>
+		<dependency group="org.lua" module="lua" artifact="lua" version="5.4"/>
+		<dependency group="com.github.lunarmodules" module="Penlight" artifact="Penlight" version="1"/>
+		<dependency group="com.github.moteus" module="lua-log" artifact="lua-log" version="0.1"/>
+		<dependency group="com.github.mpeterv" module="argparse" artifact="argparse" version="0"/>
+		<dependency group="com.github.toxicfrog" module="vstruct" artifact="vstruct" version="2"/>
+		<dependency group="de.dkolf" module="dkjson" artifact="dkjson" version="2"/>
+		<dependency group="org.muhkuh.lua" module="mhash" artifact="lua5.4-mhash" version="0.9"/>
+		<dependency group="com.github.Tencent" module="LuaPanda" artifact="LuaPanda" version="3"/>
+		<dependency group="com.github.lunarmodules" module="luasocket" artifact="lua5.4-luasocket" version="3"/>
+	</dependencies>
+	<actions>
+		<action name="finalizer" file="${prj_root}/installer/jonchki/eth_patcher/finalizer.lua"/>
+		<action name="pack" path="${prj_root}">
+			local t = ...
+
+			t:createPackageFile()
+			t:createHashFile()
+			t:createArchive('${prj_root}/targets/${default_archive_name}', 'native')
+
+			return true
+		</action>
+	</actions>
+</jonchki-artifact>

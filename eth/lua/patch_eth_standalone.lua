@@ -55,6 +55,17 @@ for k,v in pairs(atInterfaceFunctionName2Index) do
   atInterfaceFunctionIndex2Name[v] = k
 end
 
+local atExitMethodName2Index = {
+  ['Stop']     = ${EXIT_METHOD_Stop},
+  ['Return']   = ${EXIT_METHOD_Return},
+  ['Reset']    = ${EXIT_METHOD_Reset}
+}
+
+local atExitMethodIndex2Name = {}
+for k,v in pairs(atExitMethodName2Index) do
+  atExitMethodIndex2Name[v] = k
+end
+
 local atEthernetPortFlagsName2Bit = {
   ETHERNET_PORT_FLAG_Permanent       = 0x00000001,
   ETHERNET_PORT_FLAG_LinkDownAllowed = 0x00000002
@@ -81,6 +92,7 @@ local tRapaStruct = vstruct.compile([[
   ulVerbose:u4
   ulLinkUpTimeout:u4
   ulMaximumTransferTime:u4
+  ulExitMethod:u4
   atPortConfiguration:{
     2*{
       acName:z16
@@ -100,7 +112,7 @@ local tRapaStruct = vstruct.compile([[
     }
   }
 ]])
-local sizRapaStruct = 148
+local sizRapaStruct = 152
 
 ------------------------------------------------------------------------------
 --
@@ -151,6 +163,14 @@ end
 
 local function parseInterface(strInput)
   return atInterfaceName2Index[strInput]
+end
+
+local function formatExitMethod(ulInput)
+  return atExitMethodIndex2Name[ulInput]
+end
+
+local function parseExitMethod(strInput)
+  return atExitMethodName2Index[strInput]
 end
 
 local function formatFunction(ulInput)
@@ -237,6 +257,7 @@ local atFormatFunctions = {
   ulVerbose = formatVerbose,
   ulLinkUpTimeout = nil,
   ulMaximumTransferTime = nil,
+  ulExitMethod = formatExitMethod,
   atPortConfiguration = {
     {
       acName = nil,
@@ -279,6 +300,7 @@ local atParseFunctions = {
   ulVerbose = parseVerbose,
   ulLinkUpTimeout = nil,
   ulMaximumTransferTime = nil,
+  ulExitMethod = parseExitMethod,
   atPortConfiguration = {
     {
       acName = nil,
@@ -359,6 +381,7 @@ local strPrettyPrintTemplate = [[
   ulVerbose:             $(tostring(data.ulVerbose))
   ulLinkUpTimeout:       $(data.ulLinkUpTimeout)ms
   ulMaximumTransferTime: $(data.ulMaximumTransferTime)ms
+  ulExitMethod:          $(data.ulExitMethod)
 
   PortConfiguration 1:
     acName:                   $(data.atPortConfiguration[1].acName)
